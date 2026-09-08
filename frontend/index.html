@@ -3,28 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IQFleet - Gestión Inteligente de Flotas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>IQFleet - Plataforma Inteligente de Gestión de Flotas</title>
+  
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <!-- Bootstrap 5 JS Bundle CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body class="d-flex flex-column min-vh-100 justify-content-center align-items-center text-center p-4">
+<body class="bg-dark text-light">
 
-  <div class="container" style="max-width: 500px;">
-    <div class="mb-4">
-      <h1 class="display-3 fw-bold text-warning">IQ<span class="text-white">Fleet</span></h1>
-      <p class="lead text-secondary">Plataforma Inteligente de Gestión de Flotas de Transporte Público</p>
+  <!-- NAVBAR INSTITUCIONAL -->
+  <nav class="navbar navbar-expand-lg navbar-dark border-bottom border-secondary py-3 sticky-top bg-dark">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-4" href="#">IQ<span class="text-warning">Fleet</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link active" href="#inicio">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link text-secondary" href="#ficha">Ficha Técnica</a></li>
+          <li class="nav-item"><a class="nav-link text-secondary" href="#resumen">Resumen</a></li>
+          <li class="nav-item"><a class="nav-link text-secondary" href="#problematica">Diagnóstico</a></li>
+          <li class="nav-item"><a class="nav-link text-secondary" href="#objetivos">Objetivos</a></li>
+        </ul>
+        <a href="auth/login.html" class="btn btn-iq-primary px-4 fw-bold">INGRESAR AL SISTEMA</a>
+      </div>
     </div>
+  </nav>
 
-    <div class="p-5 auth-card mb-4">
-      <h2 class="h4 mb-3">Bienvenido al Sistema</h2>
-      <p class="text-secondary mb-4">Monitoreo operativo, control documental RUNT/CDA y gestión financiera en tiempo real.</p>
-      <a href="auth/login.html" class="btn btn-iq-primary btn-lg w-100">Ingresar a IQFleet</a>
+  <!-- HERO SECTION -->
+  <section id="inicio" class="py-5 container">
+    <div class="row align-items-center g-5 my-2">
+      <div class="col-lg-7 text-start">
+        <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-semibold">Universidad Popular del Cesar - Ingeniería</span>
+        <h1 class="display-4 fw-bold text-white mb-3">
+          IQFleet – Plataforma Inteligente de <span class="text-warning">Transporte Público</span>
+        </h1>
+        <p class="lead text-secondary mb-4">
+          Digitalización y gestión documental de flotas en Valledupar. Centralizando operaciones, control técnico-mecánico y liquidaciones en un ecosistema robusto y moderno.
+        </p>
+        <div class="d-flex flex-wrap gap-3 mb-5">
+          <a href="auth/login.html" class="btn btn-iq-primary btn-lg px-4">Ingresar al Proyecto</a>
+          <a href="#ficha" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-file-earmark-text me-2"></i>Ver Documento</a>
+        </div>
+        
+        <!-- Métricas Rápidas -->
+        <div class="row pt-4 border-top border-secondary text-start">
+          <div class="col-4">
+            <h3 class="fw-bold text-warning mb-0">100%</h3>
+            <small class="text-secondary text-uppercase">Prototipo Funcional</small>
+          </div>
+          <div class="col-4">
+            <h3 class="fw-bold text-white mb-0">Valledupar</h3>
+            <small class="text-secondary text-uppercase">Sistema Operativo</small>
+          </div>
+          <div class="col-4">
+            <h3 class="fw-bold text-white mb-0">v1.0</h3>
+            <small class="text-secondary text-uppercase">Arquitectura Mock</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="auth-card p-3 rounded-4 border border-secondary shadow-lg">
+          <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded-3 mb-3" alt="Flota Valledupar">
+          <div class="d-flex justify-content-between align-items-center px-2">
+            <div>
+              <span class="badge bg-success mb-1">Ruta Urbana Valledupar</span>
+              <h6 class="mb-0 text-white fw-bold">Monitoreo Operativo en Tiempo Real</h6>
+            </div>
+            <i class="bi bi-bus-front fs-2 text-warning"></i>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <footer class="text-secondary small">
-      &copy; 2026 IQFleet Valledupar - Todos los derechos reservados.
-    </footer>
-  </div>
+  <!-- FICHA TÉCNICA -->
+  <section id="ficha" class="py-5 bg-dark border-top border-bottom border-secondary">
+    <div class="container text-center py-4">
+      <span class="badge bg-outline-warning text-warning border border-warning mb-2 px-3 py-1">FICHA TÉCNICA Y REGISTRO ACADÉMICO</span>
+      <h2 class="fw-bold text-white mb-4">Descripción General del Proyecto</h2>
+      
+      <div class="auth-card p-4 mx-auto text-start rounded-3 border border-secondary" style="max-width: 850px;">
+        <div class="row g-3">
+          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 1 (TL):</span> <strong class="text-white d-block">Daniel Florez</strong></div>
+          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 2:</span> <strong class="text-white d-block">Jose Jorge</strong></div>
+          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 3:</span> <strong class="text-white d-block">Eduar</strong></div>
+          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 4:</span> <strong class="text-white d-block">Jose</strong></div>
+          <div class="col-md-6"><span class="text-secondary">INSTITUCIÓN:</span> <strong class="text-white d-block">Universidad Popular del Cesar (UPC)</strong></div>
+          <div class="col-md-6"><span class="text-secondary">ESTADO DEL PROYECTO:</span> <span class="badge bg-success ms-2">En Desarrollo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- RESUMEN EJECUTIVO -->
+  <section id="resumen" class="py-5 container">
+    <div class="auth-card p-5 rounded-4 border border-secondary my-4">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <i class="bi bi-journal-check text-warning fs-2"></i>
+        <h3 class="fw-bold text-white mb-0">Resumen Ejecutivo</h3>
+      </div>
+      <p class="text-secondary lead fs-6">
+        IQFleet digitaliza y centraliza la gestión administrativa de flotas de transporte público en Valledupar, transformando procesos manuales y dispersos en un entorno tecnológico de alta disponibilidad que garantiza trazabilidad operativa, auditoría documental rigurosa y eficiencia en la toma de decisiones.
+      </p>
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <span class="badge bg-secondary">Educación</span>
+        <span class="badge bg-secondary">UPC</span>
+        <span class="badge bg-secondary">Transporte Público</span>
+        <span class="badge bg-secondary">Gestión Documental</span>
+        <span class="badge bg-secondary">Valledupar</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIAGNÓSTICO Y PROBLEMÁTICA -->
+  <section id="problematica" class="py-5 bg-dark border-top border-secondary">
+    <div class="container text-center">
+      <span class="badge bg-warning text-dark mb-2 px-3 py-1 fw-bold">DIAGNÓSTICO Y CONTEXTO</span>
+      <h2 class="fw-bold text-white mb-5">Introducción y Problemática Identificada</h2>
+      
+      <div class="row g-4 text-start">
+        <div class="col-md-4">
+          <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
+            <i class="bi bi-search text-warning fs-2 mb-3 d-block"></i>
+            <h5 class="text-white fw-bold">Ineficiencia en Búsqueda</h5>
+            <p class="text-secondary small mb-0">Archivos físicos dispersos y lentitud operativa para verificar el estado de la flota y sus antecedentes.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
+            <i class="bi bi-exclamation-triangle text-warning fs-2 mb-3 d-block"></i>
+            <h5 class="text-white fw-bold">Vencimientos Descontrolados</h5>
+            <p class="text-secondary small mb-0">Riesgo constante de multas e inmovilizaciones por SOAT, RUNT o CDA vencidos sin alertas previas.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
+            <i class="bi bi-graph-down text-warning fs-2 mb-3 d-block"></i>
+            <h5 class="text-white fw-bold">Ausencia de Control Financiero</h5>
+            <p class="text-secondary small mb-0">Falta de trazabilidad diaria sobre producido, combustible y liquidación individual de conductores.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJETIVOS DEL PROYECTO -->
+  <section id="objetivos" class="py-5 container">
+    <div class="row g-4 text-start my-3">
+      <div class="col-md-6">
+        <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
+          <h4 class="fw-bold text-white mb-3"><i class="bi bi-shield-check text-warning me-2"></i>Justificación del Proyecto</h4>
+          <ul class="text-secondary small list-unstyled d-flex flex-column gap-3">
+            <li><strong class="text-white">Impacto Operativo:</strong> Optimización en los tiempos de respuesta y consulta documental.</li>
+            <li><strong class="text-white">Toma de Decisiones:</strong> Basada en datos consolidados en tiempo real.</li>
+            <li><strong class="text-white">Mitigación de Riesgos:</strong> Control estricto del cumplimiento legal y normativo del parque automotor.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
+          <h4 class="fw-bold text-white mb-3"><i class="bi bi-target text-warning me-2"></i>Objetivos del Sistema</h4>
+          <ul class="text-secondary small list-unstyled d-flex flex-column gap-3">
+            <li><strong class="text-white">Objetivo General:</strong> Desarrollar una plataforma web centralizada para el control documental y operativo de transporte público en Valledupar.</li>
+            <li><strong class="text-white">Alertas Automatizadas:</strong> Prevenir vencimientos de documentos clave.</li>
+            <li><strong class="text-white">Gestión Financiera:</strong> Módulo de caja diaria para el registro de ingresos y egresos.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-4 border-top border-secondary text-secondary small bg-dark">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>&copy; 2026 IQFleet Valledupar - Todos los derechos reservados.</div>
+      <div class="d-flex gap-3">
+        <a href="#" class="text-secondary"><i class="bi bi-github fs-5"></i></a>
+        <a href="#" class="text-secondary"><i class="bi bi-envelope fs-5"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  
 </body>
 </html>
