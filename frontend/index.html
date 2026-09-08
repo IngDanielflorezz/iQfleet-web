@@ -1,195 +1,450 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IQFleet - Plataforma Inteligente de Gestión de Flotas</title>
-  
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iQFleet — Landing Page Proyecto</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-  <!-- Bootstrap 5 JS Bundle CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="assets/css/styles.css">
+<!-- 1. Bootstrap 5.3.3 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+<!-- 2. FontAwesome (Iconos) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<!-- 3. Hoja de estilos personalizada -->
+<link href="./assets/css/styles.css" rel="stylesheet">
 </head>
-<body class="bg-dark text-light">
+<body class="bg-white text-dark antialiased">
 
-  <!-- NAVBAR INSTITUCIONAL -->
-  <nav class="navbar navbar-expand-lg navbar-dark border-bottom border-secondary py-3 sticky-top bg-dark">
-    <div class="container">
-      <a class="navbar-brand fw-bold fs-4" href="#">IQ<span class="text-warning">Fleet</span></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+<!-- ================= 1. ENCABEZADO (HEADER) ================= -->
+<header class="sticky-top bg-white bg-opacity-95 border-bottom">
+  <nav class="navbar navbar-expand-md">
+    <div class="container-fluid px-4" style="max-width:1280px;">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#inicio">
+        <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning shadow" style="width:44px;height:44px;">
+          <span class="text-white fw-bold fs-4">iQ</span>
+        </div>
+        <div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="fs-4 fw-bold text-dark">iQFleet</span>
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle text-uppercase" style="font-size:10px;">Académico</span>
+          </div>
+          <p class="mb-0 text-secondary" style="font-size:11px;">Plataforma Inteligente de Transporte Público</p>
+        </div>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
-        <ul class="navbar-nav mx-auto">
-          <li class="nav-item"><a class="nav-link active" href="#inicio">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link text-secondary" href="#ficha">Ficha Técnica</a></li>
-          <li class="nav-item"><a class="nav-link text-secondary" href="#resumen">Resumen</a></li>
-          <li class="nav-item"><a class="nav-link text-secondary" href="#problematica">Diagnóstico</a></li>
-          <li class="nav-item"><a class="nav-link text-secondary" href="#objetivos">Objetivos</a></li>
+
+      <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+        <ul class="navbar-nav gap-md-4 align-items-md-center">
+          <li class="nav-item"><a class="nav-link fw-semibold text-dark" href="#inicio">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link fw-medium text-secondary" href="#proyecto">Proyecto</a></li>
+          <li class="nav-item"><a class="nav-link fw-medium text-secondary" href="#problema">Problemática</a></li>
+          <li class="nav-item"><a class="nav-link fw-medium text-secondary" href="#objetivos">Objetivos</a></li>
+          <li class="nav-item"><a class="nav-link fw-medium text-secondary" href="#contacto">Contacto</a></li>
+          <li class="nav-item ms-md-2 mt-2 mt-md-0">
+            <a class="btn btn-warning text-white fw-bold d-flex align-items-center gap-2" href="#proyecto">
+              <span>Ver Ficha Técnica</span>
+              <i class="fa-solid fa-arrow-down fa-xs"></i>
+            </a>
+          </li>
         </ul>
-        <a href="auth/login.html" class="btn btn-iq-primary px-4 fw-bold">INGRESAR AL SISTEMA</a>
       </div>
     </div>
   </nav>
+</header>
 
-  <!-- HERO SECTION -->
-  <section id="inicio" class="py-5 container">
-    <div class="row align-items-center g-5 my-2">
-      <div class="col-lg-7 text-start">
-        <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-semibold">Universidad Popular del Cesar - Ingeniería</span>
-        <h1 class="display-4 fw-bold text-white mb-3">
-          IQFleet – Plataforma Inteligente de <span class="text-warning">Transporte Público</span>
+<!-- ================= 2. SECCIÓN HERO ================= -->
+<section class="position-relative pt-5 pb-5 bg-grid-light border-bottom overflow-hidden" id="inicio">
+  <div class="container px-4" style="max-width:1280px;">
+    <div class="row align-items-center g-5">
+      <!-- Texto Hero -->
+      <div class="col-lg-6">
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill mb-3">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>Universidad Popular del Cesar • Ingeniería</span>
+        </span>
+        <h1 class="display-5 fw-bold text-dark lh-sm mb-3">
+          iQFleet — <span class="text-warning">Plataforma Inteligente</span> de Transporte Público
         </h1>
-        <p class="lead text-secondary mb-4">
-          Digitalización y gestión documental de flotas en Valledupar. Centralizando operaciones, control técnico-mecánico y liquidaciones en un ecosistema robusto y moderno.
+        <p class="fs-5 text-secondary mb-4" style="max-width:36rem;">
+          Digitalización y gestión documental de flotas en Valledupar. Centralizando operaciones, vencimientos y telemetría en un ecosistema robusto y moderno.
         </p>
-        <div class="d-flex flex-wrap gap-3 mb-5">
-          <a href="auth/login.html" class="btn btn-iq-primary btn-lg px-4">Ingresar al Proyecto</a>
-          <a href="#ficha" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-file-earmark-text me-2"></i>Ver Documento</a>
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <a class="btn btn-warning btn-lg text-white fw-bold d-flex align-items-center gap-2 shadow" href="#proyecto">
+            <span>Conoce el Proyecto</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <a class="btn btn-outline-secondary btn-lg d-flex align-items-center gap-2 bg-white btn-hover-zoom" href="auth/login.html">
+            <i class="fa-solid fa-arrow-right-to-bracket text-warning"></i>
+            <span>Iniciar Sesión</span>
+          </a>
         </div>
-        
-        <!-- Métricas Rápidas -->
-        <div class="row pt-4 border-top border-secondary text-start">
+        <!-- Métricas de impacto -->
+        <div class="row border-top pt-3">
           <div class="col-4">
-            <h3 class="fw-bold text-warning mb-0">100%</h3>
-            <small class="text-secondary text-uppercase">Prototipo Funcional</small>
+            <div class="fs-4 fw-bold text-dark">100%</div>
+            <div class="text-secondary" style="font-size:12px;">Digitalización documental</div>
           </div>
           <div class="col-4">
-            <h3 class="fw-bold text-white mb-0">Valledupar</h3>
-            <small class="text-secondary text-uppercase">Sistema Operativo</small>
+            <div class="fs-4 fw-bold text-warning">Valledupar</div>
+            <div class="text-secondary" style="font-size:12px;">Territorio de aplicación</div>
           </div>
           <div class="col-4">
-            <h3 class="fw-bold text-white mb-0">v1.0</h3>
-            <small class="text-secondary text-uppercase">Arquitectura Mock</small>
+            <div class="fs-4 fw-bold text-dark">v1.0</div>
+            <div class="text-secondary" style="font-size:12px;">Versión académica</div>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-5">
-        <div class="auth-card p-3 rounded-4 border border-secondary shadow-lg">
-          <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded-3 mb-3" alt="Flota Valledupar">
-          <div class="d-flex justify-content-between align-items-center px-2">
-            <div>
-              <span class="badge bg-success mb-1">Ruta Urbana Valledupar</span>
-              <h6 class="mb-0 text-white fw-bold">Monitoreo Operativo en Tiempo Real</h6>
+      <!-- Imagen Hero Flota -->
+      <div class="col-lg-6">
+        <div class="rounded-4 p-2 shadow border" style="background:linear-gradient(to top right,#fef3c7,#f1f5f9,#fde68a80);">
+          <div class="rounded-3 overflow-hidden position-relative bg-dark" style="aspect-ratio:16/9;">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1VwV2-XCh0fvW2Z5wM1yJY50hUFaB0oNdIYiwALLhT2E6mr1bYG2kG_IAmWPm_Z7NvkKjXUXxsxcuQP4DQeln3hVTlUAYETh_VVMeu5e2nrIc5UD1RL0XN5re7ciTio1diYVFL8Jet1MlmX0Rnpq9waK8bdatqkPhCqh9PQhOOrmn6YO8VxObA_Qg4eNocqGLuksEB6z9RrX0kp9Rc2ZhLVPvpJHtMzX2rrN81oJL7b_tfiOhJssFHTIEQ"
+                 class="w-100 h-100" style="object-fit:cover;object-position:center;"
+                 alt="Flota de transporte público iQFleet en Valledupar con vista a las montañas">
+            <div class="position-absolute bottom-0 start-0 end-0 m-3 bg-white bg-opacity-95 p-3 rounded-3 border shadow-sm d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning" style="width:40px;height:40px;">
+                  <i class="fa-solid fa-bus fs-5"></i>
+                </div>
+                <div>
+                  <h4 class="fs-6 fw-bold text-dark mb-0">Flota Urbana Valledupar</h4>
+                  <p class="text-secondary mb-0" style="font-size:12px;">Monitoreo en tiempo real &amp; Matriz de cumplimiento</p>
+                </div>
+              </div>
+              <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle d-inline-flex align-items-center gap-2 px-2 py-1 rounded-pill">
+                <span class="rounded-circle bg-success" style="width:8px;height:8px;"></span>
+                Activo
+              </span>
             </div>
-            <i class="bi bi-bus-front fs-2 text-warning"></i>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- FICHA TÉCNICA -->
-  <section id="ficha" class="py-5 bg-dark border-top border-bottom border-secondary">
-    <div class="container text-center py-4">
-      <span class="badge bg-outline-warning text-warning border border-warning mb-2 px-3 py-1">FICHA TÉCNICA Y REGISTRO ACADÉMICO</span>
-      <h2 class="fw-bold text-white mb-4">Descripción General del Proyecto</h2>
-      
-      <div class="auth-card p-4 mx-auto text-start rounded-3 border border-secondary" style="max-width: 850px;">
-        <div class="row g-3">
-          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 1 (TL):</span> <strong class="text-white d-block">Daniel Florez</strong></div>
-          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 2:</span> <strong class="text-white d-block">Jose Jorge</strong></div>
-          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 3:</span> <strong class="text-white d-block">Eduar</strong></div>
-          <div class="col-md-6 border-bottom border-secondary pb-2"><span class="text-secondary">INTEGRANTE 4:</span> <strong class="text-white d-block">Jose</strong></div>
-          <div class="col-md-6"><span class="text-secondary">INSTITUCIÓN:</span> <strong class="text-white d-block">Universidad Popular del Cesar (UPC)</strong></div>
-          <div class="col-md-6"><span class="text-secondary">ESTADO DEL PROYECTO:</span> <span class="badge bg-success ms-2">En Desarrollo</span></div>
+<!-- ================= 3. DESCRIPCIÓN GENERAL DEL PROYECTO ================= -->
+<section class="py-5 bg-light border-bottom" id="proyecto">
+  <div class="container px-4" style="max-width:1280px;">
+    <div class="text-center mx-auto mb-5" style="max-width:48rem;">
+      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle text-uppercase px-3 py-2 rounded-pill">Ficha Técnica Institucional</span>
+      <h2 class="fw-bold text-dark mt-3">Descripción General del Proyecto</h2>
+      <p class="text-secondary mt-2">Estructura académica formal desarrollada en el marco del programa de Ingeniería de la Universidad Popular del Cesar.</p>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mx-auto" style="max-width:56rem;">
+      <div class="card-header bg-light d-flex align-items-center justify-content-between py-3">
+        <div class="d-flex align-items-center gap-3">
+          <i class="fa-solid fa-file-lines text-warning fs-5"></i>
+          <h3 class="fw-bold text-dark fs-6 mb-0">Metadatos del Sistema y Registro Académico</h3>
+        </div>
+        <span class="badge bg-white text-secondary border">Doc ID: IQF-UPC-2026</span>
+      </div>
+      <div class="list-group list-group-flush">
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-solid fa-cube fa-xs opacity-70"></i> Nombre del sistema
+          </div>
+          <div class="col-sm-8 text-dark fw-semibold d-flex align-items-center gap-2">
+            <span>iQFleet</span>
+            <span class="text-secondary fw-normal small">(Sistema Inteligente de Gestión de Flotas)</span>
+          </div>
+        </div>
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-solid fa-building-columns fa-xs opacity-70"></i> Institución
+          </div>
+          <div class="col-sm-8 text-dark fw-medium">Universidad Popular del Cesar (UPC)</div>
+        </div>
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-solid fa-microchip fa-xs opacity-70"></i> Facultad
+          </div>
+          <div class="col-sm-8 text-secondary fw-medium">Facultad de Ingenierías y Tecnologías</div>
+        </div>
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-solid fa-code fa-xs opacity-70"></i> Asignatura
+          </div>
+          <div class="col-sm-8 text-secondary fw-medium">Programación web</div>
+        </div>
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-solid fa-users fa-xs opacity-70"></i> Autores del Proyecto
+          </div>
+          <div class="col-sm-8 d-flex flex-wrap align-items-center gap-2">
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-2 px-3">
+              <i class="fa-solid fa-user-check text-warning fa-xs"></i> Edward Ramirez
+            </span>
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-2 px-3">
+              <i class="fa-solid fa-user-check text-warning fa-xs"></i> Daniel Florez
+            </span>
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-2 px-3">
+              <i class="fa-solid fa-user-check text-warning fa-xs"></i> Jose
+            </span>
+            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-2 px-3">
+              <i class="fa-solid fa-user-check text-warning fa-xs"></i> Jose Jorge
+            </span>
+          </div>
+        </div>
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-regular fa-calendar fa-xs opacity-70"></i> Fecha
+          </div>
+          <div class="col-sm-8 text-secondary fw-medium">2026</div>
+        </div>
+        <div class="list-group-item row py-3">
+          <div class="col-sm-4 text-uppercase text-warning fw-semibold small d-flex align-items-center gap-2">
+            <i class="fa-solid fa-code-branch fa-xs opacity-70"></i> Versión del documento
+          </div>
+          <div class="col-sm-8 text-warning fw-bold d-flex align-items-center gap-2">
+            <span>1.0</span>
+            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Estable</span>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- RESUMEN EJECUTIVO -->
-  <section id="resumen" class="py-5 container">
-    <div class="auth-card p-5 rounded-4 border border-secondary my-4">
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <i class="bi bi-journal-check text-warning fs-2"></i>
-        <h3 class="fw-bold text-white mb-0">Resumen Ejecutivo</h3>
+<!-- ================= 4. RESUMEN ================= -->
+<section class="py-5 border-bottom bg-white" id="resumen">
+  <div class="container px-4" style="max-width:64rem;">
+    <div class="p-4 p-sm-5 rounded-4 border shadow-lg position-relative overflow-hidden" style="background:linear-gradient(to bottom right,#fffbeb,#ffffff,#f8fafc);">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning" style="width:40px;height:40px;">
+          <i class="fa-solid fa-book-open fs-5"></i>
+        </div>
+        <h2 class="fw-bold text-dark mb-0">Resumen Ejecutivo</h2>
       </div>
-      <p class="text-secondary lead fs-6">
-        IQFleet digitaliza y centraliza la gestión administrativa de flotas de transporte público en Valledupar, transformando procesos manuales y dispersos en un entorno tecnológico de alta disponibilidad que garantiza trazabilidad operativa, auditoría documental rigurosa y eficiencia en la toma de decisiones.
+      <p class="fs-5 text-secondary mb-4">
+        <strong class="text-dark fw-semibold">iQFleet</strong> digitaliza y centraliza la gestión administrativa de flotas de transporte público en Valledupar, transformando procesos manuales y dispersos en un entorno tecnológico unificado de alta disponibilidad que garantiza trazabilidad operativa, auditoría documental rigurosa y eficiencia en la toma de decisiones.
       </p>
-      <div class="d-flex flex-wrap gap-2 mt-4">
-        <span class="badge bg-secondary">Educación</span>
-        <span class="badge bg-secondary">UPC</span>
-        <span class="badge bg-secondary">Transporte Público</span>
-        <span class="badge bg-secondary">Gestión Documental</span>
-        <span class="badge bg-secondary">Valledupar</span>
+      <div>
+        <h4 class="text-uppercase text-secondary fw-bold small mb-3">Palabras clave del proyecto:</h4>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge bg-white text-warning-emphasis border border-warning fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm"><i class="fa-solid fa-bolt fa-xs text-warning"></i> Eficiencia</span>
+          <span class="badge bg-white text-warning-emphasis border border-warning fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm"><i class="fa-solid fa-shield-halved fa-xs text-warning"></i> Control</span>
+          <span class="badge bg-white text-warning-emphasis border border-warning fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm"><i class="fa-solid fa-bus fa-xs text-warning"></i> Transporte público</span>
+          <span class="badge bg-white text-warning-emphasis border border-warning fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm"><i class="fa-solid fa-folder-open fa-xs text-warning"></i> Gestión documental</span>
+          <span class="badge bg-white text-warning-emphasis border border-warning fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm"><i class="fa-solid fa-truck-ramp-box fa-xs text-warning"></i> Flota</span>
+          <span class="badge bg-white text-warning-emphasis border border-warning fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm"><i class="fa-solid fa-location-dot fa-xs text-warning"></i> Valledupar</span>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- DIAGNÓSTICO Y PROBLEMÁTICA -->
-  <section id="problematica" class="py-5 bg-dark border-top border-secondary">
-    <div class="container text-center">
-      <span class="badge bg-warning text-dark mb-2 px-3 py-1 fw-bold">DIAGNÓSTICO Y CONTEXTO</span>
-      <h2 class="fw-bold text-white mb-5">Introducción y Problemática Identificada</h2>
-      
-      <div class="row g-4 text-start">
-        <div class="col-md-4">
-          <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
-            <i class="bi bi-search text-warning fs-2 mb-3 d-block"></i>
-            <h5 class="text-white fw-bold">Ineficiencia en Búsqueda</h5>
-            <p class="text-secondary small mb-0">Archivos físicos dispersos y lentitud operativa para verificar el estado de la flota y sus antecedentes.</p>
+<!-- ================= 5. SECCIÓN INTRODUCCIÓN Y PROBLEMA ================= -->
+<section class="py-5 bg-light border-bottom" id="problema">
+  <div class="container px-4" style="max-width:1280px;">
+    <div class="text-center mx-auto mb-5" style="max-width:48rem;">
+      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle text-uppercase px-3 py-2 rounded-pill">Diagnóstico y Contexto</span>
+      <h2 class="fw-bold text-dark mt-3">Introducción y Problemática Identificada</h2>
+      <p class="text-secondary mt-2">El transporte colectivo en la región enfrenta fallas críticas de gestión manual. Cada bloque representa un cuello de botella abordado por iQFleet:</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3 border-warning border-2 rounded-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning fs-3 mb-4" style="width:56px;height:56px;">
+              <i class="fa-solid fa-magnifying-glass-chart"></i>
+            </div>
+            <span class="text-uppercase fw-bold text-warning" style="font-size:11px;">Falla Operativa #01</span>
+            <h3 class="fs-4 fw-bold text-dark mt-1 mb-3">Ineficiencia en búsqueda de información</h3>
+            <p class="text-secondary small mb-0">Archivos físicos dispersos y carpetas descentralizadas generan demoras de horas o días para consultar el estado legal y mecánico de cada microbús o buseta.</p>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
-            <i class="bi bi-exclamation-triangle text-warning fs-2 mb-3 d-block"></i>
-            <h5 class="text-white fw-bold">Vencimientos Descontrolados</h5>
-            <p class="text-secondary small mb-0">Riesgo constante de multas e inmovilizaciones por SOAT, RUNT o CDA vencidos sin alertas previas.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3 border-warning border-2 rounded-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning fs-3 mb-4" style="width:56px;height:56px;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <span class="text-uppercase fw-bold text-warning" style="font-size:11px;">Riesgo Legal #02</span>
+            <h3 class="fs-4 fw-bold text-dark mt-1 mb-3">Vencimiento descontrolado de documentos</h3>
+            <p class="text-secondary small mb-0">Carencia de alertas automatizadas para pólizas contractuales, SOAT, revisión técnico-mecánica y tarjetas de operación, causando inmovilizaciones y sanciones.</p>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
-            <i class="bi bi-graph-down text-warning fs-2 mb-3 d-block"></i>
-            <h5 class="text-white fw-bold">Ausencia de Control Financiero</h5>
-            <p class="text-secondary small mb-0">Falta de trazabilidad diaria sobre producido, combustible y liquidación individual de conductores.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3 border-warning border-2 rounded-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning fs-3 mb-4" style="width:56px;height:56px;">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <span class="text-uppercase fw-bold text-warning" style="font-size:11px;">Impacto Financiero #03</span>
+            <h3 class="fs-4 fw-bold text-dark mt-1 mb-3">Ausencia de control financiero</h3>
+            <p class="text-secondary small mb-0">Falta de consolidación de costos por vehículo (combustible, peajes, repuestos preventivos y correctivos), imposibilitando conocer la rentabilidad por kilómetro.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3 border-warning border-2 rounded-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning fs-3 mb-4" style="width:56px;height:56px;">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <span class="text-uppercase fw-bold text-warning" style="font-size:11px;">Vulnerabilidad #04</span>
+            <h3 class="fs-4 fw-bold text-dark mt-1 mb-3">Riesgo de pérdida de información</h3>
+            <p class="text-secondary small mb-0">Dependencia en planillas de papel y hojas de cálculo no respaldadas sujetas a deterioro, borrado accidental o falta de respaldo en la nube cifrado.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card h-100 p-3 border-warning border-2 rounded-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning fs-3 mb-4" style="width:56px;height:56px;">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <span class="text-uppercase fw-bold text-warning" style="font-size:11px;">Limitante Estructural #05</span>
+            <h3 class="fs-4 fw-bold text-dark mt-1 mb-3">Escalabilidad limitada</h3>
+            <p class="text-secondary small mb-0">Los métodos tradicionales impiden incorporar nuevas rutas urbanas o sumar más automotores a la flota sin duplicar la carga administrativa y el margen de error humano.</p>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- OBJETIVOS DEL PROYECTO -->
-  <section id="objetivos" class="py-5 container">
-    <div class="row g-4 text-start my-3">
-      <div class="col-md-6">
-        <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
-          <h4 class="fw-bold text-white mb-3"><i class="bi bi-shield-check text-warning me-2"></i>Justificación del Proyecto</h4>
-          <ul class="text-secondary small list-unstyled d-flex flex-column gap-3">
-            <li><strong class="text-white">Impacto Operativo:</strong> Optimización en los tiempos de respuesta y consulta documental.</li>
-            <li><strong class="text-white">Toma de Decisiones:</strong> Basada en datos consolidados en tiempo real.</li>
-            <li><strong class="text-white">Mitigación de Riesgos:</strong> Control estricto del cumplimiento legal y normativo del parque automotor.</li>
-          </ul>
+<!-- ================= 6. SECCIÓN JUSTIFICACIÓN Y OBJETIVOS ================= -->
+<section class="py-5 border-bottom bg-white" id="objetivos">
+  <div class="container px-4" style="max-width:1280px;">
+    <div class="text-center mx-auto mb-5" style="max-width:48rem;">
+      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle text-uppercase px-3 py-2 rounded-pill">Marco Estratégico</span>
+      <h2 class="fw-bold text-dark mt-3">Justificación y Objetivos del Proyecto</h2>
+      <p class="text-secondary mt-2">Fundamentación académica y alcance técnico diseñado para transformar el servicio de transporte en Valledupar.</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Columna 1: Justificación -->
+      <div class="col-lg-6">
+        <div class="card h-100 bg-light border rounded-4 shadow-sm p-4">
+          <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning" style="width:40px;height:40px;">
+              <i class="fa-solid fa-scale-balanced fs-5"></i>
+            </div>
+            <div>
+              <h3 class="fs-3 fw-bold text-dark mb-0">Justificación del Proyecto</h3>
+              <p class="text-secondary small mb-0">Pertinencia técnica y social</p>
+            </div>
+          </div>
+          <div class="d-flex flex-column gap-3 small text-secondary">
+            <div class="p-3 rounded-3 bg-white border border-start border-warning border-4 shadow-sm">
+              <h4 class="fw-bold text-dark fs-6 mb-1 d-flex align-items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-warning fa-xs"></i> Impacto Operativo y Calidad de Servicio</h4>
+              <p class="mb-0">Optimiza la disponibilidad mecánica de los buses garantizando cumplimiento estricto de frecuencias de ruta para los ciudadanos de Valledupar.</p>
+            </div>
+            <div class="p-3 rounded-3 bg-white border border-start border-warning border-4 shadow-sm">
+              <h4 class="fw-bold text-dark fs-6 mb-1 d-flex align-items-center gap-2"><i class="fa-solid fa-chart-pie text-warning fa-xs"></i> Toma de Decisiones Basada en Datos</h4>
+              <p class="mb-0">Proporciona métricas consolidadas sobre rendimiento de combustible, kilometraje y costos por kilómetro para directivos de empresas transportadoras.</p>
+            </div>
+            <div class="p-3 rounded-3 bg-white border border-start border-warning border-4 shadow-sm">
+              <h4 class="fw-bold text-dark fs-6 mb-1 d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-warning fa-xs"></i> Reducción de Riesgos Jurídicos y Multas</h4>
+              <p class="mb-0">Mitiga el riesgo de multas del Ministerio de Transporte y suspensión de licencias gracias a la semaforización proactiva de vencimientos documentales.</p>
+            </div>
+            <div class="p-3 rounded-3 bg-white border border-start border-warning border-4 shadow-sm">
+              <h4 class="fw-bold text-dark fs-6 mb-1 d-flex align-items-center gap-2"><i class="fa-solid fa-graduation-cap text-warning fa-xs"></i> Contexto Académico Aplicado</h4>
+              <p class="mb-0">Demuestra la aplicación práctica de la ingeniería de software y metodologías ágiles en la solución de problemáticas reales de la infraestructura urbana local.</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="auth-card p-4 h-100 rounded-3 border border-secondary">
-          <h4 class="fw-bold text-white mb-3"><i class="bi bi-target text-warning me-2"></i>Objetivos del Sistema</h4>
-          <ul class="text-secondary small list-unstyled d-flex flex-column gap-3">
-            <li><strong class="text-white">Objetivo General:</strong> Desarrollar una plataforma web centralizada para el control documental y operativo de transporte público en Valledupar.</li>
-            <li><strong class="text-white">Alertas Automatizadas:</strong> Prevenir vencimientos de documentos clave.</li>
-            <li><strong class="text-white">Gestión Financiera:</strong> Módulo de caja diaria para el registro de ingresos y egresos.</li>
-          </ul>
+
+      <!-- Columna 2: Objetivos -->
+      <div class="col-lg-6">
+        <div class="card h-100 bg-light border rounded-4 shadow-sm p-4">
+          <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-10 border border-warning-subtle text-warning" style="width:40px;height:40px;">
+              <i class="fa-solid fa-bullseye fs-5"></i>
+            </div>
+            <div>
+              <h3 class="fs-3 fw-bold text-dark mb-0">Objetivos del Sistema</h3>
+              <p class="text-secondary small mb-0">Propósito general y metas específicas</p>
+            </div>
+          </div>
+
+          <div class="mb-4 p-3 rounded-3 border" style="background:#fffbeb;">
+            <span class="text-uppercase fw-bold text-warning-emphasis small d-block mb-1"><i class="fa-solid fa-flag-checkered me-1"></i> Objetivo General</span>
+            <p class="text-dark fw-medium mb-0">Desarrollar e implementar una plataforma web integral de gestión documental y operativa para flotas de transporte público en Valledupar, optimizando el control administrativo, la trazabilidad legal y la rentabilidad financiera del parque automotor.</p>
+          </div>
+
+          <div>
+            <span class="text-uppercase fw-bold text-secondary small d-block mb-3">Objetivos Específicos:</span>
+            <ol class="list-unstyled d-flex flex-column gap-3 small text-secondary mb-0">
+              <li class="d-flex align-items-start gap-3 p-3 rounded-3 bg-white border shadow-sm">
+                <span class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;font-size:11px;">1</span>
+                <span><strong>Diseñar una arquitectura de software</strong> modular y segura con control de acceso basado en roles (RBAC) para administradores y conductores.</span>
+              </li>
+              <li class="d-flex align-items-start gap-3 p-3 rounded-3 bg-white border shadow-sm">
+                <span class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;font-size:11px;">2</span>
+                <span><strong>Automatizar el control documental</strong> con sistema de semaforización (verde, amarillo, rojo) para vencimientos de SOAT, pólizas y tarjetas de operación.</span>
+              </li>
+              <li class="d-flex align-items-start gap-3 p-3 rounded-3 bg-white border shadow-sm">
+                <span class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;font-size:11px;">3</span>
+                <span><strong>Integrar un módulo de telemetría y monitoreo</strong> en mapa para supervisar el desplazamiento vehicular y variables CAN-Bus en tiempo real.</span>
+              </li>
+              <li class="d-flex align-items-start gap-3 p-3 rounded-3 bg-white border shadow-sm">
+                <span class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width:24px;height:24px;font-size:11px;">4</span>
+                <span><strong>Consolidar la analítica financiera</strong> para el registro de ingresos y gastos operativos con cálculo automatizado de márgenes por bus.</span>
+              </li>
+            </ol>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer class="py-4 border-top border-secondary text-secondary small bg-dark">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <div>&copy; 2026 IQFleet Valledupar - Todos los derechos reservados.</div>
-      <div class="d-flex gap-3">
-        <a href="#" class="text-secondary"><i class="bi bi-github fs-5"></i></a>
-        <a href="#" class="text-secondary"><i class="bi bi-envelope fs-5"></i></a>
+<!-- ================= 7. FOOTER ================= -->
+<footer class="bg-light border-top pt-5 pb-4" id="contacto">
+  <div class="container px-4" style="max-width:1280px;">
+    <div class="row g-4 pb-4 border-bottom align-items-center">
+      <div class="col-md-6 d-flex flex-column gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning shadow" style="width:36px;height:36px;">
+            <span class="text-white fw-bold">iq</span>
+          </div>
+          <span class="fs-4 fw-bold text-dark">iQFleet</span>
+        </div>
+        <p class="text-secondary small mb-0" style="max-width:28rem;">Proyecto académico de digitalización y gestión de flotas para transporte público urbano. Sede Valledupar, Cesar.</p>
+      </div>
+      <div class="col-md-6 d-flex flex-column align-items-md-end gap-3">
+        <span class="text-uppercase fw-semibold text-dark small">Canales de Contacto &amp; Repositorio</span>
+        <div class="d-flex align-items-center gap-3">
+          <a class="d-flex align-items-center justify-content-center rounded-3 bg-white border text-secondary shadow-sm" style="width:44px;height:44px;" href="mailto:proyecto.iqfleet@unicesar.edu.co" title="Correo Electrónico Institucional">
+            <i class="fa-solid fa-envelope fs-5"></i>
+          </a>
+          <a class="d-flex align-items-center justify-content-center rounded-3 bg-white border text-secondary shadow-sm" style="width:44px;height:44px;" href="https://linkedin.com" target="_blank" title="LinkedIn Académico">
+            <i class="fa-brands fa-linkedin-in fs-5"></i>
+          </a>
+          <a class="d-flex align-items-center justify-content-center rounded-3 bg-white border text-secondary shadow-sm" style="width:44px;height:44px;" href="https://github.com" target="_blank" title="GitHub Repository">
+            <i class="fa-brands fa-github fs-5"></i>
+          </a>
+        </div>
       </div>
     </div>
-  </footer>
+    <div class="pt-4 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3 small text-secondary">
+      <p class="text-dark fw-medium mb-0 text-center text-sm-start">© 2026 Universidad Popular del Cesar — Proyecto iQFleet</p>
+      <div class="d-flex align-items-center gap-4">
+        <span class="text-secondary">Facultad de Ingeniería</span>
+        <span class="text-secondary">Programación Web</span>
+        <span class="text-warning fw-semibold">Valledupar, Cesar</span>
+      </div>
+    </div>
+  </div>
+</footer>
 
-  
+<!-- 1. Bootstrap 5 JS Bundle (Requerido para componentes interactivos de Bootstrap) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<!-- 2. Archivo JavaScript propio para la interacción de la página -->
+<script src="index.js"></script>
 </body>
 </html>
