@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iQFleet - Dashboard Ejecutivo</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel = "stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <span>iQFleet <span class="badge bg-warning text-dark fs-6" style="font-size: 0.6rem!important;">PRO v2.4</span></span>
+        </div>
+        <div class="menu-label">Menú Operativo</div>
+        <a href="#" class="nav-link-custom active">Dashboard Ejecutivo</a>
+        <a href="#" class="nav-link-custom">Flota & Vehículos</a>
+        <a href="#" class="nav-link-custom">Conductores</a>
+        <a href="#" class="nav-link-custom">Control Documental <span class="badge bg-danger ms-auto">8</span></a>
+        <a href="#" class="nav-link-custom">Finanzas & Rentabilidad</a>
+        <a href="#" class="nav-link-custom">Mantenimiento & Rutas</a>
+        <a href="#" class="nav-link-custom">Configuración</a>
+
+        <!-- Usuario inferior -->
+        <div class="mt-auto p-3 border-top border-secondary d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div class="bg-warning text-dark rounded-circle fw-bold d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">CM</div>
+                <div>
+                    <h6 class="mb-0 fs-6 text-white" id="user-name">Carlos Morales</h6>
+                    <small class="text-warning" style="font-size: 0.7rem;">PROPIETARIO</small>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="cerrarSesion()" title="Cerrar Sesión">Cerra sesion</button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        
+        <!-- BARRA SUPERIOR EJECUTIVA -->
+        <div class="top-navbar d-flex align-items-center justify-content-between mb-4">
+            <div class="input-group w-25">
+                <input type="text" class="form-control search-input" placeholder="Buscar vehículos, placas...">
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-success bg-opacity-10 text-success badge-status border border-success">18 En ruta (90%)</span>
+                <span class="text-secondary small">Hoy: 24 Octubre 2024</span>
+                <button class="btn btn-warning fw-bold text-dark btn-sm px-3">+ Nuevo Registro</button>
+            </div>
+        </div>
+
+        <!-- TÍTULO DE LA SECCIÓN -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-white mb-1">Consola de Control Operativo</h3>
+                <p class="text-secondary small mb-0">Monitoreo ejecutivo en tiempo real de métricas y rendimiento de flota.</p>
+            </div>
+        </div>
+
+        <!-- TARJETAS DE KPIS (Métricas rápidas) -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card card-custom p-3">
+                    <span class="text-secondary small">Unidades Activas</span>
+                    <h3 class="fw-bold text-white mt-1">24 <span class="fs-6 text-success font-monospace">↑ 98%</span></h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-custom p-3">
+                    <span class="text-secondary small">Alertas de Telemetría</span>
+                    <h3 class="fw-bold text-warning mt-1">3 <span class="fs-6 text-danger font-monospace">Atención</span></h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-custom p-3">
+                    <span class="text-secondary small">Eficiencia de Flota</span>
+                    <h3 class="fw-bold text-white mt-1">88.5% <span class="fs-6 text-info font-monospace">Estable</span></h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-custom p-3">
+                    <span class="text-secondary small">Conductores en Turno</span>
+                    <h3 class="fw-bold text-white mt-1">18 <span class="fs-6 text-success font-monospace">Activos</span></h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE GRÁFICOS CON CHART.JS -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card card-custom p-4">
+                    <h5 class="text-white mb-3">Rendimiento Semanal de la Flota</h5>
+                    <canvas id="graficoRendimiento" height="130"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card card-custom p-4">
+                    <h5 class="text-white mb-3">Balance de Consumo</h5>
+                    <canvas id="graficoBalance" height="260"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS DE CONFIGURACIÓN Y GRÁFICOS -->
+    <script>
+        // Gráfico de Rendimiento (Líneas)
+        const ctxRendimiento = document.getElementById('graficoRendimiento').getContext('2d');
+        new Chart(ctxRendimiento, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Km Promedio',
+                    data: [1200, 1850, 1400, 1600, 2100, 950, 600],
+                    borderColor: '#ff7f00',
+                    backgroundColor: 'rgba(255, 127, 0, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: '#a2a2b5' } } },
+                scales: {
+                    x: { ticks: { color: '#78788c' }, grid: { color: '#2b2b3a' } },
+                    y: { ticks: { color: '#78788c' }, grid: { color: '#2b2b3a' } }
+                }
+            }
+        });
+
+        // Gráfico de Balance (Dona)
+        const ctxBalance = document.getElementById('graficoBalance').getContext('2d');
+        new Chart(ctxBalance, {
+            type: 'doughnut',
+            data: {
+                labels: ['Óptimo', 'Mantenimiento', 'Ralentí'],
+                datasets: [{
+                    data: [70, 15, 15],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom', labels: { color: '#a2a2b5' } } }
+            }
+        });
+
+        // Simulación básica de sesión en localStorage para pruebas
+        window.onload = function() {
+            let user = JSON.parse(localStorage.getItem("usuarioLogueado"));
+            if(!user) {
+                user = { nombre: "Carlos Morales", rol: "PROPIETARIO" };
+                localStorage.setItem("usuarioLogueado", JSON.stringify(user));
+            }
+            document.getElementById("user-name").innerText = user.nombre;
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("usuarioLogueado");
+            alert("Sesión cerrada correctamente");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
