@@ -100,3 +100,21 @@ body {
   padding: 6px 12px;
   border-radius: 20px;
 }
+/* Botón de Iniciar Sesión (Landing Page) */
+.btn-login-custom {
+  border: 1px solid #d48e0c;
+  color: #212529 !important;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn-login-custom:hover {
+  transform: scale(1.08); /* Se agranda un 8% */
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  border-color: var(--color-orange);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-login-custom:hover span {
+  color: #000000 !important; /* Mantiene las letras en negro */
+}
