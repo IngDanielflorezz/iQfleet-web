@@ -1,42 +1,38 @@
-// Garantiza que la manipulación del DOM ocurra solo cuando la estructura HTML esté totalmente parseada
+// Espera a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Estado local para mantener el rol seleccionado ('Administrador' por defecto)
+    // Estado local para el rol ('Administrador' por defecto)
     let selectedRole = 'Administrador';
 
-    // Captura de referencias a elementos del DOM
+    // Referencias del DOM
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const rememberMeCheck = document.getElementById('rememberMe');
     const togglePasswordBtn = document.getElementById('togglePassword');
     const loginForm = document.getElementById('loginForm');
     const roleAdminBtn = document.getElementById('roleAdmin');
     const roleDriverBtn = document.getElementById('roleDriver');
+    const forgotPasswordLink = document.querySelector('.link-orange');
 
-    // Función expuesta en el objeto window para alternar la selección visual entre roles
+    // Selección interactiva de rol
     window.selectRole = function(role) {
         selectedRole = role;
 
         if (role === 'Administrador') {
-            // Activa las clases CSS para el botón de Administrador
-            roleAdminBtn.classList.add('active', 'selected');
-            roleDriverBtn.classList.remove('active', 'selected');
+            roleAdminBtn.classList.add('active');
+            roleDriverBtn.classList.remove('active');
         } else {
-            // Activa las clases CSS para el botón de Conductor
-            roleDriverBtn.classList.add('active', 'selected');
-            roleAdminBtn.classList.remove('active', 'selected');
+            roleDriverBtn.classList.add('active');
+            roleAdminBtn.classList.remove('active');
         }
     };
 
-    // Manejo de visibilidad de la contraseña
+    // Alternar visibilidad de contraseña
     if (togglePasswordBtn && passwordInput) {
         togglePasswordBtn.addEventListener('click', () => {
-            // Verifica si actualmente el input es de tipo password
             const isPassword = passwordInput.type === 'password';
-            
-            // Cambia dinámicamente entre 'text' y 'password'
             passwordInput.type = isPassword ? 'text' : 'password';
             
-            // Alterna la clase de FontAwesome para el icono de ojo abierto / cerrado
             const icon = togglePasswordBtn.querySelector('i');
             if (icon) {
                 icon.classList.toggle('fa-eye-slash', !isPassword);
@@ -45,39 +41,51 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Intercepción del evento de envío del formulario
+    // Modal/Notificación simulada para "¿Olvidaste tu contraseña?"
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Proceso de recuperación: Se ha enviado un enlace de restablecimiento a tu correo corporativo asignado.');
+        });
+    }
+
+    // Procesar inicio de sesión
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
-            // Cancela el comportamiento nativo de recarga de página del navegador
             e.preventDefault();
 
-            // Limpieza de espacios en blanco al inicio y final de los valores
             const correo = emailInput.value.trim();
             const password = passwordInput.value.trim();
 
-            // Intenta leer la lista de usuarios desde la clase Storage o recurre al mock global
-            const usuarios = Storage.get('iqfleet_usuarios') || (typeof usuariosMock !== 'undefined' ? usuariosMock : []);
+            // Cargar usuarios desde Storage o fallback a mock
+            const usuarios = (typeof Storage !== 'undefined' && Storage.get('iqfleet_usuarios')) 
+                || (typeof usuariosMock !== 'undefined' ? usuariosMock : []);
 
-            // Valida coincidencia estricta de Correo, Contraseña y Rol activo
+            // Validar credenciales y rol activo
             const usuarioValido = usuarios.find(user => 
                 user.correo === correo && 
                 user.passwordMock === password && 
                 user.rol === selectedRole
             );
 
-            // Proceso de inicio de sesión exitoso
             if (usuarioValido) {
-                // Persiste la información del usuario en localStorage mediante Storage
-                Storage.setSession(usuarioValido);
+                const isRemembered = rememberMeCheck ? rememberMeCheck.checked : false;
+                
+                // Guardar en Storage o directo en sessionStorage/localStorage
+                if (typeof Storage !== 'undefined' && Storage.setSession) {
+                    Storage.setSession(usuarioValido, isRemembered);
+                } else {
+                    const storageTarget = isRemembered ? localStorage : sessionStorage;
+                    storageTarget.setItem('iqfleet_session', JSON.stringify(usuarioValido));
+                }
 
-                // Redirecciona según la ruta correspondiente a cada Rol
+                // Redireccionar según el rol
                 if (usuarioValido.rol === 'Administrador') {
                     window.location.href = '../dashboard/index.html';
                 } else {
                     window.location.href = '../conductores/index.html';
                 }
             } else {
-                // Alerta informativa en caso de fallo de autenticación
                 alert('Credenciales inválidas o el rol seleccionado no coincide con la cuenta.');
             }
         });
