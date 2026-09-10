@@ -1,64 +1,85 @@
-let selectedRol = 'Administrador';
-
-function selectRole(role) {
-  selectedRol = role;
-  document.getElementById('roleAdmin').classList.toggle('selected', role === 'Administrador');
-  document.getElementById('roleDriver').classList.toggle('selected', role === 'Conductor');
-}
-
+// Garantiza que la manipulación del DOM ocurra solo cuando la estructura HTML esté totalmente parseada
 document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('loginForm');
-  const togglePasswordBtn = document.getElementById('togglePassword');
-  const passwordInput = document.getElementById('password');
-  const forgotPasswordLink = document.getElementById('forgotPassword');
+    
+    // Estado local para mantener el rol seleccionado ('Administrador' por defecto)
+    let selectedRole = 'Administrador';
 
-  // Mostrar / Ocultar contraseña
-  if (togglePasswordBtn) {
-    togglePasswordBtn.addEventListener('click', () => {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      togglePasswordBtn.querySelector('i').classList.toggle('bi-eye');
-      togglePasswordBtn.querySelector('i').classList.toggle('bi-eye-slash');
-    });
-  }
+    // Captura de referencias a elementos del DOM
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordBtn = document.getElementById('togglePassword');
+    const loginForm = document.getElementById('loginForm');
+    const roleAdminBtn = document.getElementById('roleAdmin');
+    const roleDriverBtn = document.getElementById('roleDriver');
 
-  // Recuperar contraseña simulada
-  if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      alert('Se ha enviado un enlace simulado de recuperación a tu correo corporativo.');
-    });
-  }
+    // Función expuesta en el objeto window para alternar la selección visual entre roles
+    window.selectRole = function(role) {
+        selectedRole = role;
 
-  // Validación e inicio de sesión
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const rememberMe = document.getElementById('rememberMe').checked;
-
-      const usuarios = Storage.get('iqfleet_usuarios') || [];
-      const user = usuarios.find(u => u.correo === email && u.passwordMock === password && u.rol === selectedRol);
-
-      if (user) {
-        const sessionData = { id: user.id, nombre: user.nombre, rol: user.rol };
-        
-        if (rememberMe) {
-          localStorage.setItem('iqfleet_session', JSON.stringify(sessionData));
+        if (role === 'Administrador') {
+            // Activa las clases CSS para el botón de Administrador
+            roleAdminBtn.classList.add('active', 'selected');
+            roleDriverBtn.classList.remove('active', 'selected');
         } else {
-          sessionStorage.setItem('iqfleet_session', JSON.stringify(sessionData));
+            // Activa las clases CSS para el botón de Conductor
+            roleDriverBtn.classList.add('active', 'selected');
+            roleAdminBtn.classList.remove('active', 'selected');
         }
+    };
 
-        // Redirección según el rol
-        if (user.rol === 'Administrador') {
-          window.location.href = '../dashboard/index.html';
-        } else {
-          window.location.href = '../conductores/index.html';
-        }
-      } else {
-        alert('Credenciales incorrectas o el rol seleccionado no coincide.');
-      }
-    });
-  }
+    // Manejo de visibilidad de la contraseña
+    if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener('click', () => {
+            // Verifica si actualmente el input es de tipo password
+            const isPassword = passwordInput.type === 'password';
+            
+            // Cambia dinámicamente entre 'text' y 'password'
+            passwordInput.type = isPassword ? 'text' : 'password';
+            
+            // Alterna la clase de FontAwesome para el icono de ojo abierto / cerrado
+            const icon = togglePasswordBtn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-eye-slash', !isPassword);
+                icon.classList.toggle('fa-eye', isPassword);
+            }
+        });
+    }
+
+    // Intercepción del evento de envío del formulario
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            // Cancela el comportamiento nativo de recarga de página del navegador
+            e.preventDefault();
+
+            // Limpieza de espacios en blanco al inicio y final de los valores
+            const correo = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // Intenta leer la lista de usuarios desde la clase Storage o recurre al mock global
+            const usuarios = Storage.get('iqfleet_usuarios') || (typeof usuariosMock !== 'undefined' ? usuariosMock : []);
+
+            // Valida coincidencia estricta de Correo, Contraseña y Rol activo
+            const usuarioValido = usuarios.find(user => 
+                user.correo === correo && 
+                user.passwordMock === password && 
+                user.rol === selectedRole
+            );
+
+            // Proceso de inicio de sesión exitoso
+            if (usuarioValido) {
+                // Persiste la información del usuario en localStorage mediante Storage
+                Storage.setSession(usuarioValido);
+
+                // Redirecciona según la ruta correspondiente a cada Rol
+                if (usuarioValido.rol === 'Administrador') {
+                    window.location.href = '../dashboard/index.html';
+                } else {
+                    window.location.href = '../conductores/index.html';
+                }
+            } else {
+                // Alerta informativa en caso de fallo de autenticación
+                alert('Credenciales inválidas o el rol seleccionado no coincide con la cuenta.');
+            }
+        });
+    }
 });
