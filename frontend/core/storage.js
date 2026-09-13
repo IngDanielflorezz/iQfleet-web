@@ -1,44 +1,50 @@
-class Storage {
-    static get(key) {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
-    }
-    
-    static set(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));       
-    }
+const USERS_KEY = 'iqfleet_usuarios';
+const SESSION_KEY = 'iqfleet_session';
+const REMEMBER_KEY = 'iqfleet_remembered_email';
 
-    static remove(key) {
-        localStorage.removeItem(key);
-    }
+export const initStorage = () => {
+  if (!localStorage.getItem(USERS_KEY)) {
+    const initialUsers = [
+      {
+        correo: 'admin@iqfleet.com',
+        passwordMock: '1234',
+        rol: 'Administrador',
+        nombre: 'Administrador del Sistema'
+      },
+      {
+        correo: 'conductor@iqfleet.com',
+        passwordMock: '1234',
+        rol: 'Conductor',
+        nombre: 'Conductor Principal'
+      }
+    ];
+    localStorage.setItem(USERS_KEY, JSON.stringify(initialUsers));
+  }
+};
 
-    static initMockData(key, defaultData) {
-        if (!localStorage.getItem(key)) {
-            this.set(key, defaultData);
-        }   
-    }
+export const getUsers = () => {
+  initStorage();
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+  } catch (error) {
+    console.error('Error al parsear usuarios del almacenamiento local:', error);
+    return [];
+  }
+};
 
-    // Métodos para el manejo de sesión activa
-    static setSession(user) {
-        this.set('iqfleet_user', user);
-        this.set('iqfleet_token', 'mock_jwt_token_' + Date.now());
-    }
+export const saveRememberedEmail = (email) => {
+  if (email) {
+    localStorage.setItem(REMEMBER_KEY, email);
+  } else {
+    localStorage.removeItem(REMEMBER_KEY);
+  }
+};
 
-    static getSession() {
-        return this.get('iqfleet_user');
-    }
+export const getRememberedEmail = () => {
+  return localStorage.getItem(REMEMBER_KEY) || '';
+};
 
-    static logout() {
-        this.remove('iqfleet_user');
-        this.remove('iqfleet_token');
-    }
-}
-
-// Auto-inicializar datos de usuarios si la capa mock está presente
-if (typeof usuariosMock !== 'undefined') {
-    Storage.initMockData('iqfleet_usuarios', usuariosMock);
-}
-
-if (typeof window !== 'undefined') {
-    window.Storage = Storage;
-}
+export const setSession = (userData, isRemembered) => {
+  const storage = isRemembered ? localStorage : sessionStorage;
+  storage.setItem(SESSION_KEY, JSON.stringify(userData));
+};
