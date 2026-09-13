@@ -1,157 +1,379 @@
-<!-- TÍTULO DE LA SECCIÓN -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iQ Fleet - Consola de Control Operativo</title>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- Google Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- CSS propio del Módulo Dashboard -->
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+</head>
+<body class="bg-dark-app text-light">
+
+  <!-- Sidebar Lateral Oscuro -->
+  <aside class="sidebar-iq d-flex flex-column justify-content-between p-3">
     <div>
+      <div class="d-flex align-items-center justify-content-between pb-3 border-dark-custom">
+        <a href="../dashboard/dashboard.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <div class="brand-logo-sq">iQ</div>
+          <span class="fs-4 fw-bold text-white">iQ<span class="link-orange">Fleet</span></span>
+        </a>
+        <span class="badge badge-orange-subtle text-uppercase fw-bold">PRO</span>
+      </div>
 
-        <h3 class="fw-bold text-white mb-1">
-            Consola de Control Operativo
-        </h3>
+      <div class="pt-3 pb-2">
+        <p class="text-uppercase text-light-muted fs-8 fw-bold mb-0" style="letter-spacing: 0.05em;">MÓDULOS</p>
+      </div>
 
-        <p class="text-secondary small mb-0">
-            Monitoreo ejecutivo en tiempo real de métricas y rendimiento de flota.
-        </p>
-
+      <nav class="nav flex-column gap-1" id="mainSidebarNav">
+        <a class="nav-link nav-link-dark active" href="../dashboard/dashboard.html">
+          <span class="material-symbols-outlined fs-5">dashboard</span> Dashboard Ejecutivo
+        </a>
+        <a class="nav-link nav-link-dark" href="../vehiculos/vehiculos.html">
+          <span class="material-symbols-outlined fs-5">directions_bus</span> Flota &amp; Vehículos
+        </a>
+        <a class="nav-link nav-link-dark" href="../conductores/index.html">
+          <span class="material-symbols-outlined fs-5">badge</span> Conductores
+        </a>
+        <a class="nav-link nav-link-dark d-flex justify-content-between align-items-center" href="../documentos/index.html">
+          <span class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined fs-5">folder_open</span> Control Documental
+          </span>
+          <span class="badge bg-danger rounded-circle px-2 py-1 fs-8">8</span>
+        </a>
+        <a class="nav-link nav-link-dark" href="../finanzas/index.html">
+          <span class="material-symbols-outlined fs-5">payments</span> Finanzas &amp; Rentabilidad
+        </a>
+      </nav>
     </div>
 
-</div>
+     <!-- Perfil Propietario -->
+    <div class="user-card p-2 rounded-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2 overflow-hidden">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4lVvETLz7Z9p4OysXFvp67JlfF56q4H4l3XWCw4UnOXpkQSRsHyx5V_dt-yk1_qxKiGE5r3coST_ibYWJYDlu5XS8TZ4Ch9y1fXuTI6qmLsnu4afXpz5YvpSal4722jaPJJeRjB38YjE2GZQ1OeTixbmmgpSjD3cJw3SfaO9YOz19aqXN5I5gTvhBcSnUzmu_JerDW8RgykY17OKYNYkWgGr7KWqprlXHO12w8HCYrNrx-CqBcgbI" class="rounded-circle avatar-sm" alt="Carlos Morales">
+        <div class="text-truncate">
+          <p class="text-white fs-7 fw-semibold mb-0 text-truncate">Carlos Morales</p>
+          <span class="text-light-muted fs-8">Propietario</span>
+        </div>
+      </div>
+      <button class="btn btn-link text-light-muted p-1 hover-orange" title="Cerrar sesión" id="btnLogout">
+        <span class="material-symbols-outlined fs-5">logout</span>
+      </button>
+    </div>
+  </aside>
 
+  <!-- Envoltorio Principal -->
+  <div class="main-wrapper">
+    <!-- Topbar Header -->
+    <header class="topbar-iq d-flex align-items-center justify-content-between px-4">
+      <div class="d-flex align-items-center gap-3 flex-grow-1 max-w-lg">
+        <div class="input-dark-group w-100">
+          <span class="material-symbols-outlined input-dark-icon">search</span>
+          <input type="text" class="form-control form-control-dark" placeholder="Buscar por placa, conductor, SOAT... ⌘K">
+        </div>
+      </div>
 
-<!-- =========================================
-     TARJETAS DE KPIS
-     ========================================= -->
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge badge-dark-subtle d-none d-md-inline-flex align-items-center gap-2 px-3 py-2">
+          <span class="status-dot bg-success"></span>
+          <span class="text-light-muted fs-7">18 En ruta (90%)</span>
+        </span>
+        <button class="btn btn-outline-dark-custom btn-sm">
+          <span class="material-symbols-outlined fs-6">calendar_today</span> 24 Octubre 2024
+        </button>
+        <button class="btn btn-orange-cta">
+          <span class="material-symbols-outlined fs-5">add</span>
+          <span>+ Registrar Novedad</span>
+        </button>
+      </div>
+    </header>
 
-<div class="row g-3 mb-4">
+    <!-- Área de Contenido -->
+    <main class="content-area p-4">
+      <div class="container-fluid max-w-container">
 
-    <div class="col-md-3">
+        <!-- Header: Título y Filtros -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge badge-orange-subtle text-uppercase fw-bold">CENTRO DE OPERACIONES</span>
+              <span class="text-light-muted fs-8">Despacho Sabana &amp; Bogotá D.C.</span>
+            </div>
+            <h1 class="h3 fw-bold text-white mb-0">Consola de Control Operativo</h1>
+            <span class="text-light-muted fs-8">Corte: 24 Oct, 16:40 COT</span>
+          </div>
 
-        <div class="card card-custom p-3">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select class="select-dark">
+              <option>Octubre 2024 (Mes en curso)</option>
+              <option>Septiembre 2024</option>
+              <option>Agosto 2024</option>
+            </select>
+            <button class="btn btn-outline-dark-custom">
+              <span class="material-symbols-outlined fs-5">picture_as_pdf</span> Exportar Reporte PDF
+            </button>
+            <button class="btn btn-orange-cta">
+              <span class="material-symbols-outlined fs-5">add</span> + Registrar Despacho
+            </button>
+          </div>
+        </div>
 
-            <span class="text-secondary small">
-                Unidades Activas
-            </span>
+        <!-- Fila 1: 4 Tarjetas de Métricas Ejecutivas -->
+        <div class="row g-3 mb-4">
+          <!-- 1. Disponibilidad Flota -->
+          <div class="col-12 col-md-6 col-xl-3">
+            <div class="card card-dark-metric p-3 h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <span class="form-label-dark">DISPONIBILIDAD FLOTA</span>
+                  <p class="fw-semibold text-white mb-0 fs-7">Vehículos en Ruta</p>
+                </div>
+                <div class="icon-shield-check"><span class="material-symbols-outlined fs-5">directions_bus</span></div>
+              </div>
+              <div class="d-flex align-items-baseline gap-2 mb-2">
+                <h2 class="fw-bold text-white mb-0">18<span class="fs-5 text-light-muted">/20</span></h2>
+                <span class="badge badge-orange-subtle fs-8">90% Activo</span>
+              </div>
+              <div class="progress bg-dark mb-2" style="height: 6px;">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 90%;"></div>
+              </div>
+              <div class="d-flex justify-content-between fs-8 text-light-muted">
+                <span><strong class="text-warning">2</strong> en Mantenimiento</span>
+                <span><strong class="text-white">0</strong> Inmovilizados</span>
+              </div>
+            </div>
+          </div>
 
-            <h3 class="fw-bold text-white mt-1">
-                24
+          <!-- 2. Personal Rodante -->
+          <div class="col-12 col-md-6 col-xl-3">
+            <div class="card card-dark-metric p-3 h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <span class="form-label-dark">PERSONAL RODANTE</span>
+                  <p class="fw-semibold text-white mb-0 fs-7">Conductores Activos</p>
+                </div>
+                <div class="icon-shield-check"><span class="material-symbols-outlined fs-5">badge</span></div>
+              </div>
+              <div class="d-flex align-items-baseline justify-content-between mb-2">
+                <h2 class="fw-bold text-white mb-0">24 <span class="fs-6 text-light-muted fw-normal">Turnos</span></h2>
+                <span class="badge bg-success-subtle text-success fs-8">100% Asignados</span>
+              </div>
+              <div class="progress bg-dark mb-2" style="height: 6px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 100%;"></div>
+              </div>
+              <div class="d-flex justify-content-between fs-8 text-light-muted">
+                <span>Score Operativo:</span>
+                <strong class="text-white">26.4/1000primo</strong>
+              </div>
+            </div>
+          </div>
 
-                <span class="fs-6 text-success font-monospace">
-                    ↑ 98%
-                </span>
-            </h3>
+          <!-- 3. Cumplimiento Legal -->
+          <div class="col-12 col-md-6 col-xl-3">
+            <div class="card card-dark-metric p-3 h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <span class="form-label-dark">CUMPLIMIENTO LEGAL</span>
+                  <p class="fw-semibold text-white mb-0 fs-7">Alertas RUNT / CDA</p>
+                </div>
+                <div class="icon-shield-check"><span class="material-symbols-outlined fs-5 text-danger">warning</span></div>
+              </div>
+              <div class="d-flex align-items-baseline gap-2 mb-2">
+                <h2 class="fw-bold text-white mb-0">8 <span class="fs-6 text-light-muted">Docs</span></h2>
+                <span class="badge bg-danger text-white fs-8">2 Críticos</span>
+              </div>
+              <div class="progress bg-dark mb-2" style="height: 6px;">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: 45%;"></div>
+              </div>
+              <div class="fs-8 text-danger fw-semibold">
+                ⚠️ &lt; 7 días de vencimiento <span class="text-decoration-underline cursor-pointer">Auditar</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Rentabilidad Mes -->
+          <div class="col-12 col-md-6 col-xl-3">
+            <div class="card card-dark-metric p-3 h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <span class="form-label-dark">RENTABILIDAD MES</span>
+                  <p class="fw-semibold text-white mb-0 fs-7">Balance Neto</p>
+                </div>
+                <div class="icon-shield-check"><span class="material-symbols-outlined fs-5">account_balance_wallet</span></div>
+              </div>
+              <h2 class="fw-bold text-white mb-1">$18.450.000 <small class="fs-8 text-light-muted">CO</small></h2>
+              <span class="text-success fs-8 fw-semibold mb-2 d-block">▲ +14.2% vs Septiembre</span>
+              <div class="d-flex justify-content-between fs-8 border-top border-dark-custom pt-2 mt-auto">
+                <span class="text-light-muted">Margen Operativo Bruto:</span>
+                <strong class="text-white">32.0%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 2: Gráfica de Telemetría (Izquierda) + Alertas Críticas (Derecha) -->
+        <div class="row g-3">
+          <!-- Telemetría de Combustible y Recorrido -->
+          <div class="col-12 col-xl-8">
+            <div class="card card-dark p-4 h-100">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+                <div>
+                  <span class="form-label-dark">TELEMETRÍA DE COMBUSTIBLE Y RECORRIDO</span>
+                  <h5 class="fw-bold text-white mb-0">Rendimiento Semanal de la Flota</h5>
+                </div>
+                <div class="d-flex gap-3 fs-8">
+                  <span class="d-flex align-items-center gap-1 text-light-muted">
+                    <span class="status-dot" style="background-color: #ff7f00;"></span> KM Recorridos
+                  </span>
+                  <span class="d-flex align-items-center gap-1 text-light-muted">
+                    <span class="status-dot" style="background-color: #8b949e;"></span> Galones Diésel
+                  </span>
+                </div>
+              </div>
+
+              <!-- Sub-métricas de la gráfica -->
+              <div class="row g-3 p-3 rounded-3 mb-4" style="background-color: var(--bg-input);">
+                <div class="col-4 border-end border-dark-custom">
+                  <span class="text-light-muted fs-8 d-block">Total Kilómetros</span>
+                  <strong class="text-white fs-6">14,820 KM</strong>
+                </div>
+                <div class="col-4 border-end border-dark-custom">
+                  <span class="text-light-muted fs-8 d-block">Consumo Total</span>
+                  <strong class="text-white fs-6">1,140 Gal</strong>
+                </div>
+                <div class="col-4">
+                  <span class="text-light-muted fs-8 d-block">Eficiencia Promedio</span>
+                  <strong class="link-orange fs-6">13.0 KM/Gal</strong>
+                </div>
+              </div>
+
+              <!-- Render Visual de Barras del Grafico -->
+              <div class="d-flex align-items-end justify-content-between pt-4 px-2" style="height: 220px; border-bottom: 1px solid var(--border-dark);">
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 75%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 45%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Lun</span>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 85%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 50%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Mar</span>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 90%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 55%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Mié</span>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 70%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 40%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Jue</span>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 100%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 60%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Vie</span>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 50%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 30%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Sáb</span>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-2 h-100 justify-content-end">
+                  <div class="d-flex align-items-end gap-1" style="height: 80%;">
+                    <div style="width: 14px; height: 40%; background-color: var(--brand-orange); border-radius: 4px 4px 0 0;"></div>
+                    <div style="width: 14px; height: 20%; background-color: var(--text-muted); border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <span class="fs-8 text-light-muted">Dom</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alertas Críticas de Hoy (Panel Lateral de Control) -->
+          <div class="col-12 col-xl-4">
+            <div class="card card-dark p-4 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="form-label-dark">VENCIMIENTOS URGENTES</span>
+                <span class="badge bg-danger text-white fs-8">2 Prioritarias</span>
+              </div>
+              <h5 class="fw-bold text-white mb-1">Alertas Críticas de Hoy</h5>
+              <p class="text-light-muted fs-8 mb-3">Documentos obligatorios según normativa Supertransporte con plazo inferior a 7 días.</p>
+
+              <!-- Lista de Alertas -->
+              <div class="d-flex flex-column gap-3">
+                <!-- Alerta 1 -->
+                <div class="p-3 rounded-3 border border-dark-custom" style="background-color: var(--bg-input);">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="plate-box px-2 py-1 text-center">
+                      <span class="plate-code">UVP-123</span>
+                    </span>
+                    <span class="badge bg-danger text-white fs-8">2 días</span>
+                  </div>
+                  <p class="fw-bold text-white mb-0 fs-7">Póliza SOAT Seguros Bolívar</p>
+                  <span class="text-light-muted fs-8 d-block mb-2">Vence: 26 Oct 2024 (23:59)</span>
+                  <button class="btn btn-orange-cta w-100 py-1 fs-8">Renovar</button>
+                </div>
+
+                <!-- Alerta 2 -->
+                <div class="p-3 rounded-3 border border-dark-custom" style="background-color: var(--bg-input);">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="plate-box px-2 py-1 text-center">
+                      <span class="plate-code">TRL-890</span>
+                    </span>
+                    <span class="badge bg-warning text-dark fs-8">4 días</span>
+                  </div>
+                  <p class="fw-bold text-white mb-0 fs-7">Revisión Técnico-Mecánica (CDA)</p>
+                  <span class="text-light-muted fs-8 d-block mb-2">Cita CDA Bogotá: Pendiente</span>
+                  <button class="btn btn-outline-dark-custom w-100 py-1 fs-8">Gestionar</button>
+                </div>
+
+                <!-- Alerta 3 -->
+                <div class="p-3 rounded-3 border border-dark-custom" style="background-color: var(--bg-input);">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-white fs-7 fw-bold d-flex align-items-center gap-1">
+                      <span class="material-symbols-outlined fs-6">person</span> Juan Carlos Pérez
+                    </span>
+                    <span class="badge bg-warning text-dark fs-8">6 días</span>
+                  </div>
+                  <p class="fw-bold text-white mb-0 fs-7">Licencia C2 Transporte Público</p>
+                  <span class="text-light-muted fs-8 d-block mb-2">Examen médico RUNT agendado</span>
+                  <button class="btn btn-outline-dark-custom w-100 py-1 fs-8">Notificar</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
 
         </div>
 
-    </div>
+      </div>
+    </main>
+  </div>
 
-
-    <div class="col-md-3">
-
-        <div class="card card-custom p-3">
-
-            <span class="text-secondary small">
-                Alertas de Telemetría
-            </span>
-
-            <h3 class="fw-bold text-warning mt-1">
-                3
-
-                <span class="fs-6 text-danger font-monospace">
-                    Atención
-                </span>
-            </h3>
-
-        </div>
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <div class="card card-custom p-3">
-
-            <span class="text-secondary small">
-                Eficiencia de Flota
-            </span>
-
-            <h3 class="fw-bold text-white mt-1">
-                88.5%
-
-                <span class="fs-6 text-info font-monospace">
-                    Estable
-                </span>
-            </h3>
-
-        </div>
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <div class="card card-custom p-3">
-
-            <span class="text-secondary small">
-                Conductores en Turno
-            </span>
-
-            <h3 class="fw-bold text-white mt-1">
-                18
-
-                <span class="fs-6 text-success font-monospace">
-                    Activos
-                </span>
-            </h3>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================
-     GRÁFICOS
-     ========================================= -->
-
-<div class="row g-4">
-
-    <!-- Gráfico de rendimiento -->
-
-    <div class="col-lg-8">
-
-        <div class="card card-custom p-4">
-
-            <h5 class="text-white mb-3">
-                Rendimiento Semanal de la Flota
-            </h5>
-
-            <canvas
-                id="graficoRendimiento"
-                height="130"
-            ></canvas>
-
-        </div>
-
-    </div>
-
-
-    <!-- Gráfico de balance -->
-
-    <div class="col-lg-4">
-
-        <div class="card card-custom p-4">
-
-            <h5 class="text-white mb-3">
-                Balance de Consumo
-            </h5>
-
-            <canvas
-                id="graficoBalance"
-                height="260"
-            ></canvas>
-
-        </div>
-
-    </div>
-
-</div>
+  <!-- JavaScript CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./dashboard.js"></script>
+</body>
+</html>

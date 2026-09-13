@@ -1,0 +1,273 @@
+/* ==========================================================
+   iQ Fleet - Estilos del Módulo Dashboard
+   Paleta de colores oficial (Sincronizada con Vehículos)
+   ========================================================== */
+
+:root {
+  --bg-app: #090c10;
+  --bg-card: #0d1117;
+  --bg-input: #161b22;
+  --border-dark: #21262d;
+  --brand-orange: #ff7f00;
+  --brand-orange-hover: #e06f00;
+  --text-muted: #8b949e;
+}
+
+body.bg-dark-app {
+  background-color: var(--bg-app) !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #c9d1d9;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* --- UTILIDADES DE TEXTO Y ESPACIADO --- */
+.fs-7 { font-size: 0.85rem; }
+.fs-8 { font-size: 0.75rem; }
+.max-w-container { max-width: 1720px; }
+.max-w-lg { max-width: 480px; }
+.border-dark-custom { border-bottom: 1px solid var(--border-dark); }
+.text-light-muted { color: var(--text-muted) !important; }
+.link-orange { color: var(--brand-orange) !important; }
+
+/* --- BOTONES Y ACCIONES --- */
+.btn-orange-cta {
+  background-color: var(--brand-orange) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 10px !important;
+  border: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(255, 127, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-orange-cta:hover {
+  background-color: var(--brand-orange-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.btn-orange-cta .material-symbols-outlined {
+  color: #ffffff !important;
+}
+
+.btn-outline-dark-custom {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-dark) !important;
+  color: #c9d1d9 !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-dark-custom:hover {
+  background-color: var(--border-dark) !important;
+  color: #ffffff !important;
+  border-color: var(--text-muted) !important;
+}
+
+/* --- SELECT OSCURO --- */
+.select-dark {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-dark) !important;
+  color: #ffffff !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select-dark:focus {
+  border-color: var(--brand-orange) !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 127, 0, 0.25) !important;
+}
+
+.select-dark option {
+  background-color: var(--bg-card);
+  color: #ffffff;
+}
+
+/* --- INPUTS Y BUSCADOR --- */
+.input-dark-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-dark-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted) !important;
+  font-size: 1.2rem;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.form-control-dark {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-dark) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  padding-left: 38px !important;
+  padding-right: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.form-control-dark::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.form-control-dark:focus {
+  background-color: var(--bg-input) !important;
+  color: #ffffff !important;
+  border-color: var(--brand-orange) !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 127, 0, 0.25) !important;
+}
+
+/* --- SIDEBAR & HEADER --- */
+.sidebar-iq {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 260px;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-dark);
+  z-index: 1050;
+}
+
+.brand-logo-sq {
+  width: 36px; height: 36px;
+  background-color: var(--brand-orange);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1rem;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.nav-link-dark {
+  color: #c9d1d9;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-link-dark:hover {
+  background-color: var(--bg-input);
+  color: #ffffff;
+}
+
+.nav-link-dark.active {
+  background-color: rgba(255, 127, 0, 0.15);
+  color: var(--brand-orange);
+  border: 1px solid var(--brand-orange);
+}
+
+.main-wrapper {
+  margin-left: 260px;
+}
+
+.topbar-iq {
+  position: fixed;
+  top: 0; right: 0; left: 260px;
+  height: 68px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-dark);
+  z-index: 1040;
+}
+
+.content-area {
+  padding-top: 88px !important;
+  min-height: 100vh;
+}
+
+.user-card {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-dark);
+}
+
+/* --- TARJETAS & MÉTRICAS --- */
+.card-dark, .card-dark-metric {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-dark);
+  border-radius: 16px;
+}
+
+.card-dark-metric {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card-dark-metric:hover {
+  transform: translateY(-2px);
+  border-color: var(--text-muted);
+}
+
+.form-label-dark {
+  color: #ff7f00 !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em;
+  display: block;
+  text-transform: uppercase;
+}
+
+.card-dark-metric small,
+.card-dark-metric .text-light-muted {
+  color: #ffffff !important;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.card-dark-metric .text-success {
+  color: #00ff88 !important;
+  font-weight: 600;
+}
+
+/* --- BADGES Y DETALLES DE ESTADO --- */
+.badge-orange-subtle {
+  background-color: rgba(255, 127, 0, 0.15);
+  color: var(--brand-orange);
+  border: 1px solid rgba(255, 127, 0, 0.3);
+}
+
+.badge-dark-subtle {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-dark);
+  color: #c9d1d9;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.avatar-sm {
+  width: 32px; height: 32px;
+  object-fit: cover;
+}
+
+.hover-orange:hover {
+  color: var(--brand-orange) !important;
+}

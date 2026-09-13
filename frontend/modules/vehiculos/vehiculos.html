@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iQ Fleet - Inventario de Vehículos</title>
+
+  <!-- Google Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Estilos Personalizados del Módulo (2 niveles arriba -> frontend/assets/css/) -->
+  <link rel="stylesheet" href="../../assets/css/vehiculos.css">
+</head>
+<body class="bg-dark-app text-light">
+
+  <!-- Sidebar Lateral -->
+  <aside class="sidebar-iq d-flex flex-column justify-content-between p-3">
+    <div>
+      <!-- Brand Logo -->
+      <div class="d-flex align-items-center justify-content-between pb-3 border-dark-custom">
+        <a href="../dashboard/index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <div class="brand-logo-sq">iQ</div>
+          <span class="fs-4 fw-bold text-white">iQ<span class="link-orange">Fleet</span></span>
+        </a>
+        <span class="badge badge-orange-subtle text-uppercase">PRO</span>
+      </div>
+
+      <div class="pt-3 pb-2">
+        <p class="text-uppercase text-light-muted fs-8 fw-semibold mb-0">Módulos</p>
+      </div>
+
+      <!-- Menú de Navegación Interactivo (Navega entre módulos dentro de /modules/) -->
+      <nav class="nav flex-column gap-1" id="mainSidebarNav">
+        <!-- OPCIÓN 1: Dashboard -->
+        <a class="nav-link nav-link-dark" href="../dashboard/dashboard.html">
+          <span class="material-symbols-outlined fs-5">dashboard</span> Dashboard
+        </a>
+
+        <!-- OPCIÓN 2: Flota & Vehículos (Página Actual) -->
+        <a class="nav-link nav-link-dark active" href="./vehiculos.html">
+          <span class="material-symbols-outlined fs-5">directions_bus</span> Flota &amp; Vehículos
+        </a>
+
+        <!-- OPCIÓN 3: Conductores -->
+        <a class="nav-link nav-link-dark" href="../conductores/index.html">
+          <span class="material-symbols-outlined fs-5">badge</span> Conductores
+        </a>
+
+        <!-- OPCIÓN 4: Control Documental -->
+        <a class="nav-link nav-link-dark d-flex justify-content-between align-items-center" href="../documentos/index.html">
+          <span class="d-flex align-items-center gap-2">
+            <span class="material-symbols-outlined fs-5">folder_open</span> Control Documental
+          </span>
+          <span class="badge bg-danger rounded-pill">8</span>
+        </a>
+
+        <!-- OPCIÓN 5: Finanzas -->
+        <a class="nav-link nav-link-dark" href="../financiero/index.html">
+          <span class="material-symbols-outlined fs-5">payments</span> Finanzas
+        </a>
+      </nav>
+    </div>
+
+    <!-- Perfil Propietario -->
+    <div class="user-card p-2 rounded-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2 overflow-hidden">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4lVvETLz7Z9p4OysXFvp67JlfF56q4H4l3XWCw4UnOXpkQSRsHyx5V_dt-yk1_qxKiGE5r3coST_ibYWJYDlu5XS8TZ4Ch9y1fXuTI6qmLsnu4afXpz5YvpSal4722jaPJJeRjB38YjE2GZQ1OeTixbmmgpSjD3cJw3SfaO9YOz19aqXN5I5gTvhBcSnUzmu_JerDW8RgykY17OKYNYkWgGr7KWqprlXHO12w8HCYrNrx-CqBcgbI" class="rounded-circle avatar-sm" alt="Carlos Morales">
+        <div class="text-truncate">
+          <p class="text-white fs-7 fw-semibold mb-0 text-truncate">Carlos Morales</p>
+          <span class="text-light-muted fs-8">Propietario</span>
+        </div>
+      </div>
+      <button class="btn btn-link text-light-muted p-1 hover-orange" title="Cerrar sesión" id="btnLogout">
+        <span class="material-symbols-outlined fs-5">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Envoltorio Principal -->
+  <div class="main-wrapper">
+    <!-- Topbar Header -->
+    <header class="topbar-iq d-flex align-items-center justify-content-between px-4">
+      <div class="d-flex align-items-center gap-3 flex-grow-1 max-w-lg">
+        <div class="input-dark-group w-100">
+          <span class="material-symbols-outlined input-dark-icon">search</span>
+          <input type="text" class="form-control form-control-dark" id="globalSearchInput" placeholder="Buscar placa, conductor, SOAT... ⌘K">
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge badge-dark-subtle d-none d-md-inline-flex align-items-center gap-2 px-3 py-2">
+          <span class="status-dot bg-success"></span>
+          <span class="text-light-muted fs-7">18 En ruta (90%)</span>
+        </span>
+        <button class="btn btn-orange-cta px-3 py-2" id="btnQuickAdd">
+          <span class="material-symbols-outlined fs-5">add</span>
+          <span>Registrar Novedad</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Área de Contenido -->
+    <main class="content-area p-4">
+      <div class="container-fluid max-w-container">
+
+        <!-- Encabezado de Sección -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge badge-orange-subtle text-uppercase">Transporte Masivo Colectivo</span>
+              <span class="text-light-muted fs-8">ID Sistema: IQ-COL-77</span>
+            </div>
+            <h1 class="h3 fw-bold text-white mb-1">Inventario de Flota &amp; Vehículos</h1>
+            <p class="text-light-muted fs-7 mb-0">
+              <strong class="text-white">20 Vehículos registrados</strong> • 
+              <span class="text-success fw-semibold">18 Operativos</span> • 
+              <span class="link-orange fw-semibold">2 En Taller</span>
+            </p>
+          </div>
+          
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-dark-custom d-flex align-items-center gap-1" id="btnBulkUpload">
+              <span class="material-symbols-outlined fs-5">upload_file</span> Carga Masiva
+            </button>
+            <button class="btn btn-orange-cta d-flex align-items-center gap-1" id="btnCreateVehicle">
+              <span class="material-symbols-outlined fs-5">add_circle</span> + Registrar Vehículo
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjetas Métricas (Bento Dark Cards) -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-4">
+            <div class="card card-dark-metric p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="form-label-dark text-uppercase mb-1">Odómetro Acumulado</span>
+                  <h3 class="fw-bold mb-0 text-white">1.240.500 <small class="fs-6 text-light-muted">km</small></h3>
+                  <small class="text-success d-flex align-items-center gap-1 mt-1 fs-8">
+                    <span class="material-symbols-outlined fs-6">trending_up</span> +12.450 km este mes
+                  </small>
+                </div>
+                <div class="icon-shield-check p-2">
+                  <span class="material-symbols-outlined fs-4">speed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="card card-dark-metric p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="form-label-dark text-uppercase mb-1">Rendimiento Combustible</span>
+                  <h3 class="fw-bold mb-0 text-white">14.2 <small class="fs-6 text-light-muted">km/gal</small></h3>
+                  <small class="link-orange d-flex align-items-center gap-1 mt-1 fs-8">
+                    <span class="material-symbols-outlined fs-6">eco</span> Eficiencia 96.4% meta
+                  </small>
+                </div>
+                <div class="icon-shield-check p-2">
+                  <span class="material-symbols-outlined fs-4">local_gas_station</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="card card-dark-metric p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="form-label-dark text-uppercase mb-1">Antigüedad Promedio</span>
+                  <h3 class="fw-bold mb-0 text-white">3.8 <small class="fs-6 text-light-muted">años</small></h3>
+                  <small class="text-light-muted d-flex align-items-center gap-1 mt-1 fs-8">
+                    <span class="material-symbols-outlined fs-6">verified_user</span> Norma Euro VI
+                  </small>
+                </div>
+                <div class="icon-shield-check p-2">
+                  <span class="material-symbols-outlined fs-4">directions_bus</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de Filtros -->
+        <div class="card card-dark p-3 mb-4">
+          <div class="row g-2 align-items-center justify-content-between">
+            <div class="col-12 col-xl-9">
+              <div class="row g-2">
+                <div class="col-12 col-sm-5">
+                  <div class="input-dark-group">
+                    <span class="material-symbols-outlined input-dark-icon">search</span>
+                    <input type="text" class="form-control form-control-dark" id="fleetSearchInput" placeholder="Placa o N° Interno (ej. UVP-123)...">
+                  </div>
+                </div>
+                <div class="col-12 col-sm-3.5">
+                  <select class="form-select select-dark" id="typeFilter">
+                    <option value="all">Tipo: Todos</option>
+                    <option value="urbano">Bus Urbano</option>
+                    <option value="microbus">Microbús</option>
+                    <option value="padron">Padrón SITP</option>
+                  </select>
+                </div>
+                <div class="col-12 col-sm-3.5">
+                  <select class="form-select select-dark" id="statusFilter">
+                    <option value="all">Estado: Todos</option>
+                    <option value="en ruta">En Ruta</option>
+                    <option value="patio">Disponible Patio</option>
+                    <option value="taller">Taller Preventivo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-xl-3 d-flex justify-content-end">
+              <button class="btn btn-outline-dark-custom d-flex align-items-center gap-1 w-100 w-sm-auto justify-content-center" id="btnExport">
+                <span class="material-symbols-outlined fs-5">download</span> Exportar Lista
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla CRUD Principal -->
+        <div class="card card-dark overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-dark-custom align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="py-3 px-3">Placa &amp; Registro</th>
+                  <th scope="col" class="py-3">N° Móvil</th>
+                  <th scope="col" class="py-3">Tipo &amp; Carrocería</th>
+                  <th scope="col" class="py-3 text-center">Capacidad</th>
+                  <th scope="col" class="py-3">Conductor Asignado</th>
+                  <th scope="col" class="py-3">Kilometraje</th>
+                  <th scope="col" class="py-3">Estado Operativo</th>
+                  <th scope="col" class="py-3">Doc. RUNT</th>
+                  <th scope="col" class="py-3 text-end px-3">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="fleetTableBody" class="fs-7">
+
+                <!-- Registro 1 -->
+                <tr data-vehicle-id="1">
+                  <td class="px-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="plate-box rounded text-center p-1 shadow-sm">
+                        <span class="plate-city">BOGOTÁ D.C.</span>
+                        <div class="plate-code">UVP•123</div>
+                        <span class="plate-country">COLOMBIA</span>
+                      </div>
+                      <div>
+                        <div class="fw-bold text-white">Chasis HINO FC9J</div>
+                        <div class="text-light-muted fs-8">VIN: 9FBRT43098K</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-dark-subtle fs-6">#104</span></td>
+                  <td>
+                    <div class="fw-semibold text-white">Bus Urbano</div>
+                    <div class="text-light-muted fs-8">Busscar Urbanuss Pluss</div>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-dark-subtle text-light-muted">
+                      <span class="material-symbols-outlined fs-8 align-middle">groups</span> 40 Pax
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL_GVMqX7X3wX3N88jQAZeFmz_Uy4Lpfd6y3P8UnbaFWiCykLQ73sk642ZM3NY3HhDOrt1XUB_i0BY4SnzTEXtsMtgxftFTQhLMTuAEULBet4MECVLNOECuqE-zwlULCfl_inWhwUK163IjklIayGGLb6w5Jzz6CnMK8eSdTM26aQBNMsK3za00hLk3LRcq0PlOvr0rgpxJ74w4gWZTGajXKPlUR22qBtyLq8n_dF0PlOodFgFJMgE" class="rounded-circle avatar-sm" alt="Jairo Benavides">
+                      <div>
+                        <div class="fw-semibold text-white">Jairo Benavides</div>
+                        <div class="text-light-muted fs-8">Lic. C2 Activa</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="fw-bold text-white">84.320 km</div>
+                    <div class="link-orange fs-8">Último rev: hace 12d</div>
+                  </td>
+                  <td>
+                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">En Ruta (Ruta 74)</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">Al Día (280d)</span>
+                  </td>
+                  <td class="text-end px-3">
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-dark-custom btn-view-detail" title="Ver detalle">Ficha</button>
+                      <button class="btn btn-sm btn-outline-dark-custom btn-edit-vehicle" title="Editar"><span class="material-symbols-outlined fs-6 align-middle">edit</span></button>
+                      <button class="btn btn-sm btn-outline-dark-custom text-danger btn-delete-vehicle" title="Eliminar"><span class="material-symbols-outlined fs-6 align-middle">delete</span></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Registro 2 -->
+                <tr data-vehicle-id="2">
+                  <td class="px-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="plate-box rounded text-center p-1 shadow-sm">
+                        <span class="plate-city">MEDELLÍN</span>
+                        <div class="plate-code">WZA•456</div>
+                        <span class="plate-country">COLOMBIA</span>
+                      </div>
+                      <div>
+                        <div class="fw-bold text-white">Mercedes-Benz Atego</div>
+                        <div class="text-light-muted fs-8">VIN: 8A3ME98271B</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-dark-subtle fs-6">#218</span></td>
+                  <td>
+                    <div class="fw-semibold text-white">Padrón SITP</div>
+                    <div class="text-light-muted fs-8">Marcopolo Torino G7</div>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-dark-subtle text-light-muted">
+                      <span class="material-symbols-outlined fs-8 align-middle">groups</span> 80 Pax
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQHbtxvWCQeabZYMnkpXRfrrnMi17CXGKr0DSoYpzxvU2lQXcB-2zDACaZDyhEWpQnFTyO5E7Cd4OZsa90StkpfFGZ0uKfG5ZIXtaA1N0NmYhwSxSc1yz61XRnt5vICg0o67L-VG1MDi8SJf0nsRZlekzfprMjqTscvczXnm7oHB3D8eP-4ghKgtB2ByB2UFV18fivtMe9i1uk2L3uINi5fzeTIOe_ae-ruOKxNN17wjcM6Xnjb28h" class="rounded-circle avatar-sm" alt="Hernando Ríos">
+                      <div>
+                        <div class="fw-semibold text-white">Hernando Ríos</div>
+                        <div class="text-light-muted fs-8">Lic. C3 Activa</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="fw-bold text-white">192.400 km</div>
+                    <div class="text-light-muted fs-8">Último rev: hace 4d</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-dark-subtle text-light-muted rounded-pill px-2 py-1">Disponible Patio Sur</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1">SOAT Vence en 3d</span>
+                  </td>
+                  <td class="text-end px-3">
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-dark-custom btn-view-detail" title="Ver detalle">Ficha</button>
+                      <button class="btn btn-sm btn-outline-dark-custom btn-edit-vehicle" title="Editar"><span class="material-symbols-outlined fs-6 align-middle">edit</span></button>
+                      <button class="btn btn-sm btn-outline-dark-custom text-danger btn-delete-vehicle" title="Eliminar"><span class="material-symbols-outlined fs-6 align-middle">delete</span></button>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal para Crear/Editar Vehículo -->
+  <div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark-app text-white border-dark-custom">
+        <div class="modal-header border-bottom border-dark">
+          <h5 class="modal-title fw-bold" id="vehicleModalTitle">Registrar Nuevo Vehículo</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="vehicleForm">
+            <div class="mb-3">
+              <label class="form-label-dark mb-1">Placa</label>
+              <input type="text" class="form-control form-control-dark" placeholder="Ej. UVP-123" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-dark mb-1">N° Móvil</label>
+              <input type="text" class="form-control form-control-dark" placeholder="Ej. #104" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-dark mb-1">Modelo / Chasis</label>
+              <input type="text" class="form-control form-control-dark" placeholder="Ej. Chasis HINO FC9J" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-top border-dark">
+          <button type="button" class="btn btn-outline-dark-custom" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-orange-cta">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Lógica JavaScript del Módulo -->
+  <script src="js/vehiculos.js"></script>
+</body>
+</html>
