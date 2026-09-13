@@ -271,3 +271,44 @@ body.bg-dark-app {
 .hover-orange:hover {
   color: var(--brand-orange) !important;
 }
+
+/* ==========================================================================
+   Corrección de contraste: texto de los formularios en los modales
+   ========================================================================== */
+
+#modalNovedad .modal-title,
+#modalDespacho .modal-title,
+#modalNovedad .form-label,
+#modalDespacho .form-label {
+  color: #1a1a1a;
+}
+
+#modalNovedad .form-control,
+#modalNovedad .form-select,
+#modalDespacho .form-control,
+#modalDespacho .form-select {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+#modalNovedad .form-control:focus,
+#modalNovedad .form-select:focus,
+#modalDespacho .form-control:focus,
+#modalDespacho .form-select:focus {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+#modalNovedad .form-control::placeholder,
+#modalDespacho .form-control::placeholder {
+  color: #6c757d;
+}
+/* --------------------------------------------------
+*  Control de saltos de pagina para la exportacón a PDF
+*  ------------------------------------------------*/
+.card-dark-metric,
+.card-dark,
+.alert-item{
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
