@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iQFleet - Módulo Conductores</title>
+  
+  <!-- Iconos y Bootstrap 5.3 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/conductores.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script type="module" src="./conductores.js" defer></script>
+</head>
+<body class="bg-dark-app">
+
+  <!-- Sidebar Lateral Oscuro -->
+  <aside class="sidebar-iq d-flex flex-column justify-content-between p-3">
+    <div>
+      <div class="d-flex align-items-center justify-content-between pb-3 border-dark-custom">
+        <a href="../dashboard/dashboard.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <div class="brand-logo-sq">iQ</div>
+          <span class="fs-4 fw-bold text-white">iQ<span class="link-orange">Fleet</span></span>
+        </a>
+        <span class="badge badge-orange-subtle text-uppercase fw-bold">PRO</span>
+      </div>
+
+      <div class="pt-3 pb-2">
+        <p class="text-uppercase text-light-muted fs-8 fw-bold mb-0" style="letter-spacing: 0.05em;">MÓDULOS</p>
+      </div>
+
+      <nav class="d-flex flex-column gap-1">
+        <a href="../dashboard/dashboard.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="../vehiculos/vehiculos.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">directions_bus</span>
+          <span>Flota &amp; Vehículos</span>
+        </a>
+        <a href="./conductores.html" class="nav-link-dark active text-decoration-none">
+          <span class="material-symbols-outlined fs-5">badge</span>
+          <span>Conductores</span>
+        </a>
+        <a href="../documentos/documentos.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">folder_open</span>
+          <span>Control Documental</span>
+          <span class="badge bg-danger rounded-circle ms-auto fs-8 px-1">8</span>
+        </a>
+        <a href="../finanzas/finanzas.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">account_balance_wallet</span>
+          <span>Finanzas</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Perfil Propietario -->
+    <div class="user-card p-2 rounded-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2 overflow-hidden">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4lVvETLz7Z9p4OysXFvp67JlfF56q4H4l3XWCw4UnOXpkQSRsHyx5V_dt-yk1_qxKiGE5r3coST_ibYWJYDlu5XS8TZ4Ch9y1fXuTI6qmLsnu4afXpz5YvpSal4722jaPJJeRjB38YjE2GZQ1OeTixbmmgpSjD3cJw3SfaO9YOz19aqXN5I5gTvhBcSnUzmu_JerDW8RgykY17OKYNYkWgGr7KWqprlXHO12w8HCYrNrx-CqBcgbI"
+          class="rounded-circle avatar-sm" alt="Carlos Morales">
+        <div class="text-truncate">
+          <p class="text-white fs-7 fw-semibold mb-0 text-truncate">Carlos Morales</p>
+          <span class="text-light-muted fs-8">Propietario</span>
+        </div>
+      </div>
+      <button class="btn btn-link text-light-muted p-1 hover-orange" title="Cerrar sesión" id="btnLogout">
+        <span class="material-symbols-outlined fs-5">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Wrapper Principal -->
+  <div class="main-wrapper">
+    
+    <!-- Topbar Superior Fija -->
+    <header class="topbar-iq px-4 d-flex align-items-center justify-content-between">
+      <div class="input-dark-group" style="width: 360px;">
+        <span class="material-symbols-outlined input-dark-icon">search</span>
+        <input type="text" class="form-control form-control-dark w-100" placeholder="Buscar placa, conductor, SOAT... ⌘K">
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge badge-dark-subtle d-flex align-items-center gap-2 px-2 py-1">
+          <span class="status-dot bg-success"></span> 18 En ruta (90%)
+        </span>
+        <button class="btn-orange-cta" data-bs-toggle="modal" data-bs-target="#modalNovedad">
+          <span class="material-symbols-outlined">add</span> Registrar Novedad
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenido del Módulo -->
+    <main class="content-area px-4 pb-4">
+      
+      <!-- Encabezado de Sección con Borde Inferior -->
+      <div class="page-header-border pb-3 mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge badge-orange-subtle fw-bold">OPERACIONES &amp; LOGÍSTICA URBANA</span>
+          <span class="text-light-muted fs-8">ID Sistema: IQ-DRV-01</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="page-module-title mb-1">Gestión de Conductores y Personal Operativo</h1>
+            <p class="text-light-muted fs-7 mb-0">
+              <strong class="text-white">20</strong> Conductores registrados • <span class="text-success fw-semibold">18 Operativos</span> • <span class="text-warning fw-semibold">2 En Relevo</span>
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn-outline-dark-custom">
+              <span class="material-symbols-outlined">bedtime</span> Control Fatiga
+            </button>
+            <button class="btn-orange-cta" data-bs-toggle="modal" data-bs-target="#modalVincular">
+              <span class="material-symbols-outlined">person_add</span> Vincular Conductor
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjetas Bento Grid KPI -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+          <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
+            <div>
+              <span class="form-label-dark">TOTAL CONDUCTORES</span>
+              <div class="d-flex align-items-baseline gap-2 my-1">
+                <span class="metric-number text-white fw-bold">24</span>
+                <span class="text-light-muted fs-8">activos</span>
+              </div>
+              <small class="text-success d-flex align-items-center gap-1 fs-8">
+                <span class="material-symbols-outlined">check_circle</span> 100% habilitados para servicio
+              </small>
+            </div>
+            <div class="icon-shield-check">
+              <span class="material-symbols-outlined">badge</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
+            <div>
+              <span class="form-label-dark">PUNTAJE CONDUCCIÓN</span>
+              <div class="d-flex align-items-baseline gap-2 my-1">
+                <span class="metric-number text-white fw-bold">96.4</span>
+                <span class="text-light-muted fs-8">/100</span>
+              </div>
+              <small class="text-success d-flex align-items-center gap-1 fs-8">
+                <span class="material-symbols-outlined">speed</span> Eficiencia 96.4% meta
+              </small>
+            </div>
+            <div class="icon-shield-check">
+              <span class="material-symbols-outlined">query_stats</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
+            <div>
+              <span class="form-label-dark">LICENCIAS POR VENCER</span>
+              <div class="d-flex align-items-baseline gap-2 my-1">
+                <span class="metric-number text-white fw-bold">2</span>
+                <span class="text-light-muted fs-8">años prom.</span>
+              </div>
+              <small class="text-warning d-flex align-items-center gap-1 fs-8">
+                <span class="material-symbols-outlined">warning</span> Alerta Semáforo RUNT
+              </small>
+            </div>
+            <div class="icon-shield-check">
+              <span class="material-symbols-outlined">subtitles</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla CRUD -->
+      <div class="card-dark p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="input-dark-group" style="width: 320px;">
+            <span class="material-symbols-outlined input-dark-icon">search</span>
+            <input type="text" class="form-control form-control-dark" placeholder="Buscar por Nombre o Cédula...">
+          </div>
+          <button class="btn-outline-dark-custom">
+            <span class="material-symbols-outlined">download</span> Exportar Lista
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-dark-custom align-middle mb-0">
+            <thead>
+              <tr>
+                <th>CONDUCTOR</th>
+                <th>CÉDULA</th>
+                <th>CATEGORÍA</th>
+                <th>VENC. LICENCIA</th>
+                <th>MÓVIL ASIGNADO</th>
+                <th>TURNO &amp; RUTA</th>
+                <th>PUNTAJE TELEMÁTICO</th>
+                <th class="text-end">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody id="conductoresTableBody">
+              <!-- Carga dinámica vía JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Vincular Conductor -->
+  <div class="modal fade" id="modalVincular" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content card-dark text-white">
+        <div class="modal-header border-dark-custom p-3">
+          <h5 class="modal-title fw-bold fs-7">Vincular Conductor</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body d-flex flex-column gap-3 p-3">
+          <div>
+            <label class="form-label-dark mb-1">Nombre Completo</label>
+            <input type="text" class="form-control form-control-dark" style="padding-left: 12px !important;" placeholder="Ej. Carlos Rodríguez">
+          </div>
+          <div>
+            <label class="form-label-dark mb-1">Cédula</label>
+            <input type="text" class="form-control form-control-dark" style="padding-left: 12px !important;" placeholder="CC 12.345.678">
+          </div>
+        </div>
+        <div class="modal-footer border-dark-custom p-2">
+          <button type="button" class="btn-outline-dark-custom" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn-orange-cta">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
