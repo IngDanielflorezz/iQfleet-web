@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iQFleet - Control Documental &amp; Auditoría RUNT/CDA</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Material Symbols -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <!-- Estilo general de vehículos y módulo -->
+  <link rel="stylesheet" href="../../assets/css/vehiculos.css">
+  <link rel="stylesheet" href="../../assets/css/documentos.css">
+</head>
+<body class="bg-dark-app">
+
+
+  <!-- Sidebar Lateral Oscuro -->
+  <aside class="sidebar-iq d-flex flex-column justify-content-between p-3">
+    <div>
+      <div class="d-flex align-items-center justify-content-between pb-3 border-dark-custom">
+        <a href="../dashboard/dashboard.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <div class="brand-logo-sq">iQ</div>
+          <span class="fs-4 fw-bold text-white">iQ<span class="link-orange">Fleet</span></span>
+        </a>
+        <span class="badge badge-orange-subtle text-uppercase fw-bold">PRO</span>
+      </div>
+
+      <div class="pt-3 pb-2">
+        <p class="text-uppercase text-light-muted fs-8 fw-bold mb-0" style="letter-spacing: 0.05em;">MÓDULOS</p>
+      </div>
+
+      
+      <nav class="d-flex flex-column gap-1">
+        <a href="../dashboard/dashboard.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">dashboard</span>
+          <span>Dashboard Ejecutivo</span>
+        </a>
+        <a href="../vehiculos/vehiculos.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">directions_bus</span>
+          <span>Flota &amp; Vehículos</span>
+        </a>
+        <a href="../conductores/conductores.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">badge</span>
+          <span>Conductores</span>
+        </a>
+        <a href="./documentos.html" class="nav-link-dark active text-decoration-none">
+          <span class="material-symbols-outlined fs-5">folder_open</span>
+          <span>Control Documental</span>
+        </a>
+        <a href="../finanzas/finanzas.html" class="nav-link-dark text-decoration-none">
+          <span class="material-symbols-outlined fs-5">payments</span>
+          <span>Finanzas &amp; Rentabilidad</span>
+        </a>
+      </nav>
+    </div>
+  <!-- Perfil Propietario -->
+    <div class="user-card p-2 rounded-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2 overflow-hidden">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4lVvETLz7Z9p4OysXFvp67JlfF56q4H4l3XWCw4UnOXpkQSRsHyx5V_dt-yk1_qxKiGE5r3coST_ibYWJYDlu5XS8TZ4Ch9y1fXuTI6qmLsnu4afXpz5YvpSal4722jaPJJeRjB38YjE2GZQ1OeTixbmmgpSjD3cJw3SfaO9YOz19aqXN5I5gTvhBcSnUzmu_JerDW8RgykY17OKYNYkWgGr7KWqprlXHO12w8HCYrNrx-CqBcgbI" class="rounded-circle avatar-sm" alt="Carlos Morales">
+        <div class="text-truncate">
+          <p class="text-white fs-7 fw-semibold mb-0 text-truncate">Carlos Morales</p>
+          <span class="text-light-muted fs-8">Propietario</span>
+        </div>
+      </div>
+      <button class="btn btn-link text-light-muted p-1 hover-orange" title="Cerrar sesión" id="btnLogout">
+        <span class="material-symbols-outlined fs-5">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Topbar Fijo -->
+  <header class="topbar-iq d-flex align-items-center justify-content-between px-4">
+    <div class="input-dark-group flex-grow-1 max-w-lg">
+      <span class="material-symbols-outlined input-dark-icon">search</span>
+      <input type="text" id="docGlobalSearch" class="form-control form-control-dark" placeholder="Buscar por placa, conductor, SOAT... ⌘K">
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <span class="badge bg-success-subtle text-success d-flex align-items-center gap-1 px-3 py-2 rounded-pill fs-8">
+        <span class="status-dot bg-success"></span> 18 En ruta (90%)
+      </span>
+      <button class="btn btn-orange-cta">
+        <span class="material-symbols-outlined">add</span> + Registrar Novedad
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+    <div class="content-area px-4 pb-5">
+      <div class="max-w-container mx-auto">
+
+        <!-- Banner Titular de la Vista -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge badge-orange-subtle text-uppercase fs-8">RUNT &amp; CDA API SYNCED</span>
+              <small class="text-light-muted fs-8">• Conexión Bogotá Central Activa</small>
+            </div>
+            <h1 class="fs-3 fw-bold text-white m-0">Control Documental &amp; Auditoría RUNT / CDA</h1>
+            <p class="text-light-muted fs-7 mb-0">Monitoreo preventivo y sincronización automática de vigencias legales de flota y personal en tiempo real.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-dark-custom" id="btnSyncRunt">
+              <span class="material-symbols-outlined text-warning">sync</span> Sincronizar RUNT
+            </button>
+            <button class="btn btn-orange-cta">
+              <span class="material-symbols-outlined">upload_file</span> + Cargar Documento / Póliza
+            </button>
+          </div>
+        </div>
+
+<!-- Tarjetas Metricas KPI estilo Bento Box -->
+<div class="row g-3 mb-4">
+  <!-- Vencidos / Críticos -->
+  <div class="col-12 col-md-4">
+    <div class="card-dark p-3 h-100 border-danger-subtle">
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="doc-card-kpi-title text-danger">● VENCIDOS / CRÍTICOS (&lt; 7 DÍAS)</span>
+        <div class="icon-kpi-badge bg-danger-subtle">
+          <span class="material-symbols-outlined fs-6">shield_with_heart</span>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2">
+        <span class="fs-3 text-white fw-bold">3</span>
+        <span class="doc-subtitle">Documentos urgentes</span>
+      </div>
+      <div class="doc-kpi-chips-dark mt-2">
+        <div class="d-flex justify-content-between fs-8 mb-1">
+          <span class="badge bg-danger-subtle text-danger p-1">SOAT: UVP-123</span>
+          <span class="text-light-muted">Lic: Juan Pérez</span>
+        </div>
+        <div class="d-flex justify-content-between fs-8">
+          <span class="badge bg-danger-subtle text-danger p-1">RTM: TRL-890</span>
+          <span class="text-danger fw-bold fs-8">Paralización inminente →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximos a vencer -->
+  <div class="col-12 col-md-4">
+    <div class="card-dark p-3 h-100 border-warning-subtle">
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="doc-card-kpi-title text-warning">● PRÓXIMOS A VENCER (8 - 30 DÍAS)</span>
+        <div class="icon-kpi-badge bg-warning-subtle">
+          <span class="material-symbols-outlined fs-6">hourglass_top</span>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2">
+        <span class="fs-3 text-white fw-bold">5</span>
+        <span class="doc-subtitle">En alerta preventiva</span>
+      </div>
+      <div class="doc-kpi-chips-dark mt-2">
+        <div class="d-flex justify-content-between fs-8 mb-1">
+          <span class="text-warning">Tarjeta Op: WZA-456 (14d)</span>
+        </div>
+        <div class="d-flex justify-content-between fs-8">
+          <span class="text-warning">Póliza RCC: EQZ-912 (21d)</span>
+          <span class="text-warning fw-bold">Cotizaciones abiertas →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vigentes y Al Día -->
+  <div class="col-12 col-md-4">
+    <div class="card-dark p-3 h-100 border-success-subtle">
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="doc-card-kpi-title text-success">● VIGENTES Y AL DÍA (&gt; 30 DÍAS)</span>
+        <div class="icon-kpi-badge bg-success-subtle">
+          <span class="material-symbols-outlined fs-6">verified</span>
+        </div>
+      </div>
+      <div class="d-flex align-items-baseline gap-2">
+        <span class="fs-3 text-white fw-bold">50</span>
+        <span class="doc-subtitle">Auditados &amp; Validados RUNT</span>
+      </div>
+      <div class="doc-kpi-chips-dark mt-2 d-flex justify-content-between align-items-center fs-8">
+        <span class="text-light-muted"><strong class="text-white">96.2%</strong> de conformidad</span>
+        <span class="badge bg-success-subtle text-success">20 Vehículos OK</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Barra de Filtros interactivos de tipo Pill -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <button class="btn btn-orange-cta btn-sm filter-doc-btn active" data-filter="all">Todos los Documentos (58)</button>
+          <button class="btn btn-outline-dark-custom btn-sm filter-doc-btn" data-filter="soat">SOAT (20)</button>
+          <button class="btn btn-outline-dark-custom btn-sm filter-doc-btn" data-filter="rtm">Revisión Técnico-Mecánica RTM (20)</button>
+          <button class="btn btn-outline-dark-custom btn-sm filter-doc-btn" data-filter="to">Tarjetas de Operación (20)</button>
+          <div class="ms-auto d-flex align-items-center gap-2 fs-8 text-light-muted">
+            <button class="btn btn-link text-light-muted p-0 text-decoration-none fs-8" id="btnClearFilters">Limpiar filtros</button>
+            <span>•</span>
+            <span>Filtrando: <strong class="text-white" id="filterStatusText">Todos</strong></span>
+          </div>
+        </div>
+
+        <!-- Tabla CRUD Principal: Registro Maestro -->
+        <div class="card-dark overflow-hidden">
+          <div class="p-3 border-bottom border-dark-custom d-flex justify-content-between align-items-center">
+            <h2 class="fs-6 text-white fw-bold mb-0 d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-warning fs-5">assignment</span> Registro Maestro de Conformidad y Habilitación Legal
+            </h2>
+            <small class="text-light-muted fs-8">● Validación RUNT ejecutada automáticamente cada 6 horas</small>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-dark-custom mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>DOCUMENTO / TIPO</th>
+                  <th>ENTIDAD EMISORA / PÓLIZA</th>
+                  <th>PLACA / CONDUCTOR</th>
+                  <th>EXPEDICIÓN</th>
+                  <th>VENCIMIENTO</th>
+                  <th>DÍAS RESTANTES</th>
+                  <th>AUDITORÍA RUNT</th>
+                  <th class="text-end">DIGITAL</th>
+                </tr>
+              </thead>
+              <tbody id="documentTableBody">
+                <!-- Fila 1: SOAT Crítico -->
+                <tr data-type="soat">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="material-symbols-outlined text-danger fs-5">description</span>
+                      <div>
+                        <div class="fw-bold text-white fs-7">SOAT Obligatorio</div>
+                        <small class="text-light-muted fs-8">Ley 2161 / Tráfico Pesado</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="d-block text-white fs-7">Seguros Bolívar S.A.</span>
+                    <small class="text-light-muted fs-8">Pol. #8921-983210</small>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="plate-box text-center">
+                        <span class="plate-city">BOGOTA D.C.</span>
+                        <span class="plate-code">UVP-123</span>
+                        <span class="plate-country">COLOMBIA</span>
+                      </div>
+                      <small class="text-light-muted fs-8">Kenworth T800</small>
+                    </div>
+                  </td>
+                  <td class="fs-7">25 Oct 2023</td>
+                  <td class="fs-7 text-danger fw-bold">25 Oct 2024</td>
+                  <td>
+                    <span class="badge bg-danger text-white rounded-pill px-2 fs-8">1 día (Crítico)</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-orange-subtle d-inline-flex align-items-center gap-1 fs-8">
+                      <span class="material-symbols-outlined fs-8">cloud_done</span> Sincronizado API RUNT
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-dark-custom btn-sm p-1 me-1"><span class="material-symbols-outlined fs-6 text-warning">visibility</span></button>
+                    <button class="btn btn-outline-dark-custom btn-sm p-1"><span class="material-symbols-outlined fs-6 text-light-muted">download</span></button>
+                  </td>
+                </tr>
+
+                <!-- Fila 2: Licencia Conducción -->
+                <tr data-type="licencia">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="material-symbols-outlined text-warning fs-5">badge</span>
+                      <div>
+                        <div class="fw-bold text-white fs-7">Licencia Conducción C3</div>
+                        <small class="text-light-muted fs-8">Articulados / Tractocamiones</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="d-block text-white fs-7">Secretaría Movilidad Btá</span>
+                    <small class="text-light-muted fs-8">Lic. #102948194</small>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <img src="https://ui-avatars.com/api/?name=Juan+Perez&background=21262d&color=fff" class="avatar-sm rounded-circle" alt="Driver">
+                      <div>
+                        <span class="d-block text-white fs-7 fw-bold">Juan Pérez Gómez</span>
+                        <small class="text-light-muted fs-8">C.C. 79.824.112</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="fs-7">28 Oct 2021</td>
+                  <td class="fs-7 text-danger fw-bold">28 Oct 2024</td>
+                  <td>
+                    <span class="badge bg-danger text-white rounded-pill px-2 fs-8">4 días (Crítico)</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-orange-subtle d-inline-flex align-items-center gap-1 fs-8">
+                      <span class="material-symbols-outlined fs-8">cloud_done</span> Sincronizado API RUNT
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-dark-custom btn-sm p-1 me-1"><span class="material-symbols-outlined fs-6 text-warning">visibility</span></button>
+                    <button class="btn btn-outline-dark-custom btn-sm p-1"><span class="material-symbols-outlined fs-6 text-light-muted">download</span></button>
+                  </td>
+                </tr>
+
+                <!-- Fila 3: RTM -->
+                <tr data-type="rtm">
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="material-symbols-outlined text-danger fs-5">build</span>
+                      <div>
+                        <div class="fw-bold text-white fs-7">Revisión Técnico-Mecánica (RTM)</div>
+                        <small class="text-light-muted fs-8">Emisiones y Seguridad CDA</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="d-block text-white fs-7">CDA Bogotá Central</span>
+                    <small class="text-light-muted fs-8">Cert. #CDA-90812</small>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="plate-box text-center">
+                        <span class="plate-city">BOGOTA D.C.</span>
+                        <span class="plate-code">TRL-890</span>
+                        <span class="plate-country">COLOMBIA</span>
+                      </div>
+                      <small class="text-light-muted fs-8">International</small>
+                    </div>
+                  </td>
+                  <td class="fs-7">30 Oct 2023</td>
+                  <td class="fs-7 text-danger fw-bold">30 Oct 2024</td>
+                  <td>
+                    <span class="badge bg-danger text-white rounded-pill px-2 fs-8">6 días (Crítico)</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-orange-subtle d-inline-flex align-items-center gap-1 fs-8">
+                      <span class="material-symbols-outlined fs-8">cloud_done</span> Sincronizado API RUNT
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-outline-dark-custom btn-sm p-1 me-1"><span class="material-symbols-outlined fs-6 text-warning">visibility</span></button>
+                    <button class="btn btn-outline-dark-custom btn-sm p-1"><span class="material-symbols-outlined fs-6 text-light-muted">download</span></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="../../assets/js/documentos.js"></script>
+</body>
+</html>
