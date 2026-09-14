@@ -1,0 +1,67 @@
+/* ==========================================================
+   iQ Fleet - Estilos Complementarios del Módulo Finanzas
+   (Totalmente acoplado a dashboard.css)
+   ========================================================== */
+
+/* Línea de color inferior para tarjetas KPI */
+.kpi-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+/* Área de Carga Dropzone */
+.file-drop-zone {
+  background-color: var(--bg-input);
+  border: 1px dashed var(--border-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-drop-zone:hover {
+  border-color: var(--brand-orange);
+  background-color: rgba(255, 127, 0, 0.05);
+}
+
+/* Estilos de Gráfico de Barras */
+.fin-chart-container {
+  height: 180px;
+  position: relative;
+}
+
+.chart-y-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--border-dark);
+}
+
+.chart-y-axis span {
+  position: absolute;
+  left: -32px;
+  top: -8px;
+}
+
+.fin-bar {
+  border-radius: 4px 4px 0 0;
+  transition: transform 0.2s ease;
+}
+
+.fin-bar:hover {
+  transform: scaleY(1.05);
+  cursor: pointer;
+}
+
+/* Placa Amarilla Colombiana */
+.badge-plate {
+  background-color: #facc15;
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  border: 1px solid #eab308;
+}
