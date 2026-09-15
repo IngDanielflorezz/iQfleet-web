@@ -101,7 +101,7 @@
         </button>
         <button class="btn btn-orange-cta" id="btnRegistrarNovedad">
           <span class="material-symbols-outlined fs-5">add</span>
-          <span>+ Registrar Novedad</span>
+          <span> Registrar Novedad</span>
         </button>
       </div>
     </header>
@@ -131,7 +131,7 @@
               <span class="material-symbols-outlined fs-5">picture_as_pdf</span> Exportar Reporte PDF
             </button>
             <button class="btn btn-orange-cta" id="btnRegistrarDespacho">
-              <span class="material-symbols-outlined fs-5">add</span> + Registrar Despacho
+              <span class="material-symbols-outlined fs-5">add</span> Registrar Despacho
             </button>
           </div>
         </div>
@@ -519,7 +519,17 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- html2pdf.js: combina html2canvas + jsPDF en una sola API -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="./dashboard.js"></script>
+  <script type="module">
+    // Bootstrap para modo standalone: dashboard.js ya no se autoejecuta
+    // (expone export init() para que también pueda arrancarlo el router
+    // de la SPA sin duplicar la inicialización). Aquí lo arrancamos nosotros.
+    import { init } from './dashboard.js';
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
 </body>
 
 </html>
