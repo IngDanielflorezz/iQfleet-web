@@ -381,9 +381,17 @@ function openEditModal(vehicle) {
 }
 
 function populateResponsableSelect(selectedId) {
+  // Solo conductores ACTIVOS son asignables (si el módulo Conductores no
+  // define 'estado' en algún registro legado, se trata como asignable por
+  // compatibilidad). Si el vehículo ya tenía asignado un conductor que
+  // luego pasó a INACTIVO, se conserva visible para no perder el dato.
+  const asignables = conductores.filter(
+    (c) => c.estado !== 'INACTIVO' || c.id === selectedId,
+  );
+
   const options = ['<option value="">Sin asignar</option>'].concat(
-    conductores.map(
-      (c) => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`,
+    asignables.map(
+      (c) => `<option value="${c.id}">${escapeHtml(c.nombre)}${c.estado === 'INACTIVO' ? ' (inactivo)' : ''}</option>`,
     ),
   );
   els.vResponsable.innerHTML = options.join("");

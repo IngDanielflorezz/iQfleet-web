@@ -4,16 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>iQFleet - Módulo Conductores</title>
-  
+
   <!-- Iconos y Bootstrap 5.3 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/conductores.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-  <script type="module" src="./conductores.js" defer></script>
 </head>
 <body class="bg-dark-app">
 
@@ -78,120 +75,138 @@
 
   <!-- Wrapper Principal -->
   <div class="main-wrapper">
-    
+
     <!-- Topbar Superior Fija -->
     <header class="topbar-iq px-4 d-flex align-items-center justify-content-between">
       <div class="input-dark-group" style="width: 360px;">
         <span class="material-symbols-outlined input-dark-icon">search</span>
-        <input type="text" class="form-control form-control-dark w-100" placeholder="Buscar placa, conductor, SOAT... ⌘K">
+        <input type="text" class="form-control form-control-dark w-100" id="driverSearchInput" placeholder="Buscar por nombre, cédula o móvil...">
       </div>
 
       <div class="d-flex align-items-center gap-2">
         <span class="badge badge-dark-subtle d-flex align-items-center gap-2 px-2 py-1">
-          <span class="status-dot bg-success"></span> 18 En ruta (90%)
+          <span class="status-dot bg-success"></span>
+          <span id="topbarDriverStatus">Cargando...</span>
         </span>
-        <button class="btn-orange-cta" data-bs-toggle="modal" data-bs-target="#modalNovedad">
-          <span class="material-symbols-outlined">add</span> Registrar Novedad
+        <button class="btn-orange-cta" id="btnCreateDriver">
+          <span class="material-symbols-outlined">person_add</span> Vincular Conductor
         </button>
       </div>
     </header>
 
     <!-- Contenido del Módulo -->
     <main class="content-area px-4 pb-4">
-      
-      <!-- Encabezado de Sección con Borde Inferior -->
-      <div class="page-header-border pb-3 mb-4">
+
+      <!-- Encabezado de Sección -->
+      <div class="border-dark-custom pb-3 mb-4">
         <div class="d-flex align-items-center gap-2 mb-2">
           <span class="badge badge-orange-subtle fw-bold">OPERACIONES &amp; LOGÍSTICA URBANA</span>
           <span class="text-light-muted fs-8">ID Sistema: IQ-DRV-01</span>
         </div>
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
           <div>
             <h1 class="page-module-title mb-1">Gestión de Conductores y Personal Operativo</h1>
-            <p class="text-light-muted fs-7 mb-0">
-              <strong class="text-white">20</strong> Conductores registrados • <span class="text-success fw-semibold">18 Operativos</span> • <span class="text-warning fw-semibold">2 En Relevo</span>
-            </p>
+            <p class="text-light-muted fs-7 mb-0" id="driverSummaryText">Cargando resumen...</p>
           </div>
-          <div class="d-flex gap-2">
-            <button class="btn-outline-dark-custom">
-              <span class="material-symbols-outlined">bedtime</span> Control Fatiga
-            </button>
-            <button class="btn-orange-cta" data-bs-toggle="modal" data-bs-target="#modalVincular">
-              <span class="material-symbols-outlined">person_add</span> Vincular Conductor
-            </button>
-          </div>
+          <button class="btn-outline-dark-custom" id="btnExportDrivers">
+            <span class="material-symbols-outlined">download</span> Exportar Lista
+          </button>
         </div>
       </div>
 
       <!-- Tarjetas Bento Grid KPI -->
       <div class="row g-3 mb-4">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
           <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
             <div>
               <span class="form-label-dark">TOTAL CONDUCTORES</span>
               <div class="d-flex align-items-baseline gap-2 my-1">
-                <span class="metric-number text-white fw-bold">24</span>
-                <span class="text-light-muted fs-8">activos</span>
+                <span class="metric-number text-white fw-bold" id="kpiTotal">0</span>
               </div>
-              <small class="text-success d-flex align-items-center gap-1 fs-8">
-                <span class="material-symbols-outlined">check_circle</span> 100% habilitados para servicio
-              </small>
+              <small class="text-light-muted fs-8" id="kpiActivosDetalle">0 activos</small>
             </div>
-            <div class="icon-shield-check">
-              <span class="material-symbols-outlined">badge</span>
-            </div>
+            <div class="icon-shield-check"><span class="material-symbols-outlined">badge</span></div>
           </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
           <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
             <div>
-              <span class="form-label-dark">PUNTAJE CONDUCCIÓN</span>
+              <span class="form-label-dark">PUNTAJE PROMEDIO</span>
               <div class="d-flex align-items-baseline gap-2 my-1">
-                <span class="metric-number text-white fw-bold">96.4</span>
+                <span class="metric-number text-white fw-bold" id="kpiPuntaje">0</span>
                 <span class="text-light-muted fs-8">/100</span>
               </div>
               <small class="text-success d-flex align-items-center gap-1 fs-8">
-                <span class="material-symbols-outlined">speed</span> Eficiencia 96.4% meta
+                <span class="material-symbols-outlined">speed</span> Promedio telemático
               </small>
             </div>
-            <div class="icon-shield-check">
-              <span class="material-symbols-outlined">query_stats</span>
-            </div>
+            <div class="icon-shield-check"><span class="material-symbols-outlined">query_stats</span></div>
           </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
           <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
             <div>
               <span class="form-label-dark">LICENCIAS POR VENCER</span>
               <div class="d-flex align-items-baseline gap-2 my-1">
-                <span class="metric-number text-white fw-bold">2</span>
-                <span class="text-light-muted fs-8">años prom.</span>
+                <span class="metric-number text-warning fw-bold" id="kpiAlertaLicencia">0</span>
               </div>
               <small class="text-warning d-flex align-items-center gap-1 fs-8">
-                <span class="material-symbols-outlined">warning</span> Alerta Semáforo RUNT
+                <span class="material-symbols-outlined">warning</span> ≤ 30 días
               </small>
             </div>
-            <div class="icon-shield-check">
-              <span class="material-symbols-outlined">subtitles</span>
+            <div class="icon-shield-check"><span class="material-symbols-outlined">subtitles</span></div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="card-dark-metric p-3 d-flex justify-content-between align-items-start">
+            <div>
+              <span class="form-label-dark">LICENCIAS VENCIDAS</span>
+              <div class="d-flex align-items-baseline gap-2 my-1">
+                <span class="metric-number text-danger fw-bold" id="kpiVencidas">0</span>
+              </div>
+              <small class="text-danger d-flex align-items-center gap-1 fs-8">
+                <span class="material-symbols-outlined">gpp_bad</span> Requieren renovación
+              </small>
             </div>
+            <div class="icon-shield-check"><span class="material-symbols-outlined">error</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros -->
+      <div class="card-dark p-3 mb-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm-4">
+            <select class="form-select select-dark" id="categoryFilter">
+              <option value="all">Categoría: Todas</option>
+              <option value="C1 Liviano">C1 Liviano</option>
+              <option value="C2 Público">C2 Público</option>
+              <option value="C3 Articulado">C3 Articulado</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-4">
+            <select class="form-select select-dark" id="licenciaFilter">
+              <option value="all">Licencia: Todas</option>
+              <option value="vigente">Vigente</option>
+              <option value="alerta">Por vencer (≤30 días)</option>
+              <option value="vencida">Vencida</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-4">
+            <select class="form-select select-dark" id="estadoFilter">
+              <option value="all">Estado: Todos</option>
+              <option value="ACTIVO">Activo</option>
+              <option value="INACTIVO">Inactivo</option>
+            </select>
           </div>
         </div>
       </div>
 
       <!-- Tabla CRUD -->
       <div class="card-dark p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="input-dark-group" style="width: 320px;">
-            <span class="material-symbols-outlined input-dark-icon">search</span>
-            <input type="text" class="form-control form-control-dark" placeholder="Buscar por Nombre o Cédula...">
-          </div>
-          <button class="btn-outline-dark-custom">
-            <span class="material-symbols-outlined">download</span> Exportar Lista
-          </button>
-        </div>
-
         <div class="table-responsive">
           <table class="table table-dark-custom align-middle mb-0">
             <thead>
@@ -201,46 +216,131 @@
                 <th>CATEGORÍA</th>
                 <th>VENC. LICENCIA</th>
                 <th>MÓVIL ASIGNADO</th>
-                <th>TURNO &amp; RUTA</th>
+                <th>TURNO</th>
                 <th>PUNTAJE TELEMÁTICO</th>
+                <th>ESTADO</th>
                 <th class="text-end">ACCIONES</th>
               </tr>
             </thead>
             <tbody id="conductoresTableBody">
-              <!-- Carga dinámica vía JS -->
+              <!-- Filas renderizadas dinámicamente por conductores.js -->
             </tbody>
           </table>
+        </div>
+        <div class="text-center py-5 d-none" id="driverEmptyState">
+          <span class="material-symbols-outlined fs-1 text-light-muted d-block mb-2">badge</span>
+          <p class="text-light-muted mb-0">No se encontraron conductores con los filtros aplicados.</p>
         </div>
       </div>
 
     </main>
   </div>
 
-  <!-- Modal Vincular Conductor -->
-  <div class="modal fade" id="modalVincular" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+  <!-- ===================== MODAL: VINCULAR / EDITAR CONDUCTOR ===================== -->
+  <div class="modal fade" id="driverModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content card-dark text-white">
-        <div class="modal-header border-dark-custom p-3">
-          <h5 class="modal-title fw-bold fs-7">Vincular Conductor</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body d-flex flex-column gap-3 p-3">
-          <div>
-            <label class="form-label-dark mb-1">Nombre Completo</label>
-            <input type="text" class="form-control form-control-dark" style="padding-left: 12px !important;" placeholder="Ej. Carlos Rodríguez">
+        <form id="driverForm" novalidate>
+          <div class="modal-header border-dark-custom p-3">
+            <h5 class="modal-title fw-bold fs-6" id="driverModalTitle">Vincular Conductor</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div>
-            <label class="form-label-dark mb-1">Cédula</label>
-            <input type="text" class="form-control form-control-dark" style="padding-left: 12px !important;" placeholder="CC 12.345.678">
+          <div class="modal-body d-flex flex-column gap-3 p-3">
+            <input type="hidden" id="dId">
+
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label class="form-label-dark mb-1" for="dNombre">Nombre completo *</label>
+                <input type="text" class="form-control form-control-dark" id="dNombre" placeholder="Ej. Carlos Rodríguez" required>
+                <div class="invalid-feedback" id="dNombreError"></div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label-dark mb-1" for="dCedula">Cédula *</label>
+                <input type="text" class="form-control form-control-dark" id="dCedula" placeholder="Ej. 79.402.119" required>
+                <div class="invalid-feedback" id="dCedulaError"></div>
+                <div class="form-text text-light-muted fs-8">Identificador único del conductor. No se puede modificar luego de registrado.</div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label-dark mb-1" for="dCategoria">Categoría de licencia *</label>
+                <select class="form-select select-dark" id="dCategoria" required>
+                  <option value="" selected disabled>Selecciona una categoría</option>
+                  <option value="C1 Liviano">C1 Liviano</option>
+                  <option value="C2 Público">C2 Público</option>
+                  <option value="C3 Articulado">C3 Articulado</option>
+                </select>
+                <div class="invalid-feedback" id="dCategoriaError"></div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label-dark mb-1" for="dVencimiento">Vencimiento de licencia *</label>
+                <input type="date" class="form-control form-control-dark" id="dVencimiento" required>
+                <div class="invalid-feedback" id="dVencimientoError"></div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label-dark mb-1" for="dTurno">Turno *</label>
+                <select class="form-select select-dark" id="dTurno" required>
+                  <option value="Mañana">Mañana</option>
+                  <option value="Tarde">Tarde</option>
+                  <option value="Noche">Noche</option>
+                  <option value="Descanso">Descanso</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label-dark mb-1" for="dEstado">Estado *</label>
+                <select class="form-select select-dark" id="dEstado" required>
+                  <option value="ACTIVO">Activo</option>
+                  <option value="INACTIVO">Inactivo</option>
+                </select>
+                <div class="form-text text-light-muted fs-8" id="dEstadoHelp"></div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label-dark mb-1" for="dMovil">Móvil asignado</label>
+                <select class="form-select select-dark" id="dMovil">
+                  <option value="">Sin asignar</option>
+                </select>
+                <div class="form-text text-light-muted fs-8">Solo referencial. La asignación real del vehículo se gestiona desde Flota &amp; Vehículos.</div>
+              </div>
+            </div>
+
+            <div class="alert alert-danger d-none py-2 fs-8 mb-0" id="driverFormAlert"></div>
           </div>
-        </div>
-        <div class="modal-footer border-dark-custom p-2">
-          <button type="button" class="btn-outline-dark-custom" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn-orange-cta">Guardar</button>
-        </div>
+          <div class="modal-footer border-dark-custom p-2">
+            <button type="button" class="btn-outline-dark-custom" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn-orange-cta" id="btnSaveDriver">Guardar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 
+  <!-- ===================== TOASTS ===================== -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+    <div id="driverToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="driverToastBody">Operación realizada correctamente.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Bootstrap para modo standalone: conductores.js expone export init() y
+       no se autoejecuta, para poder arrancarlo también desde el router SPA
+       sin duplicar la inicialización (mismo patrón que dashboard/vehiculos). -->
+  <script type="module">
+    import { init } from './conductores.js';
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
 </body>
 </html>
