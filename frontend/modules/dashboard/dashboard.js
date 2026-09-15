@@ -1,15 +1,26 @@
 /* ------------------------------------------------------------
  * iQ Fleet - JavaScript del Módulo Dashboard
  * Archivo: frontend/modules/dashboard/dashboard.js
+ *
+ * Este archivo NO se autoejecuta al cargarse (por eso no hay ningún
+ * document.addEventListener('DOMContentLoaded', ...) a nivel superior).
+ * Expone export init(), que es quien realmente arranca la lógica:
+ *   - En modo standalone, dashboard.html lo llama desde un pequeño
+ *     bootstrap inline (ver el <script type="module"> al final del body).
+ *   - En modo SPA, core/router.js lo llama después de inyectar el HTML
+ *     del módulo dentro de #app-content.
+ * Así garantizamos que boot() corra EXACTAMENTE una vez sin importar el
+ * contexto (evita listeners/modales duplicados).
  * ---------------------------------------------------------*/
 
-document.addEventListener("DOMContentLoaded", () => {
+export function init() {
   initDashboardEvents();
   initModalTriggers();
   initExportPdf();
   initFormSubmission("formDespacho", "Despacho registrado correctamente.");
   initFormSubmission("formNovedad", "Novedad registrada correctamente.");
-});
+  initModalBackdropCleanup();
+}
 
 /* -----------------------------------------------------------------
  * Inicializa los eventos generales del módulo Dashboard
@@ -185,13 +196,15 @@ function showToast(message, variant) {
 /* --------------------------------------------------------------------
  * 5. Red de seguridad: evita backdrops huérfanos que bloqueen la página
  * ------------------------------------------------------------------ */
-document.addEventListener("hidden.bs.modal", function () {
-  if (!document.querySelector(".modal.show")) {
-    document
-      .querySelectorAll(".modal-backdrop")
-      .forEach((backdrop) => backdrop.remove());
-    document.body.classList.remove("modal-open");
-    document.body.style.removeProperty("overflow");
-    document.body.style.removeProperty("padding-right");
-  }
-});
+function initModalBackdropCleanup() {
+  document.addEventListener("hidden.bs.modal", function () {
+    if (!document.querySelector(".modal.show")) {
+      document
+        .querySelectorAll(".modal-backdrop")
+        .forEach((backdrop) => backdrop.remove());
+      document.body.classList.remove("modal-open");
+      document.body.style.removeProperty("overflow");
+      document.body.style.removeProperty("padding-right");
+    }
+  });
+}
