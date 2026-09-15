@@ -1,18 +1,60 @@
+/* ==========================================
+   1. VARIABLES GLOBALES (PALETA DE COLOR)
+   ========================================== */
 :root {
   --bg-sidebar: #0f0f17;
   --bg-main: #14141d;
   --bg-card: #1c1c27;
-  --color-orange: #ff7f00;
+  
+  /* Color Primario / Accent */
+  --color-primary: #ff7f00;
+  --color-primary-hover: #e06f00;
+  
+  /* Bordes y Colores Neutros */
   --border-color: #2b2b3a;
+  --text-primary: #ffffff;
+  --text-muted: #a2a2b5;
+  --text-subtle: #78788c;
 }
 
+/* ==========================================
+   2. ESTILOS GENERALES
+   ========================================== */
 body {
   background-color: var(--bg-main);
   color: #e0e0e0;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Sidebar lateral */
+/* ==========================================
+   3. NAVEGACIÓN SUPERIOR Y SCROLLSPY (LANDING)
+   ========================================== */
+header.sticky-top {
+  z-index: 1030;
+  background-color: rgba(28, 28, 39, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Enlaces de la barra superior */
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--text-muted) !important;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out, font-weight 0.2s ease-in-out;
+}
+
+/* Cambio a blanco brillante en hover, focus y sección activa (ScrollSpy) */
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus,
+.navbar-dark .navbar-nav .nav-link.active {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================
+   4. NAVEGACIÓN LATERAL (SIDEBAR DASHBOARD)
+   ========================================== */
 .sidebar {
   width: 260px;
   height: 100vh;
@@ -28,9 +70,9 @@ body {
 
 .sidebar-brand {
   padding: 20px;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -40,7 +82,7 @@ body {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #78788c;
+  color: var(--text-subtle);
   padding: 10px 20px;
 }
 
@@ -48,25 +90,26 @@ body {
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  color: #a2a2b5;
+  color: var(--text-muted);
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
   font-size: 0.9rem;
 }
 
 .nav-link-custom:hover,
 .nav-link-custom.active {
-  background-color: var(--color-orange);
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--text-primary);
 }
 
-/* Contenido Principal */
+/* ==========================================
+   5. ESTRUCTURA Y CONTENIDO PRINCIPAL
+   ========================================== */
 .main-content {
   margin-left: 260px;
   padding: 20px;
 }
 
-/* Barra Superior */
 .top-navbar {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -75,20 +118,22 @@ body {
 }
 
 .search-input {
-  background-color: #14141d;
+  background-color: var(--bg-main);
   border: 1px solid var(--border-color);
-  color: #fff;
+  color: var(--text-primary);
   border-radius: 8px;
 }
 
 .search-input:focus {
-  background-color: #14141d;
-  color: #fff;
-  border-color: var(--color-orange);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  border-color: var(--color-primary);
   box-shadow: none;
 }
 
-/* Tarjetas Estilo iQFleet */
+/* ==========================================
+   6. COMPONENTES Y TARJETAS
+   ========================================== */
 .card-custom {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -100,21 +145,26 @@ body {
   padding: 6px 12px;
   border-radius: 20px;
 }
-/* Botón de Iniciar Sesión (Landing Page) */
+
+/* ==========================================
+   7. BOTONES PERSONALIZADOS
+   ========================================== */
 .btn-login-custom {
-  border: 1px solid #d48e0c;
+  border: 1px solid var(--color-primary);
   color: #212529 !important;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  background-color: #ffffff;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .btn-login-custom:hover {
-  transform: scale(1.08); /* Se agranda un 8% */
+  transform: scale(1.05);
   color: #000000 !important;
   background-color: #ffffff !important;
-  border-color: var(--color-orange);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(255, 127, 0, 0.25);
 }
 
-.btn-login-custom:hover span {
-  color: #000000 !important; /* Mantiene las letras en negro */
+.btn-login-custom:hover span,
+.btn-login-custom:hover i {
+  color: #000000 !important;
 }
