@@ -375,7 +375,7 @@ function initLogout() {
   if (btnLogout) {
     btnLogout.addEventListener('click', () => {
       if (confirm('¿Deseas cerrar sesión en iQFleet?')) {
-        window.location.href = '../auth/login.html';
+        window.location.href = '../../auth/login.html';
       }
     });
   }
