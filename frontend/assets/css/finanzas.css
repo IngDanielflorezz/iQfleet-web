@@ -1,0 +1,155 @@
+/* ==========================================================
+   iQ Fleet - Estilos Complementarios del Módulo Finanzas
+   (Totalmente acoplado a dashboard.css)
+   ========================================================== */
+
+/* Línea de color inferior para tarjetas KPI */
+.kpi-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+/* Área de Carga Dropzone */
+.file-drop-zone {
+  background-color: var(--bg-input);
+  border: 1px dashed var(--border-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-drop-zone:hover {
+  border-color: var(--brand-orange);
+  background-color: rgba(255, 127, 0, 0.05);
+}
+
+/* Estilos de Gráfico de Barras */
+.fin-chart-container {
+  height: 180px;
+  position: relative;
+}
+
+.chart-y-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--border-dark);
+}
+
+.chart-y-axis span {
+  position: absolute;
+  left: -32px;
+  top: -8px;
+}
+
+.fin-bar {
+  border-radius: 4px 4px 0 0;
+  transition: transform 0.2s ease;
+}
+
+.fin-bar:hover {
+  transform: scaleY(1.05);
+  cursor: pointer;
+}
+
+/* Placa Amarilla Colombiana */
+.badge-plate {
+  background-color: #facc15;
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  border: 1px solid #eab308;
+}
+/* ==========================================================
+   Añadir a finanzas.css — soporta la lógica de finanzas.js
+   ========================================================== */
+
+/* Botón de toggle inactivo (Gasto/Ingreso) */
+.btn-toggle-inactive {
+  background: transparent !important;
+  color: var(--text-light-muted, #9ca3af) !important;
+}
+
+/* Botón de envío cuando el movimiento es un Ingreso */
+.btn-ingreso-cta {
+  background-color: #facc15 !important;
+  border-color: #eab300 !important;
+  color: #fff !important;
+}
+.btn-ingreso-cta:hover {
+  background-color: #15803d !important;
+}
+
+/* Estado de error en inputs (p. ej. monto inválido) */
+.input-error {
+  border: 1px solid #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+}
+
+/* Zona de carga en estado "arrastrando archivo" */
+.file-drop-zone.drag-over {
+  border-color: var(--brand-orange);
+  background-color: rgba(255, 127, 0, 0.1);
+}
+
+/* Vista previa del comprobante subido */
+.file-preview-item {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-dark);
+}
+
+.img-preview-thumb {
+  max-width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border: 1px solid var(--border-dark);
+}
+
+/* ==========================================================
+   Toasts (notificaciones flotantes)
+   ========================================================== */
+
+.toast-container-iq {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast-iq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: #1f2937;
+  color: #fff;
+  border-left: 4px solid var(--brand-orange);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  max-width: 320px;
+}
+
+.toast-iq.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-iq-success { border-left-color: #facc15; }
+.toast-iq-success .material-symbols-outlined { color: #eab300; }
+
+.toast-iq-error { border-left-color: #ef4444; }
+.toast-iq-error .material-symbols-outlined { color: #ef4444; }
+
+.toast-iq-info { border-left-color: var(--brand-orange); }
+.toast-iq-info .material-symbols-outlined { color: var(--brand-orange); }

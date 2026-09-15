@@ -1,0 +1,120 @@
+:root {
+  --bg-sidebar: #0f0f17;
+  --bg-main: #14141d;
+  --bg-card: #1c1c27;
+  --color-orange: #ff7f00;
+  --border-color: #2b2b3a;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: #e0e0e0;
+  overflow-x: hidden;
+}
+
+/* Sidebar lateral */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: var(--bg-sidebar);
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  z-index: 1000;
+}
+
+.sidebar-brand {
+  padding: 20px;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #78788c;
+  padding: 10px 20px;
+}
+
+.nav-link-custom {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #a2a2b5;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active {
+  background-color: var(--color-orange);
+  color: #fff;
+}
+
+/* Contenido Principal */
+.main-content {
+  margin-left: 260px;
+  padding: 20px;
+}
+
+/* Barra Superior */
+.top-navbar {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px 20px;
+}
+
+.search-input {
+  background-color: #14141d;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  border-radius: 8px;
+}
+
+.search-input:focus {
+  background-color: #14141d;
+  color: #fff;
+  border-color: var(--color-orange);
+  box-shadow: none;
+}
+
+/* Tarjetas Estilo iQFleet */
+.card-custom {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.badge-status {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+/* Botón de Iniciar Sesión (Landing Page) */
+.btn-login-custom {
+  border: 1px solid #d48e0c;
+  color: #212529 !important;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn-login-custom:hover {
+  transform: scale(1.08); /* Se agranda un 8% */
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  border-color: var(--color-orange);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-login-custom:hover span {
+  color: #000000 !important; /* Mantiene las letras en negro */
+}
