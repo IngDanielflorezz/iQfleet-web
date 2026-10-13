@@ -1,16 +1,19 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Módulos públicos
-import LandingPage from "./modulos/landing/LandingPage";
-import Login from "./modulos/auth/Login"; 
+import LandingPage from "./pages/landing/LandingPage";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 
 // Layout y Módulos internos
-import DashboardLayout from "./componentes/layout/DashboardLayout";
-import DashboardPage from "./modulos/Dashboard/DashboardPage";
-import VehiculosPage from "./modulos/Vehiculos/VehiculosPage";
-import ConductoresPage from "./modulos/Conductores/ConductoresPage";
-import DocumentosPage from "./modulos/Documentos/DocumentosPage";
-import FinanzasPage from "./modulos/Finanzas/FinanzasPage";
+import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
+import ConductorPage from "./pages/Conductor/ConductorPage";
+import VehiculosPage from "./pages/Vehiculos/VehiculosPage";
+import ConductoresPage from "./pages/Conductores/ConductoresPage";
+import DocumentosPage from "./pages/Documentos/DocumentosPage";
+import FinanzasPage from "./pages/Finanzas/FinanzasPage";
 
 export default function App() {
   return (
@@ -19,16 +22,21 @@ export default function App() {
         {/* Rutas sueltas, sin el diseño del panel de control */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        
-        {/* Rutas envueltas en el DashboardLayout (con Sidebar y Topbar) */}
-        <Route path="/app" element={<DashboardLayout />}>
-          {/* Al entrar a /app se renderiza DashboardPage por defecto */}
-          <Route index element={<DashboardPage />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="vehiculos" element={<VehiculosPage />} />
-          <Route path="conductores" element={<ConductoresPage />} />
-          <Route path="documentos" element={<DocumentosPage />} />
-          <Route path="finanzas" element={<FinanzasPage />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Rutas protegidas (requieren sesión activa) */}
+        <Route element={<ProtectedRoute />}>
+          {/* Rutas envueltas en el DashboardLayout (con Sidebar y Topbar) */}
+          <Route path="/app" element={<DashboardLayout />}>
+            {/* Al entrar a /app se renderiza DashboardPage por defecto */}
+            <Route index element={<DashboardPage />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="conductor" element={<ConductorPage />} />
+            <Route path="vehiculos" element={<VehiculosPage />} />
+            <Route path="conductores" element={<ConductoresPage />} />
+            <Route path="documentos" element={<DocumentosPage />} />
+            <Route path="finanzas" element={<FinanzasPage />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

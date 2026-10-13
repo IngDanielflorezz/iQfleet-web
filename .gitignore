@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Respaldos locales
+backup_antes_limpieza/

@@ -1,24 +1,39 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { loginUser, saveSession, ROLES } from '../../services/authService';
+import flotaHero from '../../assets/flota-autobuses.png.png';
 import './Login.css';
+
+const ROLE_HOME = {
+  [ROLES.ADMINISTRADOR]: '/app/dashboard',
+  [ROLES.CONDUCTOR]: '/app/conductor',
+};
 
 export default function Login() {
   const navigate = useNavigate();
-  
+
   // Estados para capturar los datos y mostrar errores
+  const [rol, setRol] = useState(ROLES.ADMINISTRADOR);
   const [email, setEmail] = useState('admin@iqfleet.com');
   const [password, setPassword] = useState('1234');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Función real que evalúa las credenciales y redirige
-  const handleLogin = (e) => {
+  // Función que valida credenciales y redirige según el rol
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    if (email === 'admin@iqfleet.com' && password === '1234') {
-      setError('');
-      navigate('/app/dashboard'); // Aquí es donde ocurre la magia para saltar al dashboard
-    } else {
-      setError('Correo o contraseña incorrectos. Verifica tus datos.');
+    setError('');
+    setLoading(true);
+
+    try {
+      const user = await loginUser({ correo: email, password, rol });
+      saveSession(user);
+      navigate(ROLE_HOME[user.rol] ?? '/app/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,7 +43,7 @@ export default function Login() {
         <div className="row g-0">
           <div className="col-lg-6 hero-column d-none d-lg-flex flex-column justify-content-between p-5 position-relative">
             <div className="hero-overlay"></div>
-            <img src="/src/assets/flota-autobuses.png.png" alt="Flota de Transporte iQFleet" className="hero-bg-img" />
+            <img src={flotaHero} alt="Flota de Transporte iQFleet" className="hero-bg-img" />
 
             <div className="d-flex align-items-center gap-3 position-relative z-2">
               <div className="brand-logo-sq">iQ</div>
@@ -63,7 +78,7 @@ export default function Login() {
 
             {/* Aquí conectamos la función handleLogin al formulario */}
             <form className="d-flex flex-column gap-3" onSubmit={handleLogin}>
-              
+
               {/* Alerta roja condicional en caso de error */}
               {error && (
                 <div className="alert alert-danger py-2 fs-8 mb-0" role="alert">
@@ -75,7 +90,11 @@ export default function Login() {
                 <label className="form-label-dark">SELECCIONA TU ROL</label>
                 <div className="row g-2">
                   <div className="col-6">
-                    <button type="button" className="btn-role-dark active w-100">
+                    <button
+                      type="button"
+                      className={`btn-role-dark w-100 ${rol === ROLES.ADMINISTRADOR ? 'active' : ''}`}
+                      onClick={() => setRol(ROLES.ADMINISTRADOR)}
+                    >
                       <div className="d-flex align-items-center gap-2">
                         <i className="fa-solid fa-user-tie text-warning fs-6"></i>
                         <span>Administrador</span>
@@ -83,7 +102,11 @@ export default function Login() {
                     </button>
                   </div>
                   <div className="col-6">
-                    <button type="button" className="btn-role-dark w-100">
+                    <button
+                      type="button"
+                      className={`btn-role-dark w-100 ${rol === ROLES.CONDUCTOR ? 'active' : ''}`}
+                      onClick={() => setRol(ROLES.CONDUCTOR)}
+                    >
                       <div className="d-flex align-items-center gap-2">
                         <i className="fa-solid fa-steering-wheel text-secondary fs-6"></i>
                         <span>Conductor</span>
@@ -98,14 +121,14 @@ export default function Login() {
                 <div className="input-dark-group">
                   <i className="fa-regular fa-envelope input-dark-icon"></i>
                   {/* Conectamos el input al estado de email */}
-                  <input 
-                    type="email" 
-                    id="email" 
-                    className="form-control form-control-dark" 
+                  <input
+                    type="email"
+                    id="email"
+                    className="form-control form-control-dark"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required 
-                    placeholder="admin@iqfleet.com" 
+                    required
+                    placeholder="admin@iqfleet.com"
                   />
                 </div>
               </div>
@@ -118,17 +141,22 @@ export default function Login() {
                 <div className="input-dark-group">
                   <i className="fa-solid fa-lock input-dark-icon"></i>
                   {/* Conectamos el input al estado de password */}
-                  <input 
-                    type="password" 
-                    id="password" 
-                    className="form-control form-control-dark" 
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    className="form-control form-control-dark"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required 
-                    placeholder="••••••••" 
+                    required
+                    placeholder="••••••••"
                   />
-                  <button type="button" className="btn-toggle-password-dark">
-                    <i className="fa-regular fa-eye-slash"></i>
+                  <button
+                    type="button"
+                    className="btn-toggle-password-dark"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    <i className={showPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash'}></i>
                   </button>
                 </div>
               </div>
@@ -138,9 +166,9 @@ export default function Login() {
                 <label className="form-check-label small text-light-muted" htmlFor="rememberMe">Mantener sesión</label>
               </div>
 
-              <button type="submit" className="btn btn-orange-cta w-100 mt-2">
-                <span>INGRESAR A IQFLEET</span>
-                <i className="fa-solid fa-arrow-right"></i>
+              <button type="submit" className="btn btn-orange-cta w-100 mt-2" disabled={loading}>
+                <span>{loading ? 'INGRESANDO...' : 'INGRESAR A IQFLEET'}</span>
+                {!loading && <i className="fa-solid fa-arrow-right"></i>}
               </button>
 
               <div className="d-flex align-items-center my-2 text-light-muted small">
@@ -156,7 +184,7 @@ export default function Login() {
             </form>
 
             <p className="text-center small text-light-muted mt-4 mb-0">
-              ¿No tienes cuenta? <a href="#" className="link-orange">Contacta a tu administrador</a>
+              ¿No tienes cuenta? <Link to="/register" className="link-orange">Registrar</Link>
             </p>
           </div>
         </div>

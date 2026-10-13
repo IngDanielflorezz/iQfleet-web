@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useScrollFade from '../../hooks/useScrollFade';
 import heroBackground from '../../assets/Flota moderna al amanecer urbano.png';
+import flotaHero from '../../assets/flota-autobuses.png.png';
 import './LandingPage.css';
 
 function Icon({ name, className = '' }) {
@@ -465,7 +466,7 @@ export default function LandingPage() {
           <div className="lp-feature__visual">
             <img
               className="lp-feature__image"
-              src="/src/assets/flota-autobuses.png.png"
+              src={flotaHero}
               alt="Flota de buses de transporte público"
             />
             <div className="lp-feature__record">

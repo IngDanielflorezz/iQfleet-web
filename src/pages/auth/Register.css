@@ -1,0 +1,85 @@
+/* ==========================================================
+   iQFleet - Registro
+   Reutiliza los tokens y clases base de Login.css
+   (tarjeta split, inputs, roles, CTA) y añade el grid del
+   formulario y las alertas propias del alta de cuenta.
+   ========================================================== */
+
+.register-split-card {
+  max-width: 1080px;
+}
+
+/* Grid de campos del formulario */
+.reg-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.reg-col-full {
+  grid-column: 1 / -1;
+}
+
+/* Aviso legal (checkbox de términos) */
+.reg-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--lp-muted);
+}
+
+.reg-terms input {
+  margin-top: 0.2rem;
+  accent-color: var(--lp-brand);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.reg-terms a {
+  color: var(--lp-brand);
+  text-decoration: none;
+}
+
+.reg-terms a:hover {
+  text-decoration: underline;
+}
+
+/* Errores por campo */
+.reg-field-error {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--lp-danger);
+}
+
+.reg-input-error {
+  border-color: var(--lp-danger) !important;
+}
+
+/* Alertas (error / éxito) */
+.reg-alert {
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.reg-alert-error {
+  background-color: rgba(184, 76, 67, 0.12);
+  border: 1px solid var(--lp-danger);
+  color: var(--lp-danger);
+}
+
+.reg-alert-ok {
+  background-color: rgba(54, 118, 91, 0.14);
+  border: 1px solid var(--lp-success);
+  color: var(--lp-success);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .reg-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,16 @@
+/* ==========================================================
+   iQFleet - Panel del Conductor
+   Tarjetas simples sobre los tokens globales del sistema.
+   ========================================================== */
+
+.card-iq {
+  background-color: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.card-iq:hover {
+  border-color: var(--lp-brand);
+  transform: translateY(-2px);
+}

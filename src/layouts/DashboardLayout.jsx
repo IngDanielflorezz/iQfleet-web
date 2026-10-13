@@ -1,14 +1,21 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import useTheme from '../../theme/useTheme';
+import useTheme from '../theme/useTheme';
+import { clearSession } from '../services/authService';
 
 export default function DashboardLayout() {
   const { isDark, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    clearSession();
+    navigate('/login');
+  };
 
   return (
     <div className="bg-dark-app min-vh-100 d-flex">
       {/* 1. Sidebar fijo lateral */}
-      <Sidebar />
+      <Sidebar onLogout={handleLogout} />
 
       {/* 2. Envoltorio principal */}
       <div className="main-wrapper flex-grow-1 d-flex flex-column">
