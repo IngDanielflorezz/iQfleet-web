@@ -1,0 +1,16 @@
+/* ==========================================================
+   VEHÍCULOS CSS - Ajustes específicos del módulo de flota
+   (Reutiliza el sistema de diseño compartido de Conductores)
+   ========================================================== */
+
+.vehiculo-estado-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.table-dark-custom .plate-box {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}

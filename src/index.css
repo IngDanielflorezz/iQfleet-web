@@ -1,0 +1,176 @@
+/* ==========================================================
+   iQFleet - Sistema de diseño global (Temas Claro / Oscuro)
+   Fuente única de verdad para tokens de color.
+   Todas las páginas heredan esta paleta.
+   El tema se alterna con el atributo [data-theme] en <html>.
+   ========================================================== */
+:root,
+[data-theme="light"] {
+  /* --- Paleta base (Figma Landing) --- */
+  --lp-bg: #faf8f2;          /* Fondo de la aplicación */
+  --lp-surface: #ffffff;     /* Superficies / tarjetas */
+  --lp-surface-2: #e9e3d5;   /* Superficie secundaria / chips */
+  --lp-input: #f4efe4;       /* Campos de entrada */
+  --lp-border: #d4cec1;      /* Bordes y separadores */
+  --lp-text: #202b2b;        /* Texto principal */
+  --lp-muted: #65716b;       /* Texto secundario */
+  --lp-brand: #c8754d;       /* Acento principal (Terracota) */
+  --lp-brand-hover: #b3663f;
+  --lp-dark: #202b2b;        /* Superficie oscura */
+  --lp-dark-2: #344746;      /* Superficie oscura secundaria */
+  --lp-success: #36765b;
+  --lp-warning: #d6a13d;
+  --lp-warning-text: #8a6410; /* Ámbar legible sobre fondos claros */
+  --lp-danger: #b84c43;
+  --lp-chart: #647c8a;
+  --lp-topbar: rgba(255, 255, 255, 0.92);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --lp-bg: #11151a;
+  --lp-surface: #181d24;
+  --lp-surface-2: #222932;
+  --lp-input: #1f262e;
+  --lp-border: #2f3842;
+  --lp-text: #e7eae9;
+  --lp-muted: #9aa5a1;
+  --lp-brand: #d98a63;
+  --lp-brand-hover: #c8754d;
+  --lp-dark: #0f1317;
+  --lp-dark-2: #1a2027;
+  --lp-success: #4c9c78;
+  --lp-warning: #dfb15a;
+  --lp-warning-text: #e6bd6a;
+  --lp-danger: #d96a60;
+  --lp-chart: #7f97a5;
+  --lp-topbar: rgba(24, 29, 36, 0.92);
+
+  color-scheme: dark;
+}
+
+:root {
+  /* --- Aliases legacy (usados por los módulos) --- */
+  --bg-app: var(--lp-bg);
+  --bg-card: var(--lp-surface);
+  --bg-input: var(--lp-input);
+  --border-dark: var(--lp-border);
+  --brand-orange: var(--lp-brand);
+  --brand-orange-hover: var(--lp-brand-hover);
+  --text-muted: var(--lp-muted);
+  --text-primary: var(--lp-text);
+  --text-subtle: #8a948f;
+}
+
+/* ==========================================================
+   Base
+   ========================================================== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--lp-bg);
+  color: var(--lp-text);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Transición suave y transitoria al alternar el tema */
+html[data-theme-anim] *,
+html[data-theme-anim] *::before,
+html[data-theme-anim] *::after {
+  transition: background-color 0.28s ease, border-color 0.28s ease,
+    color 0.28s ease, fill 0.28s ease !important;
+}
+
+/* ==========================================================
+   Shell de la aplicación (Dashboard + Login)
+   ========================================================== */
+.bg-dark-app {
+  background-color: var(--lp-bg) !important;
+  color: var(--lp-text);
+}
+
+/* El texto "blanco" del markup heredado se adapta al tema */
+.bg-dark-app .text-white,
+.bg-dark-app .text-light {
+  color: var(--lp-text) !important;
+}
+
+/* Excepción: superficies oscuras (hero del login) conservan texto claro */
+.bg-dark-app .hero-column .text-white {
+  color: #f6f2e9 !important;
+}
+
+.bg-dark-app .hero-column .text-light-muted {
+  color: rgba(246, 242, 233, 0.78) !important;
+}
+
+/* Excepción: badges sólidos con color de fondo mantienen texto claro */
+.bg-dark-app .text-white.bg-primary,
+.bg-dark-app .text-white.bg-danger,
+.bg-dark-app .text-white.bg-success,
+.bg-dark-app .text-white.bg-warning,
+.bg-dark-app .text-white.bg-info,
+.bg-dark-app .text-white.bg-dark,
+.bg-dark-app .text-white.bg-secondary {
+  color: #ffffff !important;
+}
+
+/* Semánticos legibles sobre fondos claros */
+.bg-dark-app .text-success { color: var(--lp-success) !important; }
+.bg-dark-app .text-danger { color: var(--lp-danger) !important; }
+.bg-dark-app .text-warning { color: var(--lp-warning-text) !important; }
+.bg-dark-app .text-primary { color: var(--lp-brand) !important; }
+
+/* Fondos Bootstrap remapeados a la paleta iQFleet */
+.bg-dark-app .bg-primary { background-color: var(--lp-chart) !important; }
+.bg-dark-app .bg-success { background-color: var(--lp-success) !important; }
+.bg-dark-app .bg-warning { background-color: var(--lp-warning) !important; }
+.bg-dark-app .bg-danger { background-color: var(--lp-danger) !important; }
+.bg-dark-app .bg-info { background-color: var(--lp-chart) !important; }
+
+/* Bordes Bootstrap suavizados al tono de la paleta */
+.bg-dark-app .border-dark { border-color: var(--lp-border) !important; }
+
+/* Textos grises de Bootstrap adaptados al tema */
+.bg-dark-app .text-muted { color: var(--lp-muted) !important; }
+.bg-dark-app .text-secondary { color: var(--lp-muted) !important; }
+
+/* ==========================================================
+   Toggle de tema (Sol / Luna)
+   ========================================================== */
+.bg-dark-app .theme-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bg-dark-app .theme-toggle .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* ==========================================================
+   Utilidades
+   ========================================================== */
+.text-orange { color: var(--lp-brand) !important; }
+.bg-orange { background-color: var(--lp-brand) !important; }
+.bg-input { background-color: var(--lp-input) !important; }
+.text-light-muted { color: var(--lp-muted) !important; }
+.link-orange { color: var(--lp-brand) !important; }
+.hover-orange:hover { color: var(--lp-brand) !important; }
+
+.fs-7 { font-size: 0.85rem; }
+.fs-8 { font-size: 0.75rem; }
+.max-w-container { max-width: 1720px; }
+.max-w-lg { max-width: 480px; }
+.border-dark-custom { border-bottom: 1px solid var(--lp-border); }

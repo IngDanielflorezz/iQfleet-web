@@ -1,0 +1,298 @@
+/* ==========================================================
+   iQ Fleet - Estilos del Módulo Dashboard (Tema claro)
+   Tokens compartidos desde src/index.css
+   ========================================================== */
+
+/* --- UTILIDADES DE TEXTO Y ESPACIADO --- */
+.fs-7 { font-size: 0.85rem; }
+.fs-8 { font-size: 0.75rem; }
+.max-w-container { max-width: 1720px; }
+.max-w-lg { max-width: 480px; }
+.border-dark-custom { border-bottom: 1px solid var(--lp-border); }
+.text-light-muted { color: var(--lp-muted) !important; }
+.link-orange { color: var(--lp-brand) !important; }
+
+/* --- BOTONES Y ACCIONES --- */
+.btn-orange-cta {
+  background-color: var(--lp-brand) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 10px !important;
+  border: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(200, 117, 77, 0.28);
+  transition: all 0.2s ease;
+}
+
+.btn-orange-cta:hover {
+  background-color: var(--lp-brand-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.btn-orange-cta .material-symbols-outlined {
+  color: #ffffff !important;
+}
+
+.btn-outline-dark-custom {
+  background-color: var(--lp-surface) !important;
+  border: 1px solid var(--lp-border) !important;
+  color: var(--lp-text) !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-dark-custom:hover {
+  background-color: var(--lp-surface-2) !important;
+  color: var(--lp-text) !important;
+  border-color: var(--lp-brand) !important;
+}
+
+/* --- SELECT --- */
+.select-dark {
+  background-color: var(--lp-input) !important;
+  border: 1px solid var(--lp-border) !important;
+  color: var(--lp-text) !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select-dark:focus {
+  border-color: var(--lp-brand) !important;
+  box-shadow: 0 0 0 0.2rem rgba(200, 117, 77, 0.2) !important;
+}
+
+.select-dark option {
+  background-color: var(--lp-surface);
+  color: var(--lp-text);
+}
+
+/* --- INPUTS Y BUSCADOR --- */
+.input-dark-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-dark-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--lp-muted) !important;
+  font-size: 1.2rem;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.form-control-dark {
+  background-color: var(--lp-input) !important;
+  border: 1px solid var(--lp-border) !important;
+  border-radius: 10px !important;
+  color: var(--lp-text) !important;
+  padding-left: 38px !important;
+  padding-right: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.form-control-dark::placeholder {
+  color: var(--lp-muted) !important;
+}
+
+.form-control-dark:focus {
+  background-color: var(--lp-surface) !important;
+  color: var(--lp-text) !important;
+  border-color: var(--lp-brand) !important;
+  box-shadow: 0 0 0 0.2rem rgba(200, 117, 77, 0.2) !important;
+}
+
+/* --- SIDEBAR & HEADER --- */
+.sidebar-iq {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 260px;
+  background-color: var(--lp-surface);
+  border-right: 1px solid var(--lp-border);
+  z-index: 1050;
+}
+
+.brand-logo-sq {
+  width: 36px; height: 36px;
+  background-color: var(--lp-brand);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1rem;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.nav-link-dark {
+  color: var(--lp-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-link-dark:hover {
+  background-color: var(--lp-input);
+  color: var(--lp-text);
+}
+
+.nav-link-dark.active {
+  background-color: rgba(200, 117, 77, 0.12);
+  color: var(--lp-brand);
+  border: 1px solid rgba(200, 117, 77, 0.35);
+}
+
+.main-wrapper {
+  margin-left: 260px;
+  min-width: 0;
+}
+
+.topbar-iq {
+  position: fixed;
+  top: 0; right: 0; left: 260px;
+  height: 68px;
+  background-color: var(--lp-topbar);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--lp-border);
+  z-index: 1040;
+}
+
+.content-area {
+  padding: 96px clamp(16px, 2.5vw, 36px) 48px !important;
+  min-height: 100vh;
+}
+
+.user-card {
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+}
+
+/* --- TARJETAS & MÉTRICAS --- */
+.card-dark, .card-dark-metric {
+  background-color: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: 16px;
+}
+
+.card-dark-metric {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card-dark-metric:hover {
+  transform: translateY(-2px);
+  border-color: var(--lp-brand);
+}
+
+.form-label-dark {
+  color: var(--lp-brand) !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em;
+  display: block;
+  text-transform: uppercase;
+}
+
+.card-dark-metric small,
+.card-dark-metric .text-light-muted {
+  color: var(--lp-muted) !important;
+  font-weight: 500;
+}
+
+.card-dark-metric .text-success {
+  color: var(--lp-success) !important;
+  font-weight: 600;
+}
+
+/* --- BADGES Y DETALLES DE ESTADO --- */
+.badge-orange-subtle {
+  background-color: rgba(200, 117, 77, 0.12);
+  color: var(--lp-brand);
+  border: 1px solid rgba(200, 117, 77, 0.28);
+}
+
+.badge-dark-subtle {
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text);
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.avatar-sm {
+  width: 32px; height: 32px;
+  object-fit: cover;
+}
+
+.hover-orange:hover {
+  color: var(--lp-brand) !important;
+}
+
+/* ==========================================================================
+   Corrección de contraste: texto de los formularios en los modales
+   ========================================================================== */
+
+#modalNovedad .modal-title,
+#modalDespacho .modal-title,
+#modalNovedad .form-label,
+#modalDespacho .form-label {
+  color: var(--lp-text);
+}
+
+#modalNovedad .form-control,
+#modalNovedad .form-select,
+#modalDespacho .form-control,
+#modalDespacho .form-select {
+  color: var(--lp-text);
+  background-color: var(--lp-input);
+}
+
+#modalNovedad .form-control:focus,
+#modalNovedad .form-select:focus,
+#modalDespacho .form-control:focus,
+#modalDespacho .form-select:focus {
+  color: var(--lp-text);
+  background-color: var(--lp-input);
+}
+
+#modalNovedad .form-control::placeholder,
+#modalDespacho .form-control::placeholder {
+  color: var(--lp-muted);
+}
+
+/* --------------------------------------------------
+*  Control de saltos de pagina para la exportacón a PDF
+*  ------------------------------------------------*/
+.card-dark-metric,
+.card-dark,
+.alert-item {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}

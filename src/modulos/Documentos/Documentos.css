@@ -1,0 +1,87 @@
+/* ==========================================================
+   ESTILOS CONTROL DOCUMENTAL (Tema claro & Escala Tipográfica)
+   ========================================================== */
+
+/* Normalización de Tipografía */
+.doc-title {
+  font-size: 1.35rem !important;
+  font-weight: 700;
+  color: var(--lp-text);
+}
+
+.doc-subtitle {
+  font-size: 0.78rem !important;
+  color: var(--lp-muted);
+}
+
+.doc-card-kpi-title {
+  font-size: 0.72rem !important;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Modificadores de Borde KPI */
+.border-danger-subtle { border-color: rgba(184, 76, 67, 0.35) !important; }
+.border-warning-subtle { border-color: rgba(214, 161, 61, 0.4) !important; }
+.border-success-subtle { border-color: rgba(54, 118, 91, 0.35) !important; }
+
+.icon-kpi-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-danger-subtle { background-color: rgba(184, 76, 67, 0.12) !important; color: var(--lp-danger) !important; }
+.bg-warning-subtle { background-color: rgba(214, 161, 61, 0.16) !important; color: var(--lp-warning-text) !important; }
+.bg-success-subtle { background-color: rgba(54, 118, 91, 0.12) !important; color: var(--lp-success) !important; }
+
+/* Contenedores Internos KPI integrados con la paleta */
+.doc-kpi-chips-dark {
+  background-color: var(--lp-input) !important;
+  border: 1px solid var(--lp-border) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px;
+}
+
+.doc-kpi-chips-dark span,
+.doc-kpi-chips-dark div {
+  color: var(--lp-text) !important;
+}
+
+/* Filtros Pills */
+.filter-doc-btn {
+  font-size: 0.75rem !important;
+  border-radius: 8px !important;
+  padding: 5px 12px !important;
+  font-weight: 600;
+}
+
+.filter-doc-btn.active {
+  background-color: var(--lp-brand) !important;
+  color: #ffffff !important;
+  border-color: var(--lp-brand) !important;
+}
+
+/* Badges de Tabla */
+.badge-runt-sync {
+  background-color: rgba(200, 117, 77, 0.12) !important;
+  color: var(--lp-brand) !important;
+  border: 1px solid rgba(200, 117, 77, 0.28) !important;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+}
+
+/* Animación de giro */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}

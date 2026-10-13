@@ -1,0 +1,153 @@
+/* ==========================================================
+   iQ Fleet - Estilos Complementarios del Módulo Finanzas
+   (Acoplado al sistema de diseño global - Tema claro)
+   ========================================================== */
+
+/* Línea de color inferior para tarjetas KPI */
+.kpi-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+/* Área de Carga Dropzone */
+.file-drop-zone {
+  background-color: var(--lp-input);
+  border: 1px dashed var(--lp-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-drop-zone:hover {
+  border-color: var(--lp-brand);
+  background-color: rgba(200, 117, 77, 0.06);
+}
+
+/* Estilos de Gráfico de Barras */
+.fin-chart-container {
+  height: 180px;
+  position: relative;
+}
+
+.chart-y-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--lp-border);
+}
+
+.chart-y-axis span {
+  position: absolute;
+  left: -32px;
+  top: -8px;
+}
+
+.fin-bar {
+  border-radius: 4px 4px 0 0;
+  transition: transform 0.2s ease;
+}
+
+.fin-bar:hover {
+  transform: scaleY(1.05);
+  cursor: pointer;
+}
+
+/* Placa Amarilla Colombiana */
+.badge-plate {
+  background-color: #facc15;
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  border: 1px solid #eab308;
+}
+
+/* Botón de toggle inactivo (Gasto/Ingreso) */
+.btn-toggle-inactive {
+  background: transparent !important;
+  color: var(--lp-muted) !important;
+}
+
+/* Botón de envío cuando el movimiento es un Ingreso */
+.btn-ingreso-cta {
+  background-color: var(--lp-success) !important;
+  border-color: var(--lp-success) !important;
+  color: #ffffff !important;
+}
+.btn-ingreso-cta:hover {
+  background-color: #2c6049 !important;
+  border-color: #2c6049 !important;
+}
+
+/* Estado de error en inputs (p. ej. monto inválido) */
+.input-error {
+  border: 1px solid var(--lp-danger) !important;
+  box-shadow: 0 0 0 1px rgba(184, 76, 67, 0.25);
+}
+
+/* Zona de carga en estado "arrastrando archivo" */
+.file-drop-zone.drag-over {
+  border-color: var(--lp-brand);
+  background-color: rgba(200, 117, 77, 0.1);
+}
+
+/* Vista previa del comprobante subido */
+.file-preview-item {
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+}
+
+.img-preview-thumb {
+  max-width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border: 1px solid var(--lp-border);
+}
+
+/* ==========================================================
+   Toasts (notificaciones flotantes)
+   ========================================================== */
+
+.toast-container-iq {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast-iq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background-color: var(--lp-dark);
+  color: #f6f2e9;
+  border-left: 4px solid var(--lp-brand);
+  box-shadow: 0 10px 24px rgba(32, 43, 43, 0.25);
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  max-width: 320px;
+}
+
+.toast-iq.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-iq-success { border-left-color: var(--lp-success); }
+.toast-iq-success .material-symbols-outlined { color: #7fb99c; }
+
+.toast-iq-error { border-left-color: var(--lp-danger); }
+.toast-iq-error .material-symbols-outlined { color: #e59a94; }
+
+.toast-iq-info { border-left-color: var(--lp-brand); }
+.toast-iq-info .material-symbols-outlined { color: #e0a586; }
