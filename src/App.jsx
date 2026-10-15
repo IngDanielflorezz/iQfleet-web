@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Módulos públicos
 import LandingPage from "./pages/landing/LandingPage";
+import AuthLayout from "./pages/auth/AuthLayout";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
@@ -21,8 +22,13 @@ export default function App() {
       <Routes>
         {/* Rutas sueltas, sin el diseño del panel de control */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+
+        {/* Autenticación: AuthLayout gestiona la tarjeta split y el
+            efecto revista al alternar entre login y registro */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
 
         {/* Rutas protegidas (requieren sesión activa) */}
         <Route element={<ProtectedRoute />}>

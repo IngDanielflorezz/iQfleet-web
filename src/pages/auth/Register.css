@@ -1,13 +1,9 @@
 /* ==========================================================
    iQFleet - Registro
    Reutiliza los tokens y clases base de Login.css
-   (tarjeta split, inputs, roles, CTA) y añade el grid del
-   formulario y las alertas propias del alta de cuenta.
+   (inputs, roles, CTA) y añade el grid del formulario
+   y las alertas propias del alta de cuenta.
    ========================================================== */
-
-.register-split-card {
-  max-width: 1080px;
-}
 
 /* Grid de campos del formulario */
 .reg-form-grid {
