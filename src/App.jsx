@@ -11,6 +11,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import ConductorPage from "./pages/Conductor/ConductorPage";
+import MonitoreoGpsPage from "./pages/MonitoreoGps/MonitoreoGpsPage";
 import VehiculosPage from "./pages/Vehiculos/VehiculosPage";
 import ConductoresPage from "./pages/Conductores/ConductoresPage";
 import DocumentosPage from "./pages/Documentos/DocumentosPage";
@@ -37,6 +38,7 @@ export default function App() {
             {/* Al entrar a /app se renderiza DashboardPage por defecto */}
             <Route index element={<DashboardPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="monitoreo-gps" element={<MonitoreoGpsPage />} />
             <Route path="conductor" element={<ConductorPage />} />
             <Route path="vehiculos" element={<VehiculosPage />} />
             <Route path="conductores" element={<ConductoresPage />} />

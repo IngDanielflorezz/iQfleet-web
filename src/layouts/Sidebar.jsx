@@ -52,6 +52,13 @@ export default function Sidebar({ onLogout }) {
           ) : (
             <>
               <NavLink 
+                to="/app/monitoreo-gps" 
+                className={({ isActive }) => `nav-link nav-link-dark text-decoration-none ${isActive ? 'active' : ''}`}
+              >
+                <span className="material-symbols-outlined fs-5">location_on</span> Monitoreo GPS
+              </NavLink>
+
+              <NavLink 
                 to="/app/dashboard" 
                 className={({ isActive }) => `nav-link nav-link-dark text-decoration-none ${isActive ? 'active' : ''}`}
               >
