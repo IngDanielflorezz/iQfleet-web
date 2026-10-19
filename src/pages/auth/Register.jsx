@@ -191,7 +191,7 @@ export default function Register() {
                 }}
               >
                 <div className="d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-steering-wheel text-secondary fs-6"></i>
+                  <i className="fa-solid fa-car text-secondary fs-6"></i>
                   <span>Conductor</span>
                 </div>
               </button>
