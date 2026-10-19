@@ -1,4 +1,5 @@
 import { getSession } from '../../services/authService';
+import RouteActivationCard from './RouteActivationCard';
 import './Conductor.css';
 
 export default function ConductorPage() {
@@ -14,6 +15,8 @@ export default function ConductorPage() {
         <h1 className="h3 fw-bold text-white mb-0">Hola, {nombre}</h1>
         <span className="text-light-muted fs-8">Tu espacio de trabajo estará disponible próximamente.</span>
       </div>
+
+      <RouteActivationCard />
 
       <div className="row g-3">
         <div className="col-12 col-md-4">

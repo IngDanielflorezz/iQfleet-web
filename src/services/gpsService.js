@@ -44,8 +44,8 @@ function notifyChanged() {
 export function activateRoute(profile) {
   const routes = readRoutes();
   routes[profile.userId] = {
-    ...profile,
     speedKmh: 0,
+    ...profile,
     updatedAt: Date.now(),
   };
   writeRoutes(routes);

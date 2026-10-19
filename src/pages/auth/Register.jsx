@@ -104,7 +104,7 @@ export default function Register() {
     if (!form.telefono.trim()) nextErrors.telefono = 'Ingresa tu teléfono';
     else if (!/^[+\d\s-]{7,15}$/.test(form.telefono)) nextErrors.telefono = 'Teléfono no válido';
 
-    if (rol === ROLES.ADMINISTRADOR && !form.empresa.trim())
+    if (!form.empresa.trim())
       nextErrors.empresa = 'Ingresa la empresa u organización';
     if (rol === ROLES.CONDUCTOR && !form.licencia.trim())
       nextErrors.licencia = 'Ingresa tu número de licencia';
@@ -235,17 +235,17 @@ export default function Register() {
             icon="fa-solid fa-phone"
           />
 
-          {rol === ROLES.ADMINISTRADOR ? (
-            <Field
-              label="EMPRESA / ORGANIZACIÓN"
-              name="empresa"
-              value={form.empresa}
-              onChange={handleChange}
-              error={errors.empresa}
-              placeholder="Ej: Transportes del Valle S.A.S."
-              icon="fa-regular fa-building"
-            />
-          ) : (
+          <Field
+            label="EMPRESA / ORGANIZACIÓN"
+            name="empresa"
+            value={form.empresa}
+            onChange={handleChange}
+            error={errors.empresa}
+            placeholder="Ej: Transportes del Valle S.A.S."
+            icon="fa-regular fa-building"
+          />
+
+          {rol === ROLES.CONDUCTOR && (
             <Field
               label="N.º DE LICENCIA"
               name="licencia"

@@ -14,3 +14,113 @@
   border-color: var(--lp-brand);
   transform: translateY(-2px);
 }
+
+/* ==========================================================
+   Tarjeta "Ruta en vivo" (activación de ruta del conductor)
+   ========================================================== */
+
+.route-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lp-surface-2);
+  color: var(--lp-muted);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.route-card-icon .material-symbols-outlined { font-size: 24px; }
+.route-card-icon--locating { background: rgba(214, 161, 61, 0.16); color: var(--lp-warning); }
+.route-card-icon--active { background: rgba(54, 118, 91, 0.16); color: var(--lp-success); }
+
+.route-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--lp-muted);
+}
+
+.route-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--lp-muted);
+}
+
+.route-status--active { color: var(--lp-success); }
+.route-status--active .route-status-dot { background: var(--lp-success); animation: route-pulse 1.8s infinite; }
+.route-status--locating { color: var(--lp-warning); }
+.route-status--locating .route-status-dot { background: var(--lp-warning); animation: route-pulse 1.8s infinite; }
+
+@keyframes route-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(120, 160, 140, 0.45); }
+  70% { box-shadow: 0 0 0 7px rgba(120, 160, 140, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(120, 160, 140, 0); }
+}
+
+.route-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  cursor: pointer;
+  transition: filter 0.18s ease, transform 0.18s ease;
+}
+
+.route-btn .material-symbols-outlined { font-size: 20px; }
+.route-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.route-btn:focus-visible { outline: 2px solid var(--lp-brand); outline-offset: 2px; }
+.route-btn--start { background: var(--lp-success); }
+.route-btn--stop { background: var(--lp-danger); }
+
+.route-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  background: rgba(184, 76, 67, 0.14);
+  border: 1px solid rgba(184, 76, 67, 0.4);
+  color: var(--lp-danger);
+}
+
+.route-alert .material-symbols-outlined { font-size: 18px; }
+
+.route-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.route-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--lp-surface-2);
+  border: 1px solid var(--lp-border);
+}
+
+.route-metric-value { font-size: 1.05rem; font-weight: 800; color: var(--lp-text); }
+.route-metric-value--sm { font-size: 0.82rem; }
+.route-metric-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--lp-muted);
+}
+
+@media (max-width: 768px) {
+  .route-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

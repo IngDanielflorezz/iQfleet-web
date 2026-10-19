@@ -62,7 +62,7 @@ export async function registerUser(data) {
   return nuevo;
 }
 
-export async function loginUser({ correo, password, rol }) {
+export async function loginUser({ correo, password, rol, empresa }) {
   await delay(400);
   ensureSeedUser();
   const user = readUsers().find(
@@ -75,7 +75,18 @@ export async function loginUser({ correo, password, rol }) {
   if (!user) {
     throw new Error("Credenciales o rol incorrectos.");
   }
+
+  if (user.rol === ROLES.CONDUCTOR && !matchesEmpresa(user.empresa, empresa)) {
+    throw new Error("La empresa no coincide con la registrada para este conductor.");
+  }
+
   return user;
+}
+
+function matchesEmpresa(registrada, ingresada) {
+  const registradaNormalizada = (registrada ?? "").trim().toLowerCase();
+  const ingresadaNormalizada = (ingresada ?? "").trim().toLowerCase();
+  return registradaNormalizada.length > 0 && registradaNormalizada === ingresadaNormalizada;
 }
 
 export function getSession() {

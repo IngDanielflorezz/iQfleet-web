@@ -15,6 +15,7 @@ export default function Login() {
   const [rol, setRol] = useState(ROLES.ADMINISTRADOR);
   const [email, setEmail] = useState('admin@iqfleet.com');
   const [password, setPassword] = useState('1234');
+  const [empresa, setEmpresa] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const user = await loginUser({ correo: email, password, rol });
+      const user = await loginUser({ correo: email, password, rol, empresa });
       saveSession(user);
       navigate(ROLE_HOME[user.rol] ?? '/app/dashboard');
     } catch (err) {
@@ -82,6 +83,24 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        {rol === ROLES.CONDUCTOR && (
+          <div>
+            <label htmlFor="empresa" className="form-label-dark">EMPRESA</label>
+            <div className="input-dark-group">
+              <i className="fa-regular fa-building input-dark-icon"></i>
+              <input
+                type="text"
+                id="empresa"
+                className="form-control form-control-dark"
+                value={empresa}
+                onChange={(e) => setEmpresa(e.target.value)}
+                required
+                placeholder="Empresa a la que perteneces"
+              />
+            </div>
+          </div>
+        )}
 
         <div>
           <label htmlFor="email" className="form-label-dark">CORREO CORPORATIVO</label>
