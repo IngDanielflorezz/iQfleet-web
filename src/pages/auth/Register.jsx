@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { registerUser, ROLES } from '../../services/authService';
+import { getEmpresasContratantes, registerUser, ROLES } from '../../services/authService';
+import EmpresaSelect from './EmpresaSelect';
 import './Login.css';
 import './Register.css';
 
@@ -86,6 +87,8 @@ export default function Register() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const empresasContratantes = getEmpresasContratantes();
+
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -105,7 +108,8 @@ export default function Register() {
     else if (!/^[+\d\s-]{7,15}$/.test(form.telefono)) nextErrors.telefono = 'Teléfono no válido';
 
     if (!form.empresa.trim())
-      nextErrors.empresa = 'Ingresa la empresa u organización';
+      nextErrors.empresa =
+        rol === ROLES.CONDUCTOR ? 'Selecciona tu empresa' : 'Ingresa la empresa u organización';
     if (rol === ROLES.CONDUCTOR && !form.licencia.trim())
       nextErrors.licencia = 'Ingresa tu número de licencia';
 
@@ -167,6 +171,7 @@ export default function Register() {
                 onClick={() => {
                   setRol(ROLES.ADMINISTRADOR);
                   setErrors({});
+                  setForm((prev) => ({ ...prev, empresa: '' }));
                 }}
               >
                 <div className="d-flex align-items-center gap-2">
@@ -182,6 +187,7 @@ export default function Register() {
                 onClick={() => {
                   setRol(ROLES.CONDUCTOR);
                   setErrors({});
+                  setForm((prev) => ({ ...prev, empresa: '' }));
                 }}
               >
                 <div className="d-flex align-items-center gap-2">
@@ -235,15 +241,24 @@ export default function Register() {
             icon="fa-solid fa-phone"
           />
 
-          <Field
-            label="EMPRESA / ORGANIZACIÓN"
-            name="empresa"
-            value={form.empresa}
-            onChange={handleChange}
-            error={errors.empresa}
-            placeholder="Ej: Transportes del Valle S.A.S."
-            icon="fa-regular fa-building"
-          />
+          {rol === ROLES.ADMINISTRADOR ? (
+            <Field
+              label="EMPRESA / ORGANIZACIÓN"
+              name="empresa"
+              value={form.empresa}
+              onChange={handleChange}
+              error={errors.empresa}
+              placeholder="Ej: Transportes del Valle S.A.S."
+              icon="fa-regular fa-building"
+            />
+          ) : (
+            <EmpresaSelect
+              empresas={empresasContratantes}
+              value={form.empresa}
+              onChange={handleChange}
+              error={errors.empresa}
+            />
+          )}
 
           {rol === ROLES.CONDUCTOR && (
             <Field

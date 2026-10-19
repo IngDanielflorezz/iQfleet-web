@@ -6,16 +6,31 @@ export const ROLES = {
   CONDUCTOR: "CONDUCTOR",
 };
 
-const DEMO_ADMIN = {
-  id: 1,
-  nombres: "Carlos",
-  apellidos: "Morales",
-  correo: "admin@iqfleet.com",
-  telefono: "+57 300 000 0000",
-  empresa: "iQFleet",
-  password: "1234",
-  rol: ROLES.ADMINISTRADOR,
-};
+// Usuarios demo. Cada administrador representa una empresa que contrató iQFleet
+// (empresa contratante). Los conductores solo pueden registrarse en una de ellas.
+const DEMO_USERS = [
+  {
+    id: 1,
+    nombres: "Carlos",
+    apellidos: "Morales",
+    correo: "admin@iqfleet.com",
+    telefono: "+57 300 000 0000",
+    empresa: "iQFleet",
+    password: "1234",
+    rol: ROLES.ADMINISTRADOR,
+  },
+  {
+    id: 2,
+    nombres: "Andrés",
+    apellidos: "Gómez",
+    correo: "conductor@iqfleet.com",
+    telefono: "+57 301 000 0000",
+    empresa: "iQFleet",
+    licencia: "20001234567",
+    password: "1234",
+    rol: ROLES.CONDUCTOR,
+  },
+];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -32,11 +47,27 @@ function writeUsers(users) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-function ensureSeedUser() {
+function ensureSeedUsers() {
   const users = readUsers();
-  if (users.length === 0) {
-    writeUsers([DEMO_ADMIN]);
+  const missing = DEMO_USERS.filter(
+    (demo) => !users.some((user) => user.correo === demo.correo),
+  );
+  if (missing.length > 0) {
+    writeUsers([...users, ...missing]);
   }
+}
+
+/**
+ * Empresas contratantes: empresas que ya tienen una cuenta de administrador.
+ * Son las únicas bajo las que un conductor puede registrarse / iniciar sesión.
+ */
+export function getEmpresasContratantes() {
+  const empresas = readUsers()
+    .filter((user) => user.rol === ROLES.ADMINISTRADOR)
+    .map((user) => (user.empresa ?? "").trim())
+    .filter(Boolean);
+
+  return [...new Set(empresas)].sort((a, b) => a.localeCompare(b, "es"));
 }
 
 // TODO (cuando exista el backend):
@@ -49,12 +80,19 @@ function ensureSeedUser() {
 // return res.json();
 export async function registerUser(data) {
   await delay(600);
-  ensureSeedUser();
+  ensureSeedUsers();
   const users = readUsers();
   const correo = data.correo.trim().toLowerCase();
 
   if (users.some((user) => user.correo === correo)) {
     throw new Error("Ya existe una cuenta con ese correo.");
+  }
+
+  if (
+    data.rol === ROLES.CONDUCTOR &&
+    !getEmpresasContratantes().some((empresa) => matchesEmpresa(empresa, data.empresa))
+  ) {
+    throw new Error("La empresa seleccionada no está registrada como empresa contratante.");
   }
 
   const nuevo = { id: Date.now(), ...data, correo };
@@ -64,7 +102,7 @@ export async function registerUser(data) {
 
 export async function loginUser({ correo, password, rol, empresa }) {
   await delay(400);
-  ensureSeedUser();
+  ensureSeedUsers();
   const user = readUsers().find(
     (candidate) =>
       candidate.correo === correo.trim().toLowerCase() &&
@@ -105,3 +143,5 @@ export function saveSession(user) {
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
 }
+
+ensureSeedUsers();

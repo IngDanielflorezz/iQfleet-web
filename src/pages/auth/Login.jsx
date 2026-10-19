@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser, saveSession, ROLES } from '../../services/authService';
+import { loginUser, saveSession, getEmpresasContratantes, ROLES } from '../../services/authService';
+import EmpresaSelect from './EmpresaSelect';
 import './Login.css';
 
 const ROLE_HOME = {
@@ -19,6 +20,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const empresasContratantes = getEmpresasContratantes();
 
   // Función que valida credenciales y redirige según el rol
   const handleLogin = async (e) => {
@@ -85,21 +88,11 @@ export default function Login() {
         </div>
 
         {rol === ROLES.CONDUCTOR && (
-          <div>
-            <label htmlFor="empresa" className="form-label-dark">EMPRESA</label>
-            <div className="input-dark-group">
-              <i className="fa-regular fa-building input-dark-icon"></i>
-              <input
-                type="text"
-                id="empresa"
-                className="form-control form-control-dark"
-                value={empresa}
-                onChange={(e) => setEmpresa(e.target.value)}
-                required
-                placeholder="Empresa a la que perteneces"
-              />
-            </div>
-          </div>
+          <EmpresaSelect
+            empresas={empresasContratantes}
+            value={empresa}
+            onChange={(e) => setEmpresa(e.target.value)}
+          />
         )}
 
         <div>
