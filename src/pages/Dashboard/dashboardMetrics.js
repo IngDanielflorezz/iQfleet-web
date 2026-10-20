@@ -142,6 +142,45 @@ export function listPeriodos(despachos) {
   return [...periodos].sort((a, b) => b.localeCompare(a));
 }
 
+/**
+ * Agrupa los despachos de un período (YYYY-MM) por semana del mes (1..5) para
+ * alimentar la gráfica de telemetría. Cada punto incluye nº de despachos,
+ * fletes facturados (excluye cancelados) y costos operativos.
+ */
+export function computeTelemetriaSemanal(despachos, periodo) {
+  const semanas = Array.from({ length: 5 }, (_, indice) => ({
+    semana: indice + 1,
+    etiqueta: `S${indice + 1}`,
+    despachos: 0,
+    ingresos: 0,
+    costos: 0,
+  }));
+
+  despachos
+    .filter((despacho) => toPeriodo(despacho.fechaSalida) === periodo)
+    .forEach((despacho) => {
+      const dia = Number(String(despacho.fechaSalida).slice(8, 10));
+      if (!Number.isFinite(dia)) return;
+      const indiceSemana = Math.min(4, Math.floor((dia - 1) / 7));
+      const punto = semanas[indiceSemana];
+      punto.despachos += 1;
+      if (despacho.estado !== DESPACHO_ESTADOS.CANCELADO) {
+        punto.ingresos += Number(despacho.valorFlete || 0);
+        punto.costos += Number(despacho.costoOperativo || 0);
+      }
+    });
+
+  const maxDespachos = Math.max(1, ...semanas.map((punto) => punto.despachos));
+  const maxDinero = Math.max(1, ...semanas.map((punto) => Math.max(punto.ingresos, punto.costos)));
+
+  return semanas.map((punto) => ({
+    ...punto,
+    alturaDespachos: (punto.despachos / maxDespachos) * 100,
+    alturaIngresos: (punto.ingresos / maxDinero) * 100,
+    alturaCostos: (punto.costos / maxDinero) * 100,
+  }));
+}
+
 export function buildResumen(despachos, flota = vehiculos, referencia = new Date()) {
   return {
     disponibilidad: computeDisponibilidadFlota(flota),

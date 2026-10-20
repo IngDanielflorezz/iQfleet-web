@@ -8,6 +8,7 @@ import DashboardHeader from './components/DashboardHeader';
 import MetricCards from './components/MetricCards';
 import AlertsPanel from './components/AlertsPanel';
 import DespachosTable from './components/DespachosTable';
+import TelemetriaChart from './components/TelemetriaChart';
 import ModalDespacho from './components/ModalDespacho';
 import ConfirmDialog from './components/ConfirmDialog';
 import './Dashboard.css';
@@ -95,18 +96,7 @@ export default function DashboardPage() {
 
         <div className="row g-3">
           <div className="col-12 col-xl-8">
-            <div className="card-dark p-4 h-100">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2 className="fs-6 text-white fw-bold mb-0">Rendimiento y Telemetría Semanal</h2>
-                <span className="badge badge-dark-subtle fs-8">{periodoLabel(periodoActivo)}</span>
-              </div>
-              <div
-                className="d-flex align-items-center justify-content-center rounded"
-                style={{ height: '250px', backgroundColor: 'var(--lp-input)', border: '1px dashed var(--lp-border)' }}
-              >
-                <span className="text-light-muted fs-8">Gráfico de rendimiento (Recharts / Chart.js iría aquí)</span>
-              </div>
-            </div>
+            <TelemetriaChart despachos={despachosPeriodo} periodo={periodoActivo} />
           </div>
 
           <AlertsPanel alertas={resumen.alertas} />

@@ -352,6 +352,62 @@
 }
 
 /* ==========================================================
+   Gráfica de Telemetría Semanal (CSS puro, sin librerías)
+   ========================================================== */
+.telemetria-chart {
+  height: 250px;
+}
+
+.telemetria-axis {
+  border-bottom: 1px solid var(--lp-border);
+}
+
+.telemetria-slot {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.telemetria-bar {
+  border-radius: 4px 4px 0 0;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.telemetria-bar:hover {
+  filter: brightness(1.12);
+}
+
+.telemetria-bar.is-empty {
+  opacity: 0.28;
+}
+
+.telemetria-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -6px);
+  background-color: var(--lp-surface-2, var(--lp-input));
+  border: 1px solid var(--lp-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.72rem;
+  color: var(--lp-text);
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(32, 43, 43, 0.25);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.badge-plate-inactive {
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-muted);
+}
+
+/* ==========================================================
    Impresión: la consola se exporta como reporte limpio
    ========================================================== */
 @media print {
