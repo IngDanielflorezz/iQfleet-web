@@ -108,6 +108,17 @@
   border: 1px solid var(--lp-border);
 }
 
+/* Fondos sutiles para el encabezado del detalle (ingreso/egreso) */
+.bg-success-subtle-iq {
+  background-color: rgba(22, 163, 74, 0.12);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+}
+
+.bg-danger-subtle-iq {
+  background-color: rgba(184, 76, 67, 0.12);
+  border: 1px solid rgba(184, 76, 67, 0.3);
+}
+
 /* ==========================================================
    Toasts (notificaciones flotantes)
    ========================================================== */
