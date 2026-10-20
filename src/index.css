@@ -205,6 +205,47 @@ html[data-theme-anim] *::after {
 }
 
 /* ==========================================================
+   Tablas CRUD compartidas (global): evita que una tabla quede
+   sin estilos cuando un módulo no importa el CSS de otro.
+   ========================================================== */
+.table-dark-custom {
+  --bs-table-bg: var(--lp-surface);
+  --bs-table-color: var(--lp-text);
+  --bs-table-border-color: var(--lp-border);
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+.table-dark-custom thead th {
+  background-color: var(--lp-input);
+  color: var(--lp-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--lp-border);
+  padding: 12px;
+  white-space: nowrap;
+}
+
+.table-dark-custom tbody td {
+  padding: 12px;
+  vertical-align: middle;
+  background-color: var(--lp-surface);
+  color: var(--lp-text);
+  border-color: var(--lp-border);
+}
+
+.table-dark-custom tbody tr:hover td {
+  background-color: var(--lp-input);
+}
+
+/* Contenedor de tabla dentro de tarjeta: esquinas y scroll */
+.card-dark .table-responsive {
+  border-radius: 0 0 16px 16px;
+}
+
+/* ==========================================================
    Impresión: exportar vistas como reporte
    ========================================================== */
 @media print {

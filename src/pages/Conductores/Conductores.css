@@ -223,36 +223,9 @@
 }
 
 /* ==========================================================
-   TABLA CRUD & CONDUCTORES
+   PLACAS COLOMBIANAS
+   (los estilos base de .table-dark-custom viven en src/index.css)
    ========================================================== */
-.table-dark-custom {
-  --bs-table-bg: var(--lp-surface);
-  --bs-table-color: var(--lp-text);
-  --bs-table-border-color: var(--lp-border);
-  font-size: 0.85rem;
-}
-
-.table-dark-custom thead th {
-  background-color: var(--lp-input);
-  color: var(--lp-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--lp-border);
-  padding: 12px;
-}
-
-.table-dark-custom tbody td {
-  padding: 12px;
-  vertical-align: middle;
-}
-
-.table-dark-custom tbody tr:hover {
-  background-color: var(--lp-input);
-}
-
-/* Placas Colombianas */
 .plate-box {
   width: 86px;
   background-color: #facc15;
