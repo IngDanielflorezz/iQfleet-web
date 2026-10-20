@@ -296,3 +296,91 @@
   page-break-inside: avoid;
   break-inside: avoid;
 }
+
+/* ==========================================================
+   Módulo Despachos (Dashboard Ejecutivo)
+   ========================================================== */
+
+/* Panel de alertas con scroll propio */
+.alert-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Modal controlado (sin bundle de Bootstrap JS) */
+.modal-backdrop.show {
+  opacity: 0.6;
+}
+
+#modalDespacho .modal-content {
+  border-radius: 16px;
+}
+
+/* Inputs dentro de modales no llevan el offset del buscador */
+.modal .form-control-dark {
+  padding-left: 12px !important;
+}
+
+.modal .modal-title,
+.modal .form-label-dark,
+.modal .text-light-muted {
+  color: var(--lp-text);
+}
+
+.modal .text-light-muted {
+  color: var(--lp-muted) !important;
+}
+
+/* Botón de acción destructiva alineado a la paleta */
+.btn-danger {
+  background-color: var(--lp-danger) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.94);
+  color: #ffffff !important;
+}
+
+/* ==========================================================
+   Impresión: la consola se exporta como reporte limpio
+   ========================================================== */
+@media print {
+  .no-print,
+  .sidebar-iq,
+  .topbar-iq,
+  .modal,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .content-area {
+    padding: 0 !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  #pdfReportArea {
+    width: 100%;
+  }
+
+  .card-dark,
+  .card-dark-metric {
+    border-color: #cccccc !important;
+  }
+}

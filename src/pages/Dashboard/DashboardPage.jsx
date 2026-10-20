@@ -1,173 +1,151 @@
+import { useMemo, useState } from 'react';
+import { vehiculos } from '../../data/vehiculos';
+import { getConductoresConocidos } from '../../services/despachoService';
+import { useDespachos } from '../../hooks/useDespachos';
+import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
+import { buildResumen, listPeriodos } from './dashboardMetrics';
+import DashboardHeader from './components/DashboardHeader';
+import MetricCards from './components/MetricCards';
+import AlertsPanel from './components/AlertsPanel';
+import DespachosTable from './components/DespachosTable';
+import ModalDespacho from './components/ModalDespacho';
+import ConfirmDialog from './components/ConfirmDialog';
 import './Dashboard.css';
-// Descomenta estas líneas cuando crees los archivos de los modales en la subcarpeta 'componentes'
-// import ModalDespacho from './componentes/ModalDespacho';
-// import ModalNovedad from './componentes/ModalNovedad';
 
 export default function DashboardPage() {
-  
-  const handleExportPdf = () => {
-    // Aquí irá la lógica de html2pdf que extrajimos anteriormente
-    console.log("Exportando PDF...");
+  const { despachos, crear, actualizar, eliminar } = useDespachos();
+
+  const [periodo, setPeriodo] = useState(null);
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('Todos');
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [despachoEnEdicion, setDespachoEnEdicion] = useState(null);
+  const [despachoAEliminar, setDespachoAEliminar] = useState(null);
+
+  const opcionesPeriodo = useMemo(() => {
+    const actual = toPeriodo(new Date());
+    return listPeriodos(despachos).map((valor) => ({
+      value: valor,
+      label: valor === actual ? `${periodoLabel(valor)} (Mes en curso)` : periodoLabel(valor),
+    }));
+  }, [despachos]);
+
+  const periodoActivo = useMemo(() => {
+    if (periodo && opcionesPeriodo.some((opcion) => opcion.value === periodo)) return periodo;
+    return opcionesPeriodo[0]?.value ?? null;
+  }, [periodo, opcionesPeriodo]);
+
+  const despachosPeriodo = useMemo(
+    () => despachos.filter((despacho) => toPeriodo(despacho.fechaSalida) === periodoActivo),
+    [despachos, periodoActivo],
+  );
+
+  const despachosFiltrados = useMemo(() => {
+    const termino = busqueda.trim().toLowerCase();
+    return despachosPeriodo.filter((despacho) => {
+      const coincideEstado = filtroEstado === 'Todos' || despacho.estado === filtroEstado;
+      if (!coincideEstado) return false;
+      if (!termino) return true;
+      return [despacho.id, despacho.placa, despacho.conductor, despacho.origen, despacho.destino]
+        .join(' ')
+        .toLowerCase()
+        .includes(termino);
+    });
+  }, [despachosPeriodo, busqueda, filtroEstado]);
+
+  const resumen = useMemo(() => buildResumen(despachosPeriodo, vehiculos, new Date()), [despachosPeriodo]);
+
+  const conductores = useMemo(() => getConductoresConocidos(despachos), [despachos]);
+
+  const abrirNuevo = () => {
+    setDespachoEnEdicion(null);
+    setModalAbierto(true);
+  };
+
+  const abrirEditar = (despacho) => {
+    setDespachoEnEdicion(despacho);
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setDespachoEnEdicion(null);
+  };
+
+  const guardarDespacho = (dto) =>
+    despachoEnEdicion ? actualizar(despachoEnEdicion.id, dto) : crear(dto);
+
+  const confirmarEliminacion = () => {
+    if (despachoAEliminar) eliminar(despachoAEliminar.id);
+    setDespachoAEliminar(null);
   };
 
   return (
     <div className="container-fluid max-w-container">
-      {/* Header: Título y Filtros */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
-            <span className="badge badge-orange-subtle text-uppercase fw-bold">CENTRO DE OPERACIONES</span>
-            <span className="text-light-muted fs-8">Despacho Sabana &amp; Bogotá D.C.</span>
-          </div>
-          <h1 className="h3 fw-bold text-white mb-0">Consola de Control Operativo</h1>
-          <span className="text-light-muted fs-8">Corte: 24 Oct, 16:40 COT</span>
-        </div>
+      <DashboardHeader
+        periodo={periodoActivo}
+        periodos={opcionesPeriodo}
+        onPeriodoChange={setPeriodo}
+        onNuevoDespacho={abrirNuevo}
+        onExportar={() => window.print()}
+      />
 
-        <div className="d-flex align-items-center gap-2 flex-wrap">
-          <select className="select-dark">
-            <option>Octubre 2024 (Mes en curso)</option>
-            <option>Septiembre 2024</option>
-            <option>Agosto 2024</option>
-          </select>
-          <button className="btn btn-outline-dark-custom" onClick={handleExportPdf}>
-            <span className="material-symbols-outlined fs-5">picture_as_pdf</span> Exportar Reporte PDF
-          </button>
-          <button className="btn btn-orange-cta" data-bs-toggle="modal" data-bs-target="#modalDespacho">
-            <span className="material-symbols-outlined fs-5">add</span> Registrar Despacho
-          </button>
-        </div>
-      </div>
-
-      {/* Contenedor que será exportado a PDF */}
       <div id="pdfReportArea">
-        
-        {/* Fila 1: 4 Tarjetas de Métricas Ejecutivas */}
-        <div className="row g-3 mb-4">
-          
-          {/* KPI 1: Disponibilidad Flota */}
-          <div className="col-12 col-md-3">
-            <div className="card-dark-metric p-3 d-flex justify-content-between align-items-start h-100">
-              <div>
-                <span className="form-label-dark">DISPONIBILIDAD FLOTA</span>
-                <div className="d-flex align-items-baseline gap-2 my-1">
-                  <span className="metric-number text-white fw-bold">18</span>
-                  <span className="text-light-muted fs-8">/20</span>
-                </div>
-                <small className="text-success d-flex align-items-center gap-1 fs-8">
-                  <span className="material-symbols-outlined fs-6">check_circle</span> 90% Operativos
-                </small>
-              </div>
-              <div className="icon-shield-check">
-                <span className="material-symbols-outlined">directions_bus</span>
-              </div>
-            </div>
-          </div>
+        <MetricCards resumen={resumen} />
 
-          {/* KPI 2: Personal Rodante */}
-          <div className="col-12 col-md-3">
-            <div className="card-dark-metric p-3 d-flex justify-content-between align-items-start h-100">
-              <div>
-                <span className="form-label-dark">PERSONAL RODANTE</span>
-                <div className="d-flex align-items-baseline gap-2 my-1">
-                  <span className="metric-number text-white fw-bold">24</span>
-                  <span className="text-light-muted fs-8">activos</span>
-                </div>
-                <small className="text-warning d-flex align-items-center gap-1 fs-8">
-                  <span className="material-symbols-outlined fs-6">warning</span> 2 en relevo
-                </small>
-              </div>
-              <div className="icon-shield-check">
-                <span className="material-symbols-outlined">badge</span>
-              </div>
-            </div>
-          </div>
-
-          {/* KPI 3: Cumplimiento Legal */}
-          <div className="col-12 col-md-3">
-            <div className="card-dark-metric p-3 d-flex justify-content-between align-items-start h-100">
-              <div>
-                <span className="form-label-dark">CUMPLIMIENTO LEGAL</span>
-                <div className="d-flex align-items-baseline gap-2 my-1">
-                  <span className="metric-number text-white fw-bold">96.2%</span>
-                </div>
-                <small className="text-danger d-flex align-items-center gap-1 fs-8">
-                  <span className="material-symbols-outlined fs-6">error</span> 3 Docs Críticos
-                </small>
-              </div>
-              <div className="icon-shield-check">
-                <span className="material-symbols-outlined">folder_open</span>
-              </div>
-            </div>
-          </div>
-
-          {/* KPI 4: Rentabilidad */}
-          <div className="col-12 col-md-3">
-            <div className="card-dark-metric p-3 d-flex justify-content-between align-items-start h-100">
-              <div>
-                <span className="form-label-dark">MARGEN NETO</span>
-                <div className="d-flex align-items-baseline gap-2 my-1">
-                  <span className="metric-number text-white fw-bold">31.7%</span>
-                </div>
-                <small className="text-success d-flex align-items-center gap-1 fs-8">
-                  <span className="material-symbols-outlined fs-6">trending_up</span> Superávit activo
-                </small>
-              </div>
-              <div className="icon-shield-check">
-                <span className="material-symbols-outlined">payments</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Fila 2: Telemetría y Alertas */}
         <div className="row g-3">
-          {/* Gráfico (Simulado) */}
-          <div className="col-12 col-lg-8">
+          <div className="col-12 col-xl-8">
             <div className="card-dark p-4 h-100">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2 className="fs-6 text-white fw-bold mb-0">Rendimiento y Telemetría Semanal</h2>
-                <span className="badge badge-dark-subtle fs-8">Últimos 7 días</span>
+                <span className="badge badge-dark-subtle fs-8">{periodoLabel(periodoActivo)}</span>
               </div>
-              <div className="d-flex align-items-center justify-content-center rounded" style={{ height: '250px', backgroundColor: 'var(--bg-input)', border: '1px dashed var(--border-dark)' }}>
+              <div
+                className="d-flex align-items-center justify-content-center rounded"
+                style={{ height: '250px', backgroundColor: 'var(--lp-input)', border: '1px dashed var(--lp-border)' }}
+              >
                 <span className="text-light-muted fs-8">Gráfico de rendimiento (Recharts / Chart.js iría aquí)</span>
               </div>
             </div>
           </div>
 
-          {/* Panel de Alertas Críticas */}
-          <div className="col-12 col-lg-4">
-            <div className="card-dark p-4 h-100">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2 className="fs-6 text-white fw-bold mb-0">Alertas Críticas</h2>
-                <span className="badge bg-danger-subtle text-danger fs-8">3 Activas</span>
-              </div>
-              <div className="d-flex flex-column gap-3">
-                
-                <div className="p-3 rounded" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid rgba(220, 53, 69, 0.3)' }}>
-                  <div className="d-flex justify-content-between">
-                    <strong className="text-danger fs-8">SOAT Vencido</strong>
-                    <span className="text-light-muted fs-8">Hace 2h</span>
-                  </div>
-                  <span className="text-white fs-7 d-block mt-1">Placa UVP-123 (Kenworth T800)</span>
-                </div>
-
-                <div className="p-3 rounded" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid rgba(255, 193, 7, 0.3)' }}>
-                  <div className="d-flex justify-content-between">
-                    <strong className="text-warning fs-8">Mantenimiento Preventivo</strong>
-                    <span className="text-light-muted fs-8">Hoy</span>
-                  </div>
-                  <span className="text-white fs-7 d-block mt-1">Placa WZA-456 (Marcopolo 21)</span>
-                </div>
-
-              </div>
-            </div>
-          </div>
+          <AlertsPanel alertas={resumen.alertas} />
         </div>
+
+        <DespachosTable
+          despachos={despachosFiltrados}
+          total={despachosPeriodo.length}
+          busqueda={busqueda}
+          onBusquedaChange={setBusqueda}
+          filtroEstado={filtroEstado}
+          onFiltroEstadoChange={setFiltroEstado}
+          onEditar={abrirEditar}
+          onEliminar={setDespachoAEliminar}
+          onNuevoDespacho={abrirNuevo}
+        />
       </div>
 
-      {/* Renderizado de Modales */}
-      {/* <ModalDespacho /> */}
-      {/* <ModalNovedad /> */}
+      {modalAbierto && (
+        <ModalDespacho
+          despacho={despachoEnEdicion}
+          flota={vehiculos}
+          conductores={conductores}
+          onClose={cerrarModal}
+          onGuardar={guardarDespacho}
+        />
+      )}
+
+      <ConfirmDialog
+        open={Boolean(despachoAEliminar)}
+        titulo="Eliminar despacho"
+        mensaje={
+          despachoAEliminar
+            ? `¿Seguro que deseas eliminar el despacho ${despachoAEliminar.id} (${despachoAEliminar.origen} → ${despachoAEliminar.destino})? Esta acción no se puede deshacer.`
+            : ''
+        }
+        onConfirm={confirmarEliminacion}
+        onCancel={() => setDespachoAEliminar(null)}
+      />
     </div>
   );
 }
