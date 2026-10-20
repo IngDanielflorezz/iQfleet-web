@@ -1,4 +1,4 @@
-export default function TelemetryDock({ summary }) {
+export default function TelemetryDock({ summary, onHistorial, historialActivo }) {
   return (
     <div className="gps-dock card-dark px-3 py-2 d-flex align-items-center gap-4">
       <div className="gps-dock-metric">
@@ -29,10 +29,12 @@ export default function TelemetryDock({ summary }) {
       <button
         type="button"
         className="btn-outline-dark-custom gps-dock-action ms-auto"
-        disabled
-        title="Próximamente"
+        onClick={onHistorial}
+        aria-pressed={historialActivo}
+        title="Ver historial de unidades"
       >
-        <span className="material-symbols-outlined">history</span> Historial GPS
+        <span className="material-symbols-outlined">{historialActivo ? 'visibility_off' : 'history'}</span>
+        {historialActivo ? 'Ocultar historial' : 'Historial GPS'}
       </button>
     </div>
   );

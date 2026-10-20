@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -9,8 +9,8 @@ const VALLEDUPAR = { center: [10.4634, -73.2532], zoom: 13 };
 const COLOMBIA = { center: [4.57, -74.29], zoom: 6 };
 
 const TILE_URL = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  light: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
 };
 const TILE_ATTRIBUTION = '&copy; OpenStreetMap &copy; CARTO';
 
@@ -28,13 +28,21 @@ function buildPinIcon(route) {
   });
 }
 
-/** Efectos imperativos: recalcula el tamaño y centra la unidad seleccionada. */
-function MapEffects({ focusTarget }) {
+/** Efectos imperativos: recalcula el tamaño, centra la unidad y expone el mapa. */
+function MapEffects({ focusTarget, onReady }) {
   const map = useMap();
 
   useEffect(() => {
+    onReady(map);
+  }, [map, onReady]);
+
+  useEffect(() => {
     const id = window.setTimeout(() => map.invalidateSize(), 250);
-    return () => window.clearTimeout(id);
+    const id2 = window.setTimeout(() => map.invalidateSize(), 900);
+    return () => {
+      window.clearTimeout(id);
+      window.clearTimeout(id2);
+    };
   }, [map]);
 
   useEffect(() => {
@@ -73,6 +81,7 @@ export default function MapCanvas({ routes, focusTarget }) {
   const { isDark } = useTheme();
   const [map, setMap] = useState(null);
   const theme = isDark ? 'dark' : 'light';
+  const handleReady = useCallback((instancia) => setMap(instancia), []);
 
   return (
     <div className="gps-map">
@@ -81,10 +90,9 @@ export default function MapCanvas({ routes, focusTarget }) {
         zoom={VALLEDUPAR.zoom}
         zoomControl={false}
         className="gps-map-canvas"
-        whenReady={setMap}
       >
         <TileLayer key={theme} url={TILE_URL[theme]} attribution={TILE_ATTRIBUTION} maxZoom={19} />
-        <MapEffects focusTarget={focusTarget} />
+        <MapEffects focusTarget={focusTarget} onReady={handleReady} />
         {routes.map((route) => {
           const meta = STATUS_META[getRouteStatus(route)];
           return (

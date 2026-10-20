@@ -15,6 +15,7 @@ export const GPS_CONFIG = {
 };
 
 const ROUTES_KEY = 'iqfleet_active_routes';
+const DEMO_KEY = 'iqfleet_demo_routes';
 const CHANGED_EVENT = 'iqfleet:routes-changed';
 
 // ---------------------------------------------------------------
@@ -77,6 +78,66 @@ export function getActiveRoutes() {
     .sort((a, b) => a.nombres.localeCompare(b.nombres, 'es'));
 }
 
+// ---------------------------------------------------------------
+// Unidades de demostración (para ver el mapa sin depender de un
+// conductor real). Se marcan con demo: true y se pueden quitar.
+// ---------------------------------------------------------------
+const DEMO_UNIDADES = [
+  { userId: 'demo-01', nombres: 'Juan', apellidos: 'Pérez', empresa: 'iQFleet', placa: 'UVP-123', lat: 10.4634, lng: -73.2532, speedKmh: 46 },
+  { userId: 'demo-02', nombres: 'Carlos', apellidos: 'Rodríguez', empresa: 'iQFleet', placa: 'WZA-456', lat: 10.4780, lng: -73.2410, speedKmh: 62 },
+  { userId: 'demo-03', nombres: 'Luis', apellidos: 'Martínez', empresa: 'Transportes del Cesar', placa: 'EQZ-912', lat: 10.4510, lng: -73.2680, speedKmh: 0 },
+  { userId: 'demo-04', nombres: 'Andrés', apellidos: 'Gómez', empresa: 'iQFleet', placa: 'TRL-890', lat: 10.4905, lng: -73.2745, speedKmh: 38 },
+  { userId: 'demo-05', nombres: 'Diego', apellidos: 'Herrera', empresa: 'Cootranscesar', placa: 'KLM-334', lat: 10.4420, lng: -73.2290, speedKmh: 71 },
+  { userId: 'demo-06', nombres: 'Miguel', apellidos: 'Torres', empresa: 'Transportes del Cesar', placa: 'PQR-778', lat: 10.4700, lng: -73.2200, speedKmh: 0 },
+];
+
+function jitter(valor, amplitud) {
+  return valor + (Math.random() - 0.5) * amplitud;
+}
+
+/** Re-escribe las unidades demo con posiciones frescas (movimiento simulado). */
+export function refreshDemoRoutes() {
+  if (!isDemoEnabled()) return;
+  const existentes = readRoutes();
+  const ahora = Date.now();
+  let cambio = false;
+
+  DEMO_UNIDADES.forEach((unidad, indice) => {
+    const previa = existentes[unidad.userId];
+    const lat = previa && unidad.speedKmh > 0 ? jitter(previa.lat, 0.004) : unidad.lat;
+    const lng = previa && unidad.speedKmh > 0 ? jitter(previa.lng, 0.004) : unidad.lng;
+    existentes[unidad.userId] = {
+      ...unidad,
+      lat,
+      lng,
+      rol: 'Conductor',
+      demo: true,
+      updatedAt: ahora - indice * 800,
+    };
+    cambio = true;
+  });
+
+  if (cambio) writeRoutes(existentes);
+}
+
+export function isDemoEnabled() {
+  return localStorage.getItem(DEMO_KEY) === '1';
+}
+
+export function enableDemoRoutes() {
+  localStorage.setItem(DEMO_KEY, '1');
+  refreshDemoRoutes();
+}
+
+export function disableDemoRoutes() {
+  localStorage.removeItem(DEMO_KEY);
+  const existentes = readRoutes();
+  Object.keys(existentes).forEach((clave) => {
+    if (existentes[clave].demo) delete existentes[clave];
+  });
+  writeRoutes(existentes);
+}
+
 /**
  * Observer: emite la lista de rutas ante cambios en otra pestaña (evento
  * "storage"), en la misma pestaña (evento custom) y por sondeo periódico.
@@ -87,11 +148,20 @@ export function subscribeActiveRoutes(callback) {
 
   window.addEventListener('storage', handleChange);
   window.addEventListener(CHANGED_EVENT, handleChange);
-  const intervalId = window.setInterval(handleChange, GPS_CONFIG.refreshMs);
+  const intervalId = window.setInterval(() => {
+    refreshDemoRoutes();
+    handleChange();
+  }, GPS_CONFIG.refreshMs);
 
   return () => {
     window.removeEventListener('storage', handleChange);
     window.removeEventListener(CHANGED_EVENT, handleChange);
     window.clearInterval(intervalId);
   };
+}
+
+// Al cargar, si nunca se decidió, dejamos las unidades demo activas para
+// que el centro de control no se vea vacío la primera vez.
+if (localStorage.getItem(DEMO_KEY) === null) {
+  localStorage.setItem(DEMO_KEY, '1');
 }
