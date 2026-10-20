@@ -174,3 +174,53 @@ html[data-theme-anim] *::after {
 .max-w-container { max-width: 1720px; }
 .max-w-lg { max-width: 480px; }
 .border-dark-custom { border-bottom: 1px solid var(--lp-border); }
+
+/* ==========================================================
+   Modales controlados (sin bundle JS de Bootstrap)
+   ========================================================== */
+.modal .form-control-dark {
+  padding-left: 12px !important;
+}
+
+.modal .modal-title {
+  color: var(--lp-text);
+}
+
+.modal .btn-danger {
+  background-color: var(--lp-danger) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal .btn-danger:hover {
+  filter: brightness(0.94);
+  color: #ffffff !important;
+}
+
+/* ==========================================================
+   Impresión: exportar vistas como reporte
+   ========================================================== */
+@media print {
+  .no-print,
+  .sidebar-iq,
+  .topbar-iq,
+  .modal,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .content-area {
+    padding: 0 !important;
+  }
+}
