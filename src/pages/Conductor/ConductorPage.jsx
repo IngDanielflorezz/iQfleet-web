@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
 import { getSession } from '../../services/authService';
+import { getActiveRoutes } from '../../services/gpsService';
 import useChecklist from '../../hooks/useChecklist';
+import useSosMensajes from '../../hooks/useSosMensajes';
 import { createAlertaIdempotente, resolverAlertasPorClave, ALERTA_SEVERIDAD, ALERTA_TIPOS } from '../../services/alertService';
 import RouteActivationCard from './RouteActivationCard';
 import ChecklistCard from './components/ChecklistCard';
+import SosPanel from './components/SosPanel';
 import './Conductor.css';
 
 export default function ConductorPage() {
@@ -15,6 +18,17 @@ export default function ConductorPage() {
   const { checklist, aprobado, diligenciado, fecha, guardar } = useChecklist(userId, {
     conductor: nombre,
     empresa,
+  });
+
+  const obtenerUltimaPosicion = () => {
+    const propia = getActiveRoutes().find((ruta) => ruta.userId === userId);
+    return propia ? { lat: propia.lat, lng: propia.lng } : null;
+  };
+
+  const { sosActivo, ultimoMensaje, activarSos, retirarSos, enviarMensaje } = useSosMensajes(userId, {
+    conductor: nombre,
+    empresa,
+    getPosicion: obtenerUltimaPosicion,
   });
 
   const motivoBloqueo = aprobado
@@ -58,6 +72,14 @@ export default function ConductorPage() {
       </div>
 
       <RouteActivationCard puedeActivar={aprobado} motivoBloqueo={motivoBloqueo} />
+
+      <SosPanel
+        sosActivo={sosActivo}
+        ultimoMensaje={ultimoMensaje}
+        onActivarSos={activarSos}
+        onRetirarSos={retirarSos}
+        onEnviarMensaje={enviarMensaje}
+      />
 
       <div className="row g-3">
         <div className="col-12 col-md-4">

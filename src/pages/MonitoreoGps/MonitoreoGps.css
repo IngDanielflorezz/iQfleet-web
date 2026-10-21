@@ -142,6 +142,20 @@
 .gps-pin--stopped::after { border-top-color: var(--lp-warning); }
 .gps-pin--lost { background: var(--lp-muted); }
 .gps-pin--lost::after { border-top-color: var(--lp-muted); }
+.gps-pin--sos {
+  background: var(--lp-danger);
+  animation: gps-sos-pulse 1.2s infinite;
+}
+.gps-pin--sos::after { border-top-color: var(--lp-danger); }
+.gps-pin-sos-icon { font-size: 0.9rem; }
+
+@keyframes gps-sos-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(184, 76, 67, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(184, 76, 67, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(184, 76, 67, 0); }
+}
+
+.gps-popup-row--sos b { color: var(--lp-danger); }
 
 /* ---------- Popup de unidad ---------- */
 .gps-popup { display: flex; flex-direction: column; gap: 4px; }
@@ -230,6 +244,7 @@
 .gps-legend-dot--moving { background: var(--lp-success); }
 .gps-legend-dot--stopped { background: var(--lp-warning); }
 .gps-legend-dot--lost { background: var(--lp-muted); }
+.gps-legend-dot--sos { background: var(--lp-danger); }
 
 /* ---------- Panel lateral de unidades ---------- */
 .gps-panel {

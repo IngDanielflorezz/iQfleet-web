@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import useActiveRoutes from '../../hooks/useActiveRoutes';
+import useAlertas from '../../hooks/useAlertas';
 import { summarizeFleet, STATUS_META, getRouteStatus, formatAgo } from './gpsMetrics';
 import { isDemoEnabled, enableDemoRoutes, disableDemoRoutes } from '../../services/gpsService';
+import { ALERTA_TIPOS } from '../../services/alertService';
 import MapCanvas from './components/MapCanvas';
 import FleetStatusStrip from './components/FleetStatusStrip';
 import UnitsPanel from './components/UnitsPanel';
@@ -24,6 +26,7 @@ function EmptyFleetNotice() {
 
 export default function MonitoreoGpsPage() {
   const routes = useActiveRoutes();
+  const { alertas } = useAlertas();
   const [selectedId, setSelectedId] = useState(null);
   const [focusTarget, setFocusTarget] = useState(null);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
@@ -31,6 +34,11 @@ export default function MonitoreoGpsPage() {
   const [historialAbierto, setHistorialAbierto] = useState(false);
 
   const summary = useMemo(() => summarizeFleet(routes), [routes]);
+
+  const sosUserIds = useMemo(
+    () => new Set(alertas.filter((alerta) => alerta.tipo === ALERTA_TIPOS.SOS).map((alerta) => alerta.userId)),
+    [alertas],
+  );
 
   const toggleHistorial = () => setHistorialAbierto((previo) => !previo);
 
@@ -80,7 +88,7 @@ export default function MonitoreoGpsPage() {
       <FleetStatusStrip summary={summary} />
 
       <div className="gps-workspace">
-        <MapCanvas routes={routes} focusTarget={focusTarget} />
+        <MapCanvas routes={routes} focusTarget={focusTarget} sosUserIds={sosUserIds} />
 
         {routes.length === 0 && <EmptyFleetNotice />}
 

@@ -14,7 +14,19 @@ const TILE_URL = {
 };
 const TILE_ATTRIBUTION = '&copy; OpenStreetMap &copy; CARTO';
 
-function buildPinIcon(route) {
+function buildPinIcon(route, enSos) {
+  if (enSos) {
+    return divIcon({
+      className: 'gps-pin-wrapper',
+      html: `<div class="gps-pin gps-pin--sos">
+        <span class="material-symbols-outlined gps-pin-sos-icon">sos</span>
+        <span class="gps-pin-unit">SOS</span>
+      </div>`,
+      iconSize: [68, 34],
+      iconAnchor: [34, 32],
+    });
+  }
+
   const status = getRouteStatus(route);
   const speed = Math.round(route.speedKmh ?? 0);
   return divIcon({
@@ -77,7 +89,7 @@ function MapControls({ map }) {
   );
 }
 
-export default function MapCanvas({ routes, focusTarget }) {
+export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() }) {
   const { isDark } = useTheme();
   const [map, setMap] = useState(null);
   const theme = isDark ? 'dark' : 'light';
@@ -94,15 +106,22 @@ export default function MapCanvas({ routes, focusTarget }) {
         <TileLayer key={theme} url={TILE_URL[theme]} attribution={TILE_ATTRIBUTION} maxZoom={19} />
         <MapEffects focusTarget={focusTarget} onReady={handleReady} />
         {routes.map((route) => {
+          const enSos = sosUserIds.has(route.userId);
           const meta = STATUS_META[getRouteStatus(route)];
           return (
-            <Marker key={route.userId} position={[route.lat, route.lng]} icon={buildPinIcon(route)}>
+            <Marker key={route.userId} position={[route.lat, route.lng]} icon={buildPinIcon(route, enSos)}>
               <Popup>
                 <div className="gps-popup">
                   <strong className="gps-popup-name">
                     {route.nombres} {route.apellidos}
                   </strong>
                   <span className="gps-popup-empresa">{route.empresa || 'Empresa no registrada'}</span>
+                  {enSos && (
+                    <div className="gps-popup-row gps-popup-row--sos">
+                      <span>Alerta</span>
+                      <b>SOS activo</b>
+                    </div>
+                  )}
                   <div className="gps-popup-row">
                     <span>Velocidad</span>
                     <b>{Math.round(route.speedKmh ?? 0)} km/h</b>
@@ -128,6 +147,7 @@ export default function MapCanvas({ routes, focusTarget }) {
         <span><i className="gps-legend-dot gps-legend-dot--moving" /> En ruta</span>
         <span><i className="gps-legend-dot gps-legend-dot--stopped" /> Detenida</span>
         <span><i className="gps-legend-dot gps-legend-dot--lost" /> Sin señal</span>
+        <span><i className="gps-legend-dot gps-legend-dot--sos" /> SOS</span>
       </div>
     </div>
   );

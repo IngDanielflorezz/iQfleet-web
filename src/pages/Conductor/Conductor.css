@@ -281,3 +281,99 @@
   .checklist-item { flex-direction: column; align-items: stretch; }
   .checklist-item__actions { justify-content: flex-end; }
 }
+
+/* ==========================================================
+   SOS y mensajes rápidos
+   ========================================================== */
+
+.sos-button {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: none;
+  background: var(--lp-danger);
+  color: #fff;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 8px 22px rgba(184, 76, 67, 0.35);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.sos-button:hover { filter: brightness(1.05); }
+.sos-button:active { transform: scale(0.97); }
+.sos-button .material-symbols-outlined { font-size: 40px; }
+.sos-button__label { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.02em; }
+.sos-button__hint { font-size: 0.62rem; opacity: 0.85; }
+
+.sos-button__ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(#fff var(--sos-progreso, 0%), transparent 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px));
+  pointer-events: none;
+}
+
+.sos-button--active {
+  background: #7a1f1a;
+  animation: sos-pulse 1.4s infinite;
+}
+
+@keyframes sos-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(184, 76, 67, 0.6); }
+  70% { box-shadow: 0 0 0 14px rgba(184, 76, 67, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(184, 76, 67, 0); }
+}
+
+.quick-messages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--lp-border);
+  background: var(--lp-surface-2);
+  color: var(--lp-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.quick-message:hover { border-color: var(--lp-brand); transform: translateY(-1px); }
+.quick-message .material-symbols-outlined { font-size: 18px; }
+.quick-message--warning .material-symbols-outlined { color: var(--lp-warning); }
+.quick-message--danger .material-symbols-outlined { color: var(--lp-danger); }
+.quick-message--info .material-symbols-outlined { color: var(--lp-brand); }
+
+.last-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(54, 118, 91, 0.12);
+  border: 1px solid rgba(54, 118, 91, 0.35);
+}
+
+.last-message .material-symbols-outlined { font-size: 20px; color: var(--lp-success); }
+.last-message strong { display: block; font-size: 0.8rem; color: var(--lp-text); }
+.last-message .text-light-muted { display: block; }
+
+@media (max-width: 576px) {
+  .quick-messages { grid-template-columns: 1fr; }
+}
