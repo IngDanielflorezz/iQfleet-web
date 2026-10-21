@@ -377,3 +377,65 @@
 @media (max-width: 576px) {
   .quick-messages { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================
+   Control de fatiga
+   ========================================================== */
+
+.fatiga-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-top: 2px;
+}
+
+.fatiga-badge--normal { background: rgba(54, 118, 91, 0.16); color: var(--lp-success); }
+.fatiga-badge--aviso { background: rgba(214, 161, 61, 0.16); color: var(--lp-warning); }
+.fatiga-badge--requerido { background: rgba(184, 76, 67, 0.18); color: var(--lp-danger); }
+
+.fatiga-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.fatiga-ring { width: 108px; height: 108px; flex-shrink: 0; }
+.fatiga-ring__track {
+  fill: none;
+  stroke: var(--lp-border);
+  stroke-width: 9;
+}
+.fatiga-ring__value {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+  transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
+}
+.fatiga-ring--normal .fatiga-ring__value { stroke: var(--lp-success); }
+.fatiga-ring--aviso .fatiga-ring__value { stroke: var(--lp-warning); }
+.fatiga-ring--requerido .fatiga-ring__value { stroke: var(--lp-danger); }
+
+.fatiga-ring__pct {
+  fill: var(--lp-text);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.fatiga-info { display: flex; flex-direction: column; gap: 1px; }
+.fatiga-tiempo { font-size: 1.6rem; font-weight: 800; color: var(--lp-text); line-height: 1; }
+.fatiga-info-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lp-muted);
+}
+.fatiga-restante { margin-top: 4px; font-weight: 700; }
+.fatiga-restante--aviso { color: var(--lp-warning); }
+.fatiga-restante--requerido { color: var(--lp-danger); }
+
+.fatiga-confirmada { margin-top: 4px; font-weight: 700; color: var(--lp-success); }

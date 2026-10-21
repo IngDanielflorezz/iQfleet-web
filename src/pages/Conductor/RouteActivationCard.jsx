@@ -1,8 +1,3 @@
-import { useEffect, useMemo, useRef } from 'react';
-import useGeolocation from '../../hooks/useGeolocation';
-import { getSession } from '../../services/authService';
-import { activateRoute, deactivateRoute, updatePosition } from '../../services/gpsService';
-
 function formatCoords(position) {
   if (!position) return '—';
   return `${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`;
@@ -22,57 +17,16 @@ const STATUS_LABEL = {
   active: 'Compartiendo ubicación en vivo',
 };
 
-export default function RouteActivationCard({ puedeActivar = true, motivoBloqueo = '' }) {
-  const session = useMemo(() => getSession(), []);
-  const { position, error, isWatching, start, stop } = useGeolocation();
-  const publishedRef = useRef(false);
-
-  const isActive = isWatching && Boolean(position);
-  const statusKey = !isWatching ? 'idle' : isActive ? 'active' : 'locating';
+export default function RouteActivationCard({
+  position,
+  error,
+  isWatching,
+  statusKey,
+  onToggle,
+  puedeActivar = true,
+  motivoBloqueo = '',
+}) {
   const bloqueado = !isWatching && !puedeActivar;
-
-  useEffect(() => {
-    if (!session || !position) return;
-
-    if (!publishedRef.current) {
-      activateRoute({
-        userId: session.id,
-        nombres: session.nombres,
-        apellidos: session.apellidos,
-        empresa: session.empresa ?? '',
-        rol: session.rol,
-        lat: position.lat,
-        lng: position.lng,
-        speedKmh: position.speedKmh,
-      });
-      publishedRef.current = true;
-      return;
-    }
-
-    updatePosition(session.id, position);
-  }, [session, position]);
-
-  useEffect(
-    () => () => {
-      if (publishedRef.current && session) {
-        deactivateRoute(session.id);
-        publishedRef.current = false;
-      }
-    },
-    [session],
-  );
-
-  const handleToggle = () => {
-    if (isWatching) {
-      stop();
-      if (session) deactivateRoute(session.id);
-      publishedRef.current = false;
-      return;
-    }
-    start();
-  };
-
-  if (!session) return null;
 
   return (
     <section className="route-card card-iq p-4 mb-4">
@@ -92,7 +46,7 @@ export default function RouteActivationCard({ puedeActivar = true, motivoBloqueo
         <button
           type="button"
           className={`route-btn route-btn--${isWatching ? 'stop' : 'start'}`}
-          onClick={handleToggle}
+          onClick={onToggle}
           disabled={bloqueado}
           title={bloqueado ? motivoBloqueo : undefined}
         >

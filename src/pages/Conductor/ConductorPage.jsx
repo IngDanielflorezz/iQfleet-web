@@ -3,10 +3,13 @@ import { getSession } from '../../services/authService';
 import { getActiveRoutes } from '../../services/gpsService';
 import useChecklist from '../../hooks/useChecklist';
 import useSosMensajes from '../../hooks/useSosMensajes';
+import useRutaEnVivo from '../../hooks/useRutaEnVivo';
+import useFatiga from '../../hooks/useFatiga';
 import { createAlertaIdempotente, resolverAlertasPorClave, ALERTA_SEVERIDAD, ALERTA_TIPOS } from '../../services/alertService';
 import RouteActivationCard from './RouteActivationCard';
 import ChecklistCard from './components/ChecklistCard';
 import SosPanel from './components/SosPanel';
+import FatigaCard from './components/FatigaCard';
 import './Conductor.css';
 
 export default function ConductorPage() {
@@ -15,12 +18,22 @@ export default function ConductorPage() {
   const nombre = session ? `${session.nombres} ${session.apellidos}` : 'Conductor';
   const empresa = session?.empresa ?? '';
 
+  const { position, error, isWatching, statusKey, toggle } = useRutaEnVivo();
+
   const { checklist, aprobado, diligenciado, fecha, guardar } = useChecklist(userId, {
     conductor: nombre,
     empresa,
   });
 
+  const fatiga = useFatiga(userId, {
+    activo: isWatching,
+    position,
+    conductor: nombre,
+    empresa,
+  });
+
   const obtenerUltimaPosicion = () => {
+    if (position) return { lat: position.lat, lng: position.lng };
     const propia = getActiveRoutes().find((ruta) => ruta.userId === userId);
     return propia ? { lat: propia.lat, lng: propia.lng } : null;
   };
@@ -71,7 +84,15 @@ export default function ConductorPage() {
         <span className="text-light-muted fs-8">Tu espacio de trabajo para la operación del día.</span>
       </div>
 
-      <RouteActivationCard puedeActivar={aprobado} motivoBloqueo={motivoBloqueo} />
+      <RouteActivationCard
+        position={position}
+        error={error}
+        isWatching={isWatching}
+        statusKey={statusKey}
+        onToggle={toggle}
+        puedeActivar={aprobado}
+        motivoBloqueo={motivoBloqueo}
+      />
 
       <SosPanel
         sosActivo={sosActivo}
@@ -102,6 +123,18 @@ export default function ConductorPage() {
           </div>
         </div>
 
+        <div className="col-12 col-md-4">
+          <FatigaCard
+            acumuladoMs={fatiga.acumuladoMs}
+            estado={fatiga.estado}
+            porcentaje={fatiga.porcentaje}
+            restanteMin={fatiga.restanteMin}
+            onRegistrarPausa={fatiga.pausar}
+          />
+        </div>
+      </div>
+
+      <div className="row g-3 mt-0">
         <div className="col-12 col-md-4">
           <ChecklistCard
             checklist={checklist}
