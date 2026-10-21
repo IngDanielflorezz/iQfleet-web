@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { vehiculos } from '../../data/vehiculos';
 import { getConductoresConocidos } from '../../services/despachoService';
 import { useDespachos } from '../../hooks/useDespachos';
+import useAlertas from '../../hooks/useAlertas';
 import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
 import { buildResumen, listPeriodos } from './dashboardMetrics';
 import DashboardHeader from './components/DashboardHeader';
@@ -15,6 +16,7 @@ import './Dashboard.css';
 
 export default function DashboardPage() {
   const { despachos, crear, actualizar, eliminar } = useDespachos();
+  const { alertasPanel } = useAlertas();
 
   const [periodo, setPeriodo] = useState(null);
   const [busqueda, setBusqueda] = useState('');
@@ -55,6 +57,11 @@ export default function DashboardPage() {
   }, [despachosPeriodo, busqueda, filtroEstado]);
 
   const resumen = useMemo(() => buildResumen(despachosPeriodo, vehiculos, new Date()), [despachosPeriodo]);
+
+  const alertasConsolidadas = useMemo(
+    () => [...alertasPanel, ...resumen.alertas],
+    [alertasPanel, resumen.alertas],
+  );
 
   const conductores = useMemo(() => getConductoresConocidos(despachos), [despachos]);
 
@@ -99,7 +106,7 @@ export default function DashboardPage() {
             <TelemetriaChart despachos={despachosPeriodo} periodo={periodoActivo} />
           </div>
 
-          <AlertsPanel alertas={resumen.alertas} />
+          <AlertsPanel alertas={alertasConsolidadas} />
         </div>
 
         <DespachosTable

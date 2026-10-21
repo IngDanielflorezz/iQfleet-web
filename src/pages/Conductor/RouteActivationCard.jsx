@@ -22,13 +22,14 @@ const STATUS_LABEL = {
   active: 'Compartiendo ubicación en vivo',
 };
 
-export default function RouteActivationCard() {
+export default function RouteActivationCard({ puedeActivar = true, motivoBloqueo = '' }) {
   const session = useMemo(() => getSession(), []);
   const { position, error, isWatching, start, stop } = useGeolocation();
   const publishedRef = useRef(false);
 
   const isActive = isWatching && Boolean(position);
   const statusKey = !isWatching ? 'idle' : isActive ? 'active' : 'locating';
+  const bloqueado = !isWatching && !puedeActivar;
 
   useEffect(() => {
     if (!session || !position) return;
@@ -92,13 +93,22 @@ export default function RouteActivationCard() {
           type="button"
           className={`route-btn route-btn--${isWatching ? 'stop' : 'start'}`}
           onClick={handleToggle}
+          disabled={bloqueado}
+          title={bloqueado ? motivoBloqueo : undefined}
         >
           <span className="material-symbols-outlined">
-            {isWatching ? 'stop_circle' : 'play_circle'}
+            {bloqueado ? 'lock' : isWatching ? 'stop_circle' : 'play_circle'}
           </span>
-          {isWatching ? 'Detener Ruta' : 'Activar Ruta'}
+          {bloqueado ? 'Ruta bloqueada' : isWatching ? 'Detener Ruta' : 'Activar Ruta'}
         </button>
       </div>
+
+      {bloqueado && (
+        <div className="route-alert mt-3" role="alert">
+          <span className="material-symbols-outlined">rule</span>
+          {motivoBloqueo}
+        </div>
+      )}
 
       {error && (
         <div className="route-alert mt-3" role="alert">

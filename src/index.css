@@ -186,6 +186,13 @@ html[data-theme-anim] *::after {
   color: var(--lp-text);
 }
 
+/* Los modales viven sobre superficies temáticas (--lp-surface). En tema claro
+   esa superficie es blanca, por lo que cualquier .text-white volvería el texto
+   invisible. Forzamos el color de texto del sistema dentro de los modales. */
+.modal .text-white {
+  color: var(--lp-text) !important;
+}
+
 .modal .btn-danger {
   background-color: var(--lp-danger) !important;
   border: none !important;

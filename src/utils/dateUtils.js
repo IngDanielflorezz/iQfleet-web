@@ -73,6 +73,14 @@ export function formatFechaHora(value) {
   return `${formatFechaCorta(date)} · ${horas}:${minutos}`;
 }
 
+export function formatHoraCorta(value) {
+  const date = toDate(value);
+  if (!date) return '—';
+  const horas = String(date.getHours()).padStart(2, '0');
+  const minutos = String(date.getMinutes()).padStart(2, '0');
+  return `${horas}:${minutos}`;
+}
+
 export function startOfDay(value) {
   const date = toDate(value);
   if (!date) return null;
