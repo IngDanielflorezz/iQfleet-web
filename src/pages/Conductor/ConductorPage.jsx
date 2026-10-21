@@ -6,6 +6,7 @@ import useSosMensajes from '../../hooks/useSosMensajes';
 import useRutaEnVivo from '../../hooks/useRutaEnVivo';
 import useFatiga from '../../hooks/useFatiga';
 import usePuntaje from '../../hooks/usePuntaje';
+import useRecorrido from '../../hooks/useRecorrido';
 import { createAlertaIdempotente, resolverAlertasPorClave, ALERTA_SEVERIDAD, ALERTA_TIPOS } from '../../services/alertService';
 import RouteActivationCard from './RouteActivationCard';
 import ChecklistCard from './components/ChecklistCard';
@@ -35,6 +36,8 @@ export default function ConductorPage() {
   });
 
   const puntaje = usePuntaje(userId, { position });
+
+  const recorrido = useRecorrido(userId, { position });
 
   const obtenerUltimaPosicion = () => {
     if (position) return { lat: position.lat, lng: position.lng };
@@ -94,6 +97,8 @@ export default function ConductorPage() {
         isWatching={isWatching}
         statusKey={statusKey}
         onToggle={toggle}
+        puntos={recorrido.puntos}
+        kilometros={recorrido.kilometros}
         puedeActivar={aprobado}
         motivoBloqueo={motivoBloqueo}
       />

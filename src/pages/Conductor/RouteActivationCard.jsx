@@ -1,3 +1,5 @@
+import MiniMapa from './components/MiniMapa';
+
 function formatCoords(position) {
   if (!position) return '—';
   return `${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`;
@@ -23,6 +25,8 @@ export default function RouteActivationCard({
   isWatching,
   statusKey,
   onToggle,
+  puntos = [],
+  kilometros = 0,
   puedeActivar = true,
   motivoBloqueo = '',
 }) {
@@ -71,22 +75,30 @@ export default function RouteActivationCard({
         </div>
       )}
 
-      <div className="route-metrics mt-3">
-        <div className="route-metric">
-          <span className="route-metric-value">{position?.speedKmh ?? 0}</span>
-          <span className="route-metric-label">Velocidad (km/h)</span>
-        </div>
-        <div className="route-metric">
-          <span className="route-metric-value">±{position?.accuracy ?? 0}</span>
-          <span className="route-metric-label">Precisión (m)</span>
-        </div>
-        <div className="route-metric">
-          <span className="route-metric-value route-metric-value--sm">{formatCoords(position)}</span>
-          <span className="route-metric-label">Coordenadas</span>
-        </div>
-        <div className="route-metric">
-          <span className="route-metric-value">{formatAgo(position?.timestamp)}</span>
-          <span className="route-metric-label">Último reporte</span>
+      <div className="route-live mt-3">
+        <MiniMapa puntos={puntos} posicion={position} />
+
+        <div className="route-metrics">
+          <div className="route-metric">
+            <span className="route-metric-value">{position?.speedKmh ?? 0}</span>
+            <span className="route-metric-label">Velocidad (km/h)</span>
+          </div>
+          <div className="route-metric">
+            <span className="route-metric-value">±{position?.accuracy ?? 0}</span>
+            <span className="route-metric-label">Precisión (m)</span>
+          </div>
+          <div className="route-metric">
+            <span className="route-metric-value">{kilometros.toFixed(2)}</span>
+            <span className="route-metric-label">Km del turno</span>
+          </div>
+          <div className="route-metric">
+            <span className="route-metric-value route-metric-value--sm">{formatCoords(position)}</span>
+            <span className="route-metric-label">Coordenadas</span>
+          </div>
+          <div className="route-metric">
+            <span className="route-metric-value">{formatAgo(position?.timestamp)}</span>
+            <span className="route-metric-label">Último reporte</span>
+          </div>
         </div>
       </div>
 
