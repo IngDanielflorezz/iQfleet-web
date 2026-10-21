@@ -5,11 +5,13 @@ import useChecklist from '../../hooks/useChecklist';
 import useSosMensajes from '../../hooks/useSosMensajes';
 import useRutaEnVivo from '../../hooks/useRutaEnVivo';
 import useFatiga from '../../hooks/useFatiga';
+import usePuntaje from '../../hooks/usePuntaje';
 import { createAlertaIdempotente, resolverAlertasPorClave, ALERTA_SEVERIDAD, ALERTA_TIPOS } from '../../services/alertService';
 import RouteActivationCard from './RouteActivationCard';
 import ChecklistCard from './components/ChecklistCard';
 import SosPanel from './components/SosPanel';
 import FatigaCard from './components/FatigaCard';
+import PuntajeCard from './components/PuntajeCard';
 import './Conductor.css';
 
 export default function ConductorPage() {
@@ -31,6 +33,8 @@ export default function ConductorPage() {
     conductor: nombre,
     empresa,
   });
+
+  const puntaje = usePuntaje(userId, { position });
 
   const obtenerUltimaPosicion = () => {
     if (position) return { lat: position.lat, lng: position.lng };
@@ -124,6 +128,17 @@ export default function ConductorPage() {
         </div>
 
         <div className="col-12 col-md-4">
+          <ChecklistCard
+            checklist={checklist}
+            aprobado={aprobado}
+            diligenciado={diligenciado}
+            onSave={handleGuardarChecklist}
+          />
+        </div>
+      </div>
+
+      <div className="row g-3 mt-0">
+        <div className="col-12 col-md-6 col-xl-4">
           <FatigaCard
             acumuladoMs={fatiga.acumuladoMs}
             estado={fatiga.estado}
@@ -132,15 +147,14 @@ export default function ConductorPage() {
             onRegistrarPausa={fatiga.pausar}
           />
         </div>
-      </div>
 
-      <div className="row g-3 mt-0">
-        <div className="col-12 col-md-4">
-          <ChecklistCard
-            checklist={checklist}
-            aprobado={aprobado}
-            diligenciado={diligenciado}
-            onSave={handleGuardarChecklist}
+        <div className="col-12 col-md-6 col-xl-8">
+          <PuntajeCard
+            puntaje={puntaje.puntaje}
+            desglose={puntaje.desglose}
+            excesos={puntaje.excesos}
+            racha={puntaje.racha}
+            nivel={puntaje.nivel}
           />
         </div>
       </div>

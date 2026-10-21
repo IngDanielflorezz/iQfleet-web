@@ -7,7 +7,7 @@
  */
 
 export const CHECKLIST_ITEMS = [
-  { id: 'frenos', label: 'Frenos (servicio y estacionamiento)', critical: true, icon: 'minor_crash' },
+  { id: 'frenos', label: 'Frenos (servicio y estacionamiento)', critical: true, icon: 'car_crash' },
   { id: 'luces', label: 'Luces y direccionales', critical: true, icon: 'lightbulb' },
   { id: 'llantas', label: 'Llantas y presión', critical: true, icon: 'tire_repair' },
   { id: 'extintor', label: 'Extintor vigente', critical: true, icon: 'fire_extinguisher' },

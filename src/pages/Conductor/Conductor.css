@@ -439,3 +439,93 @@
 .fatiga-restante--requerido { color: var(--lp-danger); }
 
 .fatiga-confirmada { margin-top: 4px; font-weight: 700; color: var(--lp-success); }
+
+/* ==========================================================
+   Puntaje de conducción
+   ========================================================== */
+
+.puntaje-nivel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.puntaje-nivel .material-symbols-outlined { font-size: 15px; }
+.puntaje-nivel--success { color: var(--lp-success); }
+.puntaje-nivel--warning { color: var(--lp-warning); }
+.puntaje-nivel--danger { color: var(--lp-danger); }
+
+.puntaje-total {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.puntaje-total--success { color: var(--lp-success); }
+.puntaje-total--warning { color: var(--lp-warning); }
+.puntaje-total--danger { color: var(--lp-danger); }
+
+.puntaje-barras {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.puntaje-barra {
+  display: grid;
+  grid-template-columns: 118px 1fr 34px;
+  align-items: center;
+  gap: 10px;
+}
+
+.puntaje-barra__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--lp-text);
+}
+.puntaje-barra__label .material-symbols-outlined { font-size: 16px; color: var(--lp-muted); }
+
+.puntaje-barra__track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--lp-surface-2);
+  overflow: hidden;
+}
+
+.puntaje-barra__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.puntaje-barra__fill--success { background: var(--lp-success); }
+.puntaje-barra__fill--warning { background: var(--lp-warning); }
+.puntaje-barra__fill--danger { background: var(--lp-danger); }
+
+.puntaje-barra__valor {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--lp-text);
+  text-align: right;
+}
+
+.puntaje-pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--lp-border);
+}
+
+.puntaje-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--lp-muted);
+}
+.puntaje-stat .material-symbols-outlined { font-size: 16px; }
