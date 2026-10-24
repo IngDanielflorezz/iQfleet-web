@@ -49,7 +49,7 @@ export default function VehiculoModal({ vehiculo, conductores, onClose, onGuarda
   const esEdicion = Boolean(vehiculo);
   const actualizar = (campo) => (event) => setForm((previo) => ({ ...previo, [campo]: event.target.value }));
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const conductor = conductores.find((item) => item.value === form.conductorId);
     const dto = {
@@ -67,7 +67,7 @@ export default function VehiculoModal({ vehiculo, conductores, onClose, onGuarda
     }
 
     setEnviando(true);
-    const resultado = onGuardar(dto);
+    const resultado = await onGuardar(dto);
     if (resultado?.ok) {
       onClose();
       return;

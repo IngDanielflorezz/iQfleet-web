@@ -43,7 +43,7 @@ export default function ConductorModal({ conductor, onClose, onGuardar }) {
   const esEdicion = Boolean(conductor);
   const actualizar = (campo) => (event) => setForm((previo) => ({ ...previo, [campo]: event.target.value }));
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const erroresLocales = validateConductor({ ...form, id: conductor?.id }, { ignoreId: conductor?.id ?? null });
     if (Object.keys(erroresLocales).length > 0) {
@@ -52,7 +52,7 @@ export default function ConductorModal({ conductor, onClose, onGuardar }) {
     }
 
     setEnviando(true);
-    const resultado = onGuardar(form);
+    const resultado = await onGuardar(form);
     if (resultado?.ok) {
       onClose();
       return;

@@ -21,7 +21,7 @@ const COLUMNAS_EXPORT = [
 ];
 
 export default function ConductoresPage() {
-  const { conductores, crear, actualizar, eliminar } = useConductores();
+  const { conductores, loading, error, crear, actualizar, eliminar, limpiarError } = useConductores();
 
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('Todos');
@@ -78,6 +78,14 @@ export default function ConductoresPage() {
 
   return (
     <div className="max-w-container mx-auto" id="conductoresPrintArea">
+      {error && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error}</span>
+          <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando conductores desde la API…</p>}
+
       <ConductoresHeader
         resumen={resumen}
         onNuevo={abrirNuevo}

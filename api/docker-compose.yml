@@ -1,0 +1,37 @@
+# Levanta la API (y opcionalmente un Postgres local).
+#   Postgres local:  docker compose --profile local up --build
+#   Supabase:        docker compose up --build      (IQFLEET_DATABASE_URL apunta a Supabase)
+services:
+  api:
+    build: ./src/IQFleet.Api
+    env_file: .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      IQFLEET_CORS_ORIGINS: ${IQFLEET_CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    profiles: [local]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en api/.env}
+      POSTGRES_DB: postgres
+    ports:
+      - "54322:5432"   # 5432 suele estar ocupado por otro Postgres local
+    volumes:
+      - iqfleet-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  iqfleet-db:

@@ -30,3 +30,7 @@ dist-ssr
 
 # Respaldos locales
 backup_antes_limpieza/
+
+# API C# (.NET)
+api/**/bin/
+api/**/obj/

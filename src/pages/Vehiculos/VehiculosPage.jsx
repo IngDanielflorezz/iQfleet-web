@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useConductores } from '../../hooks/useConductores';
-import { useVehiculos } from '../../hooks/useVehiculos';import { buildExportCSV, downloadCSV } from '../../utils/exportUtils';
+import { useVehiculos } from '../../hooks/useVehiculos';
+import { buildExportCSV, downloadCSV } from '../../utils/exportUtils';
 import { computeVehiculosResumen } from './vehiculosMetrics';
 import VehiculosHeader from './components/VehiculosHeader';
 import VehiculosMetricCards from './components/VehiculosMetricCards';
@@ -26,7 +27,7 @@ const COLUMNAS_EXPORT = [
 ];
 
 export default function VehiculosPage() {
-  const { vehiculos, crear, actualizar, eliminar } = useVehiculos();
+  const { vehiculos, loading, error, crear, actualizar, eliminar, limpiarError } = useVehiculos();
   const { conductores } = useConductores();
 
   const [busqueda, setBusqueda] = useState('');
@@ -83,6 +84,14 @@ export default function VehiculosPage() {
 
   return (
     <div className="max-w-container mx-auto">
+      {error && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error}</span>
+          <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando vehiculos desde la API…</p>}
+
       <VehiculosHeader resumen={resumen} onNuevo={abrirNuevo} onExportar={exportarFlota} />
 
       <VehiculosMetricCards resumen={resumen} />
