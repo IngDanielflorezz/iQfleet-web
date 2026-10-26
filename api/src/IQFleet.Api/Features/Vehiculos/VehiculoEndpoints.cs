@@ -122,6 +122,13 @@ public static partial class VehiculoEndpoints
 
     private static async Task<IResult> Eliminar(string placa, IQFleetDbContext db)
     {
+        // despachos y movimientos referencian la placa con ON DELETE RESTRICT (historial financiero).
+        var normalizada = placa.Trim().ToUpperInvariant();
+        if (await db.Despachos.AnyAsync(d => d.Placa == normalizada) || await db.Movimientos.AnyAsync(m => m.Placa == normalizada))
+            return Results.Problem(
+                detail: $"El vehículo {normalizada} tiene despachos o movimientos registrados; cámbialo a \"Fuera de servicio\" en lugar de eliminarlo.",
+                statusCode: StatusCodes.Status409Conflict);
+
         var eliminados = await Buscar(db, placa).ExecuteDeleteAsync();
         return eliminados == 0 ? NotFound(placa) : Results.NoContent();
     }
