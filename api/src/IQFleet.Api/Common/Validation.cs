@@ -36,6 +36,29 @@ public class Validation
         return default;
     }
 
+    /// <summary>Fecha opcional: vacío => null; con valor debe ser YYYY-MM-DD.</summary>
+    public DateOnly? OptionalDate(string campo, string? valor, string mensaje) =>
+        string.IsNullOrWhiteSpace(valor) ? null : Date(campo, valor, mensaje);
+
+    /// <summary>Fecha y hora local de Colombia (input type="datetime-local"), devuelta en UTC.</summary>
+    public DateTime DateTimeLocal(string campo, string? valor, string mensaje)
+    {
+        if (HoraColombia.TryParse(valor, out var utc)) return utc;
+        Add(campo, mensaje);
+        return default;
+    }
+
+    /// <summary>Valor de una lista cerrada (estado, tipo...). Vacío => porDefecto.</summary>
+    public string OneOf(string campo, string? valor, string porDefecto, string[] permitidos, string mensaje)
+    {
+        var limpio = string.IsNullOrWhiteSpace(valor) ? porDefecto : valor.Trim();
+        if (!permitidos.Contains(limpio)) Add(campo, mensaje);
+        return limpio;
+    }
+
+    /// <summary>Texto opcional: vacío => null.</summary>
+    public static string? Optional(string? valor) => string.IsNullOrWhiteSpace(valor) ? null : valor.Trim();
+
     public IResult ToProblem(int statusCode = StatusCodes.Status400BadRequest) =>
         Results.ValidationProblem(_errores, title: "Datos inválidos", statusCode: statusCode);
 }

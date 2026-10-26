@@ -1,6 +1,13 @@
 using IQFleet.Api.Common;
 using IQFleet.Api.Data;
+using IQFleet.Api.Features.Alertas;
 using IQFleet.Api.Features.Conductores;
+using IQFleet.Api.Features.Despachos;
+using IQFleet.Api.Features.Documentos;
+using IQFleet.Api.Features.Movimientos;
+using IQFleet.Api.Features.RutasActivas;
+using IQFleet.Api.Features.Turno;
+using IQFleet.Api.Features.Usuarios;
 using IQFleet.Api.Features.Vehiculos;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -58,7 +65,15 @@ app.MapGet("/health", async (IQFleetDbContext db) =>
     .WithTags("Salud");
 
 var api = app.MapGroup("/api").AddEndpointFilter<ApiTokenFilter>();
+api.MapAuth();
+api.MapUsuarios();
 api.MapVehiculos();
 api.MapConductores();
+api.MapDespachos();
+api.MapDocumentos();
+api.MapMovimientos();
+api.MapAlertas();
+api.MapTurno();
+api.MapRutasActivas();
 
 app.Run();
