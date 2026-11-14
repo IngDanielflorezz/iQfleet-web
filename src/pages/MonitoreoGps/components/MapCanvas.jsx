@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import useTheme from '../../../theme/useTheme';
@@ -8,11 +8,23 @@ import { getRouteStatus, STATUS_META, formatAgo } from '../gpsMetrics';
 const VALLEDUPAR = { center: [10.4634, -73.2532], zoom: 13 };
 const COLOMBIA = { center: [4.57, -74.29], zoom: 6 };
 
+// 1. Leer la API Key de TomTom desde tu .env / .env.local
+const TOMTOM_KEY = import.meta.env.VITE_TOMTOM_API_KEY;
+
+// 2. Capas de mapa de TomTom (modo claro 'main' y modo oscuro 'night')
+// Si por algún motivo falta la key en el .env, hace fallback a OpenStreetMap para no quedar en blanco
 const TILE_URL = {
-  light: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+  light: TOMTOM_KEY
+    ? `https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${TOMTOM_KEY}&tileSize=256`
+    : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  dark: TOMTOM_KEY
+    ? `https://api.tomtom.com/map/1/tile/basic/night/{z}/{x}/{y}.png?key=${TOMTOM_KEY}&tileSize=256`
+    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
 };
-const TILE_ATTRIBUTION = '&copy; OpenStreetMap &copy; CARTO';
+
+const TILE_ATTRIBUTION = TOMTOM_KEY
+  ? '&copy; <a href="https://www.tomtom.com" target="_blank" rel="noreferrer">TomTom</a>'
+  : '&copy; OpenStreetMap &copy; CARTO';
 
 function buildPinIcon(route, enSos) {
   if (enSos) {
@@ -92,8 +104,48 @@ function MapControls({ map }) {
 export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() }) {
   const { isDark } = useTheme();
   const [map, setMap] = useState(null);
+  const [trazoRuta, setTrazoRuta] = useState([]);
+  const [infoNavegacion, setInfoNavegacion] = useState(null);
+
   const theme = isDark ? 'dark' : 'light';
   const handleReady = useCallback((instancia) => setMap(instancia), []);
+
+  // 3. Consumir TomTom Routing API cuando seleccionas una unidad (focusTarget)
+  // Calcula la ruta desde la base central en Valledupar hasta la posición actual de la unidad
+  useEffect(() => {
+    if (!focusTarget || !TOMTOM_KEY) {
+      setTrazoRuta([]);
+      setInfoNavegacion(null);
+      return;
+    }
+
+    const calcularRutaTomTom = async () => {
+      try {
+        const origen = `${VALLEDUPAR.center[0]},${VALLEDUPAR.center[1]}`;
+        const destino = `${focusTarget.lat},${focusTarget.lng}`;
+        const url = `https://api.tomtom.com/routing/1/calculateRoute/${origen}:${destino}/json?key=${TOMTOM_KEY}&traffic=true&routeType=fastest`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.routes && data.routes.length > 0) {
+          const ruta = data.routes[0];
+          const coordenadas = ruta.legs.flatMap((leg) =>
+            leg.points.map((p) => [p.latitude, p.longitude])
+          );
+          setTrazoRuta(coordenadas);
+          setInfoNavegacion({
+            distanciaKm: (ruta.summary.lengthInMeters / 1000).toFixed(2),
+            tiempoMin: Math.round(ruta.summary.travelTimeInSeconds / 60),
+          });
+        }
+      } catch (err) {
+        console.error('Error al trazar ruta con TomTom:', err);
+      }
+    };
+
+    calcularRutaTomTom();
+  }, [focusTarget]);
 
   return (
     <div className="gps-map">
@@ -103,8 +155,17 @@ export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() 
         zoomControl={false}
         className="gps-map-canvas"
       >
-        <TileLayer key={theme} url={TILE_URL[theme]} attribution={TILE_ATTRIBUTION} maxZoom={19} />
+        <TileLayer key={theme} url={TILE_URL[theme]} attribution={TILE_ATTRIBUTION} maxZoom={20} />
         <MapEffects focusTarget={focusTarget} onReady={handleReady} />
+
+        {/* Línea de navegación de TomTom al seleccionar una unidad */}
+        {trazoRuta.length > 0 && (
+          <Polyline
+            positions={trazoRuta}
+            pathOptions={{ color: '#ff6b00', weight: 5, opacity: 0.9 }}
+          />
+        )}
+
         {routes.map((route) => {
           const enSos = sosUserIds.has(route.userId);
           const meta = STATUS_META[getRouteStatus(route)];
@@ -130,6 +191,12 @@ export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() 
                     <span>Estado</span>
                     <b className={`text-${meta.variant}`}>{meta.label}</b>
                   </div>
+                  {infoNavegacion && focusTarget?.userId === route.userId && (
+                    <div className="gps-popup-row">
+                      <span>Ruta a base</span>
+                      <b>{infoNavegacion.distanciaKm} km (~{infoNavegacion.tiempoMin} min)</b>
+                    </div>
+                  )}
                   <div className="gps-popup-row">
                     <span>Último reporte</span>
                     <b>{formatAgo(route.updatedAt)}</b>
