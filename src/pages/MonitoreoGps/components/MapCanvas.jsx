@@ -104,8 +104,8 @@ function MapControls({ map }) {
 export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() }) {
   const { isDark } = useTheme();
   const [map, setMap] = useState(null);
-  const [trazoRuta, setTrazoRuta] = useState([]);
-  const [infoNavegacion, setInfoNavegacion] = useState(null);
+  // Última ruta calculada, etiquetada con la unidad (y el objetivo) a la que pertenece.
+  const [navegacion, setNavegacion] = useState(null);
 
   const theme = isDark ? 'dark' : 'light';
   const handleReady = useCallback((instancia) => setMap(instancia), []);
@@ -113,11 +113,11 @@ export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() 
   // 3. Consumir TomTom Routing API cuando seleccionas una unidad (focusTarget)
   // Calcula la ruta desde la base central en Valledupar hasta la posición actual de la unidad
   useEffect(() => {
-    if (!focusTarget || !TOMTOM_KEY) {
-      setTrazoRuta([]);
-      setInfoNavegacion(null);
-      return;
-    }
+    if (!focusTarget || !TOMTOM_KEY) return undefined;
+
+    // Cancela la petición si cambia la unidad seleccionada o se desmonta el mapa,
+    // para que una respuesta tardía no pinte la ruta de otra unidad.
+    const controller = new AbortController();
 
     const calcularRutaTomTom = async () => {
       try {
@@ -125,27 +125,32 @@ export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() 
         const destino = `${focusTarget.lat},${focusTarget.lng}`;
         const url = `https://api.tomtom.com/routing/1/calculateRoute/${origen}:${destino}/json?key=${TOMTOM_KEY}&traffic=true&routeType=fastest`;
 
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`TomTom respondió ${res.status}`);
         const data = await res.json();
 
-        if (data.routes && data.routes.length > 0) {
-          const ruta = data.routes[0];
-          const coordenadas = ruta.legs.flatMap((leg) =>
-            leg.points.map((p) => [p.latitude, p.longitude])
-          );
-          setTrazoRuta(coordenadas);
-          setInfoNavegacion({
-            distanciaKm: (ruta.summary.lengthInMeters / 1000).toFixed(2),
-            tiempoMin: Math.round(ruta.summary.travelTimeInSeconds / 60),
-          });
-        }
+        const ruta = data.routes?.[0];
+        if (!ruta) throw new Error('TomTom no devolvió rutas');
+
+        setNavegacion({
+          target: focusTarget,
+          trazo: ruta.legs.flatMap((leg) => leg.points.map((p) => [p.latitude, p.longitude])),
+          distanciaKm: (ruta.summary.lengthInMeters / 1000).toFixed(2),
+          tiempoMin: Math.round(ruta.summary.travelTimeInSeconds / 60),
+        });
       } catch (err) {
-        console.error('Error al trazar ruta con TomTom:', err);
+        if (err.name !== 'AbortError') console.error('Error al trazar ruta con TomTom:', err);
       }
     };
 
     calcularRutaTomTom();
+    return () => controller.abort();
   }, [focusTarget]);
+
+  // Solo se muestra si corresponde a la selección actual: al deseleccionar, cambiar de
+  // unidad o fallar la petición, no queda visible la ruta de una selección anterior.
+  const navActual = TOMTOM_KEY && navegacion?.target === focusTarget ? navegacion : null;
+  const trazoRuta = navActual?.trazo ?? [];
 
   return (
     <div className="gps-map">
@@ -191,10 +196,10 @@ export default function MapCanvas({ routes, focusTarget, sosUserIds = new Set() 
                     <span>Estado</span>
                     <b className={`text-${meta.variant}`}>{meta.label}</b>
                   </div>
-                  {infoNavegacion && focusTarget?.userId === route.userId && (
+                  {navActual && navActual.target.userId === route.userId && (
                     <div className="gps-popup-row">
                       <span>Ruta a base</span>
-                      <b>{infoNavegacion.distanciaKm} km (~{infoNavegacion.tiempoMin} min)</b>
+                      <b>{navActual.distanciaKm} km (~{navActual.tiempoMin} min)</b>
                     </div>
                   )}
                   <div className="gps-popup-row">

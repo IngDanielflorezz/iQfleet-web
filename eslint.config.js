@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // frontend/ es el frontend HTML/JS (scripts con globales por CDN, p. ej. bootstrap), fuera de esta configuración de React.
+  globalIgnores(['dist', 'frontend']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
