@@ -1,0 +1,67 @@
+/* ==========================================================
+   iQFleet - Auth Layout
+   Efecto revista: la foto y el formulario se cruzan de lado
+   al alternar entre /login y /register. El modo se deriva de
+   la ruta (clase auth-card--login / --register) y la
+   transformación solo aplica en pantallas con foto visible.
+   ========================================================== */
+
+.auth-card .hero-column,
+.auth-card .form-column {
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+.auth-card .hero-column {
+  z-index: 2;
+}
+
+.auth-card .form-column {
+  z-index: 1;
+}
+
+/* Cruce simétrico: ambas columnas miden el 50% de la tarjeta,
+   por lo que translateX(±100%) las intercambia exactamente. */
+@media (min-width: 992px) {
+  .auth-card--register .hero-column {
+    transform: translateX(100%);
+  }
+
+  .auth-card--register .form-column {
+    transform: translateX(-100%);
+  }
+}
+
+/* Entrada del formulario (se remonta al cambiar de ruta) */
+.auth-form-inner {
+  animation: authFormIn 0.45s ease-out both;
+}
+
+@keyframes authFormIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cambio de texto del hero (fadeIn definido en Login.css) */
+.hero-copy {
+  animation: fadeIn 0.45s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card .hero-column,
+  .auth-card .form-column {
+    transition: none;
+  }
+
+  .auth-form-inner,
+  .hero-copy {
+    animation: none;
+  }
+}

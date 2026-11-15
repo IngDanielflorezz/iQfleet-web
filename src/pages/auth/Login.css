@@ -1,0 +1,203 @@
+/* ==========================================================
+   iQFleet - Login (Tema claro + panel hero oscuro coherente)
+   Tokens globales desde src/index.css
+   Estilos de componentes encapsulados en .login-split-card
+   para no interferir con el sistema de diseño del dashboard.
+   ========================================================== */
+
+.max-w-6xl {
+  max-width: 1080px;
+}
+
+/* Estilo de la Tarjeta Split Contenedora */
+.login-split-card {
+  background-color: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: 20px;
+  box-shadow: 0 24px 48px -20px rgba(32, 43, 43, 0.28);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Columna Hero (Izquierda) - superficie oscura de la paleta */
+.hero-column {
+  background: linear-gradient(160deg, var(--lp-dark-2) 0%, var(--lp-dark) 100%);
+  min-height: 580px;
+  overflow: hidden;
+}
+
+.hero-bg-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, rgba(32, 43, 43, 0.55) 0%, rgba(32, 43, 43, 0.92) 100%);
+  z-index: 2;
+}
+
+/* Iconos de la franja inferior del hero (ámbar visible sobre oscuro) */
+.hero-column .text-warning {
+  color: var(--lp-warning) !important;
+}
+
+.hero-column .brand-logo-sq {
+  width: 44px; height: 44px;
+  background-color: var(--lp-brand);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.hero-column .icon-shield-check {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(246, 242, 233, 0.25);
+  background-color: rgba(246, 242, 233, 0.12);
+  color: var(--lp-warning);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Columna Formulario (Derecha) */
+.login-split-card .form-label-dark {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--lp-muted);
+  margin-bottom: 0.4rem;
+}
+
+.login-split-card .btn-role-dark {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--lp-border);
+  background-color: var(--lp-input);
+  color: var(--lp-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.login-split-card .btn-role-dark:hover {
+  border-color: var(--lp-brand);
+}
+
+.login-split-card .btn-role-dark.active {
+  border-color: var(--lp-brand);
+  background-color: rgba(200, 117, 77, 0.1);
+  color: var(--lp-brand);
+}
+
+/* Inputs claros */
+.login-split-card .input-dark-group {
+  position: relative;
+}
+
+.login-split-card .input-dark-icon {
+  position: absolute;
+  top: 50%; left: 14px;
+  transform: translateY(-50%);
+  color: var(--lp-muted);
+  font-size: 0.9rem;
+}
+
+.login-split-card .form-control-dark {
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+  border-radius: 10px;
+  color: var(--lp-text);
+  padding-left: 42px;
+  padding-right: 42px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.login-split-card .form-control-dark::placeholder {
+  color: var(--lp-muted);
+}
+
+.login-split-card .form-control-dark:focus {
+  background-color: var(--lp-surface);
+  color: var(--lp-text);
+  border-color: var(--lp-brand);
+  box-shadow: 0 0 0 0.2rem rgba(200, 117, 77, 0.2);
+}
+
+.login-split-card .btn-toggle-password-dark {
+  position: absolute;
+  top: 50%; right: 12px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--lp-muted);
+  cursor: pointer;
+}
+
+/* Botones y Enlaces */
+.login-split-card .check-dark:checked {
+  background-color: var(--lp-brand);
+  border-color: var(--lp-brand);
+}
+
+.login-split-card .btn-orange-cta {
+  background-color: var(--lp-brand);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.login-split-card .btn-orange-cta:hover {
+  background-color: var(--lp-brand-hover);
+  color: #fff;
+}
+
+.login-split-card .btn-outline-dark-custom {
+  background-color: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.login-split-card .btn-outline-dark-custom:hover {
+  background-color: var(--lp-surface-2);
+  color: var(--lp-text);
+  border-color: var(--lp-brand);
+}
+
+/* Animación de error (Shake) */
+.shake-animation {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Animación de entrada suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

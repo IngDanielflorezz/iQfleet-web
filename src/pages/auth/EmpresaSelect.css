@@ -1,0 +1,62 @@
+/* Selector de empresa contratante (compartido por Login y Registro) */
+.empresa-select-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.empresa-select-group .input-dark-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--lp-muted);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.empresa-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+  border-radius: 10px;
+  color: var(--lp-text);
+  font-size: 0.9rem;
+  padding: 10px 38px 10px 42px;
+}
+
+.empresa-select:focus {
+  background-color: var(--lp-surface);
+  border-color: var(--lp-brand);
+  box-shadow: 0 0 0 0.2rem rgba(200, 117, 77, 0.2);
+  outline: none;
+}
+
+.empresa-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.empresa-select option {
+  background-color: var(--lp-surface);
+  color: var(--lp-text);
+}
+
+.empresa-select-error { border-color: var(--lp-danger); }
+
+.empresa-select-caret {
+  position: absolute;
+  right: 12px;
+  color: var(--lp-muted);
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+
+.empresa-select-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--lp-danger);
+}
