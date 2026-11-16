@@ -28,6 +28,7 @@ var origenes = (builder.Configuration["IQFLEET_CORS_ORIGINS"] ?? "http://localho
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod()));
 
+builder.Services.AddHttpClient<ArchivoStorage>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecurityTransformer>());
 

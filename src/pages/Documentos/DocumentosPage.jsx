@@ -13,12 +13,24 @@ import DocumentosFilterPills from './components/DocumentosFilterPills';
 import DocumentosTable from './components/DocumentosTable';
 import DocumentoModal from './components/DocumentoModal';
 import DocumentoDetailModal from './components/DocumentoDetailModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import '../Conductores/Conductores.css';
 import './Documentos.css';
 
 export default function DocumentosPage() {
-  const { documentos, crear, actualizar, eliminar, sincronizar, sincronizando, adjuntarArchivo } = useDocumentos();
+  const {
+    documentos,
+    loading,
+    error,
+    crear,
+    actualizar,
+    eliminar,
+    sincronizar,
+    sincronizando,
+    adjuntarArchivo,
+    descargarArchivo,
+    limpiarError,
+  } = useDocumentos();
   const { vehiculos } = useVehiculos();
   const { conductores } = useConductores();
 
@@ -28,7 +40,6 @@ export default function DocumentosPage() {
   const [documentoEnEdicion, setDocumentoEnEdicion] = useState(null);
   const [documentoDetalle, setDocumentoDetalle] = useState(null);
   const [documentoAEliminar, setDocumentoAEliminar] = useState(null);
-  const [archivoActual, setArchivoActual] = useState(null);
 
   const resumen = useMemo(() => computeDocumentosResumen(documentos, new Date()), [documentos]);
 
@@ -76,22 +87,21 @@ export default function DocumentosPage() {
   };
 
   const guardarDocumento = (dto, file) =>
-    documentoEnEdicion ? actualizar(documentoEnEdicion.id, dto) : crear(dto, { file });
+    documentoEnEdicion ? actualizar(documentoEnEdicion.id, dto, { file }) : crear(dto, { file });
 
-  const abrirDetalle = (documento) => {
-    setArchivoActual(null);
-    setDocumentoDetalle(documento);
-  };
+  const abrirDetalle = (documento) => setDocumentoDetalle(documento);
 
   const adjuntarDesdeDetalle = async (file) => {
-    if (!documentoDetalle) return;
+    if (!documentoDetalle) return { ok: false };
     const resultado = await adjuntarArchivo(documentoDetalle.id, file);
-    if (resultado?.ok) setArchivoActual(resultado);
+    if (resultado.ok) setDocumentoDetalle(resultado.documento);
+    return resultado;
   };
 
-  const confirmarEliminacion = () => {
-    if (documentoAEliminar) eliminar(documentoAEliminar.id);
+  const confirmarEliminacion = async () => {
+    const id = documentoAEliminar?.id;
     setDocumentoAEliminar(null);
+    if (id) await eliminar(id);
   };
 
   const limpiarFiltros = () => {
@@ -101,6 +111,14 @@ export default function DocumentosPage() {
 
   return (
     <div className="max-w-container mx-auto" id="documentosPrintArea">
+      {error && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error}</span>
+          <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando documentos desde la API…</p>}
+
       <DocumentosHeader sincronizando={sincronizando} onSincronizar={sincronizar} onNuevo={abrirNuevo} />
 
       <DocumentosMetricCards resumen={resumen} />
@@ -133,9 +151,10 @@ export default function DocumentosPage() {
 
       {documentoDetalle && (
         <DocumentoDetailModal
+          key={documentoDetalle.id}
           documento={documentoDetalle}
-          archivo={archivoActual}
           onArchivo={adjuntarDesdeDetalle}
+          onDescargar={descargarArchivo}
           onClose={() => setDocumentoDetalle(null)}
         />
       )}

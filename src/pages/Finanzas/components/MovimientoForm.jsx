@@ -58,7 +58,8 @@ export default function MovimientoForm({
   const cambioPlacaConductor = useMemo(() => {
     const mapa = new Map();
     vehiculos.forEach((vehiculo) => {
-      if (vehiculo.placa && vehiculo.conductor) mapa.set(vehiculo.placa, vehiculo.conductor);
+      // La API expone la placa como id del vehículo.
+      if (vehiculo.id && vehiculo.conductor && vehiculo.conductor !== 'Sin asignar') mapa.set(vehiculo.id, vehiculo.conductor);
     });
     return mapa;
   }, [vehiculos]);
@@ -108,11 +109,12 @@ export default function MovimientoForm({
       return;
     }
     setEnviando(true);
-    try {
-      await onGuardar(form, { id: movimiento?.id, file: archivo });
-    } finally {
-      setEnviando(false);
-    }
+    const resultado = await onGuardar(form, { id: movimiento?.id, file: archivo });
+    if (resultado?.ok) return; // la página cierra el modal
+    const { comprobante, ...campos } = resultado?.fields ?? {};
+    if (comprobante) setErrorArchivo(comprobante);
+    setErrores(resultado?.fields ? campos : { general: resultado?.error ?? 'No se pudo guardar el movimiento.' });
+    setEnviando(false);
   };
 
   const montoNumerico = Number(String(form.monto).replace(/\./g, '').replace(',', '.')) || 0;
@@ -129,6 +131,7 @@ export default function MovimientoForm({
           </div>
 
           <form className="modal-body d-flex flex-column gap-3" onSubmit={manejarEnvio}>
+            {errores.general && <div className="alert alert-danger py-2 mb-0 fs-8">{errores.general}</div>}
             <div className="d-flex bg-input p-1 rounded border-dark-custom" style={{ backgroundColor: 'var(--bg-input)' }}>
               <button
                 type="button"
@@ -176,9 +179,10 @@ export default function MovimientoForm({
                 <select className="select-dark w-100" value={form.placa} onChange={actualizarCampo('placa')}>
                   <option value="">Sin placa</option>
                   {vehiculos.map((vehiculo) => (
-                    <option key={vehiculo.id} value={vehiculo.placa}>{vehiculo.placa}</option>
+                    <option key={vehiculo.id} value={vehiculo.id}>{vehiculo.id}</option>
                   ))}
                 </select>
+                {errores.placa && <span className="fs-8 text-danger d-block mt-1">{errores.placa}</span>}
               </div>
               <div className="col-6">
                 <label className="form-label-dark mb-1">CONDUCTOR A CARGO</label>

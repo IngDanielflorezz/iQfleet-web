@@ -56,21 +56,23 @@ export default function DocumentoModal({ documento, vehiculos, conductores, onCl
     setFile(error ? null : seleccionado);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const erroresLocales = validateDocumento({ ...form, id: documento?.id }, { ignoreId: documento?.id ?? null });
+    const erroresLocales = validateDocumento(form);
     if (Object.keys(erroresLocales).length > 0 || errorArchivo) {
       setErrores(erroresLocales);
       return;
     }
 
     setEnviando(true);
-    const resultado = onGuardar(form, file);
+    const resultado = await onGuardar(form, file);
     if (resultado?.ok) {
       onClose();
       return;
     }
-    setErrores(resultado?.fields ?? { general: resultado?.error ?? 'No se pudo guardar el documento.' });
+    const { archivo, ...campos } = resultado?.fields ?? {};
+    if (archivo) setErrorArchivo(archivo);
+    setErrores(resultado?.fields ? campos : { general: resultado?.error ?? 'No se pudo guardar el documento.' });
     setEnviando(false);
   };
 

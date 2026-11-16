@@ -1,18 +1,3 @@
-const MESES_ABREV = {
-  ene: 0,
-  feb: 1,
-  mar: 2,
-  abr: 3,
-  may: 4,
-  jun: 5,
-  jul: 6,
-  ago: 7,
-  sep: 8,
-  oct: 9,
-  nov: 10,
-  dic: 11,
-};
-
 const MESES_ES = [
   'Enero',
   'Febrero',
@@ -30,19 +15,12 @@ const MESES_ES = [
 
 const MESES_ABREV_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-export function parseFechaLarga(value) {
-  const match = String(value ?? '').trim().match(/^(\d{1,2})\s+([^\s\d]{3})[^\s]*\s+(\d{4})$/);
-  if (!match) return null;
-  const dia = Number(match[1]);
-  const mes = MESES_ABREV[match[2].toLowerCase()];
-  const anio = Number(match[3]);
-  if (mes === undefined || Number.isNaN(dia) || Number.isNaN(anio)) return null;
-  const date = new Date(anio, mes, dia);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
 function toDate(value) {
   if (value instanceof Date) return value;
+  // "YYYY-MM-DD" (DateOnly de la API) es una fecha de calendario: se interpreta en hora local.
+  // new Date('2025-10-25') la tomaría como medianoche UTC, que en Colombia es el día 24.
+  const soloFecha = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? ''));
+  if (soloFecha) return new Date(Number(soloFecha[1]), Number(soloFecha[2]) - 1, Number(soloFecha[3]));
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }

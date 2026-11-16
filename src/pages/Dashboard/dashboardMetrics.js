@@ -1,6 +1,5 @@
-import { vehiculos } from '../../data/vehiculos';
 import { DESPACHO_ESTADOS } from '../../services/despachoService';
-import { daysUntil, parseFechaLarga, toPeriodo } from '../../utils/dateUtils';
+import { daysUntil, toPeriodo } from '../../utils/dateUtils';
 
 export const UMBRAL_CRITICO_DIAS = 7;
 export const UMBRAL_PREVENTIVO_DIAS = 30;
@@ -11,7 +10,7 @@ function vehiculosOperativos(flota) {
   return flota.filter((vehiculo) => vehiculo.estado === 'Operativo');
 }
 
-export function computeDisponibilidadFlota(flota = vehiculos) {
+export function computeDisponibilidadFlota(flota = []) {
   const total = flota.length;
   const operativos = vehiculosOperativos(flota).length;
   return {
@@ -21,7 +20,7 @@ export function computeDisponibilidadFlota(flota = vehiculos) {
   };
 }
 
-export function computePersonalRodante(despachos, flota = vehiculos) {
+export function computePersonalRodante(despachos, flota = []) {
   const activos = new Set();
   flota.forEach((vehiculo) => {
     if (vehiculo.conductor && vehiculo.conductor !== 'Sin asignar') activos.add(vehiculo.conductor);
@@ -37,7 +36,7 @@ export function computePersonalRodante(despachos, flota = vehiculos) {
   return { total: activos.size, enRuta: enRuta.size };
 }
 
-export function computeCumplimientoLegal(flota = vehiculos, referencia = new Date()) {
+export function computeCumplimientoLegal(flota = [], referencia = new Date()) {
   let vigentes = 0;
   let total = 0;
   let criticos = 0;
@@ -45,10 +44,9 @@ export function computeCumplimientoLegal(flota = vehiculos, referencia = new Dat
 
   flota.forEach((vehiculo) => {
     [vehiculo.soatVence, vehiculo.rtmVence].forEach((fechaStr) => {
-      const fecha = parseFechaLarga(fechaStr);
-      if (!fecha) return;
+      const dias = daysUntil(fechaStr, referencia);
+      if (dias === null) return;
       total += 1;
-      const dias = daysUntil(fecha, referencia);
       if (dias < 0) vencidos += 1;
       else {
         vigentes += 1;
@@ -80,10 +78,9 @@ export function computeMargenNeto(despachos) {
 }
 
 function buildDocAlerta(vehiculo, tipoDocumento, fechaStr, referencia) {
-  const fecha = parseFechaLarga(fechaStr);
-  if (!fecha) return null;
+  const dias = daysUntil(fechaStr, referencia);
+  if (dias === null) return null;
 
-  const dias = daysUntil(fecha, referencia);
   const detalle = `Placa ${vehiculo.id} (${vehiculo.marca} ${vehiculo.modelo})`;
 
   if (dias < 0) {
@@ -98,7 +95,7 @@ function buildDocAlerta(vehiculo, tipoDocumento, fechaStr, referencia) {
   return null;
 }
 
-export function buildAlertas(flota = vehiculos, despachos = [], referencia = new Date()) {
+export function buildAlertas(flota = [], despachos = [], referencia = new Date()) {
   const alertas = [];
 
   flota.forEach((vehiculo) => {
@@ -181,7 +178,7 @@ export function computeTelemetriaSemanal(despachos, periodo) {
   }));
 }
 
-export function buildResumen(despachos, flota = vehiculos, referencia = new Date()) {
+export function buildResumen(despachos, flota = [], referencia = new Date()) {
   return {
     disponibilidad: computeDisponibilidadFlota(flota),
     personal: computePersonalRodante(despachos, flota),
