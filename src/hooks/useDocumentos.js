@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   attachArchivo,
   createDocumento,
-  listDocumentos,
+  getArchivo,
   removeDocumento,
   subscribeDocumentos,
   syncRunt,
@@ -11,55 +11,69 @@ import {
 
 /**
  * Hook de acceso a documentos legales. Expone el estado (loading/error/
- * sincronizando) y las operaciones CRUD + sincronización RUNT.
+ * sincronizando) y las operaciones CRUD + sincronización RUNT (API).
  */
 export function useDocumentos() {
-  const [documentos, setDocumentos] = useState(() => listDocumentos());
+  const [documentos, setDocumentos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeDocumentos((data) => {
-      setDocumentos(data);
-      setLoading(false);
-    });
+    const unsubscribe = subscribeDocumentos(
+      (data) => {
+        setDocumentos(data);
+        setError(null);
+        setLoading(false);
+      },
+      (ex) => {
+        setError(ex.message);
+        setLoading(false);
+      },
+    );
     return unsubscribe;
   }, []);
 
-  const crear = useCallback((dto, opciones) => {
+  const crear = useCallback(async (dto, opciones) => {
     try {
-      return { ok: true, documento: createDocumento(dto, opciones) };
+      return { ok: true, documento: await createDocumento(dto, opciones) };
     } catch (ex) {
-      setError(ex.message);
       return { ok: false, error: ex.message, fields: ex.fields ?? null };
     }
   }, []);
 
-  const actualizar = useCallback((id, dto) => {
+  const actualizar = useCallback(async (id, dto, opciones) => {
     try {
-      return { ok: true, documento: updateDocumento(id, dto) };
+      return { ok: true, documento: await updateDocumento(id, dto, opciones) };
     } catch (ex) {
-      setError(ex.message);
       return { ok: false, error: ex.message, fields: ex.fields ?? null };
     }
   }, []);
 
-  const eliminar = useCallback((id) => removeDocumento(id), []);
+  const eliminar = useCallback(async (id) => {
+    try {
+      return await removeDocumento(id);
+    } catch (ex) {
+      setError(ex.message);
+      return false;
+    }
+  }, []);
 
   const sincronizar = useCallback(async () => {
     setSincronizando(true);
     try {
       await syncRunt();
+    } catch (ex) {
+      setError(ex.message);
     } finally {
       setSincronizando(false);
     }
   }, []);
 
-  const adjuntarArchivo = useCallback(async (id, file) => {
+  const adjuntarArchivo = useCallback(async (documento, file) => {
     try {
-      const resultado = await attachArchivo(id, file);
-      return { ok: true, ...resultado };
+      const actualizado = await attachArchivo(documento, file);
+      return { ok: true, documento: actualizado, archivo: getArchivo(actualizado.id) };
     } catch (ex) {
       setError(ex.message);
       return { ok: false, error: ex.message };

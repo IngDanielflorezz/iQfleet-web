@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useConductores } from '../../hooks/useConductores';
 import { useDocumentos } from '../../hooks/useDocumentos';
+import { getArchivo } from '../../services/documentoService';
 import { useVehiculos } from '../../hooks/useVehiculos';
 import {
   clasificarVencimiento,
@@ -18,7 +19,18 @@ import '../Conductores/Conductores.css';
 import './Documentos.css';
 
 export default function DocumentosPage() {
-  const { documentos, crear, actualizar, eliminar, sincronizar, sincronizando, adjuntarArchivo } = useDocumentos();
+  const {
+    documentos,
+    loading,
+    error,
+    crear,
+    actualizar,
+    eliminar,
+    sincronizar,
+    sincronizando,
+    adjuntarArchivo,
+    limpiarError,
+  } = useDocumentos();
   const { vehiculos } = useVehiculos();
   const { conductores } = useConductores();
 
@@ -76,22 +88,27 @@ export default function DocumentosPage() {
   };
 
   const guardarDocumento = (dto, file) =>
-    documentoEnEdicion ? actualizar(documentoEnEdicion.id, dto) : crear(dto, { file });
+    documentoEnEdicion ? actualizar(documentoEnEdicion.id, dto, { file }) : crear(dto, { file });
 
   const abrirDetalle = (documento) => {
-    setArchivoActual(null);
+    // Solo hay contenido descargable si el archivo se adjuntó en esta sesión.
+    setArchivoActual(getArchivo(documento.id));
     setDocumentoDetalle(documento);
   };
 
   const adjuntarDesdeDetalle = async (file) => {
     if (!documentoDetalle) return;
-    const resultado = await adjuntarArchivo(documentoDetalle.id, file);
-    if (resultado?.ok) setArchivoActual(resultado);
+    const resultado = await adjuntarArchivo(documentoDetalle, file);
+    if (resultado?.ok) {
+      setDocumentoDetalle(resultado.documento);
+      setArchivoActual(resultado.archivo);
+    }
   };
 
-  const confirmarEliminacion = () => {
-    if (documentoAEliminar) eliminar(documentoAEliminar.id);
+  const confirmarEliminacion = async () => {
+    const id = documentoAEliminar?.id;
     setDocumentoAEliminar(null);
+    if (id) await eliminar(id);
   };
 
   const limpiarFiltros = () => {
@@ -101,6 +118,14 @@ export default function DocumentosPage() {
 
   return (
     <div className="max-w-container mx-auto" id="documentosPrintArea">
+      {error && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error}</span>
+          <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando documentos desde la API…</p>}
+
       <DocumentosHeader sincronizando={sincronizando} onSincronizar={sincronizar} onNuevo={abrirNuevo} />
 
       <DocumentosMetricCards resumen={resumen} />
