@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { vehiculos } from '../../data/vehiculos';
-import { getConductoresConocidos } from '../../services/despachoService';
+import { codigoDespacho, getConductoresConocidos } from '../../services/despachoService';
 import { useDespachos } from '../../hooks/useDespachos';
+import { useVehiculos } from '../../hooks/useVehiculos';
+import { useConductores } from '../../hooks/useConductores';
 import useAlertas from '../../hooks/useAlertas';
 import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
 import { buildResumen, listPeriodos } from './dashboardMetrics';
@@ -15,7 +16,10 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import './Dashboard.css';
 
 export default function DashboardPage() {
-  const { despachos, crear, actualizar, eliminar } = useDespachos();
+  const { despachos, loading, error, crear, actualizar, eliminar, limpiarError } = useDespachos();
+  // La flota viene de la API: la placa de un despacho debe existir en la tabla de vehículos.
+  const { vehiculos, error: errorFlota } = useVehiculos();
+  const { conductores: fichasConductores } = useConductores();
   const { alertasPanel } = useAlertas();
 
   const [periodo, setPeriodo] = useState(null);
@@ -56,14 +60,20 @@ export default function DashboardPage() {
     });
   }, [despachosPeriodo, busqueda, filtroEstado]);
 
-  const resumen = useMemo(() => buildResumen(despachosPeriodo, vehiculos, new Date()), [despachosPeriodo]);
+  const resumen = useMemo(
+    () => buildResumen(despachosPeriodo, vehiculos, new Date()),
+    [despachosPeriodo, vehiculos],
+  );
 
   const alertasConsolidadas = useMemo(
     () => [...alertasPanel, ...resumen.alertas],
     [alertasPanel, resumen.alertas],
   );
 
-  const conductores = useMemo(() => getConductoresConocidos(despachos), [despachos]);
+  const conductores = useMemo(
+    () => getConductoresConocidos({ conductores: fichasConductores, flota: vehiculos, despachos }),
+    [fichasConductores, vehiculos, despachos],
+  );
 
   const abrirNuevo = () => {
     setDespachoEnEdicion(null);
@@ -83,13 +93,21 @@ export default function DashboardPage() {
   const guardarDespacho = (dto) =>
     despachoEnEdicion ? actualizar(despachoEnEdicion.id, dto) : crear(dto);
 
-  const confirmarEliminacion = () => {
-    if (despachoAEliminar) eliminar(despachoAEliminar.id);
+  const confirmarEliminacion = async () => {
+    const id = despachoAEliminar?.id;
     setDespachoAEliminar(null);
+    if (id) await eliminar(id);
   };
 
   return (
     <div className="container-fluid max-w-container">
+      {(error || errorFlota) && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error ?? `No se pudo cargar la flota: ${errorFlota}`}</span>
+          {error && <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />}
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando despachos desde la API…</p>}
       <DashboardHeader
         periodo={periodoActivo}
         periodos={opcionesPeriodo}
@@ -127,6 +145,7 @@ export default function DashboardPage() {
           despacho={despachoEnEdicion}
           flota={vehiculos}
           conductores={conductores}
+          despachos={despachos}
           onClose={cerrarModal}
           onGuardar={guardarDespacho}
         />
@@ -137,7 +156,7 @@ export default function DashboardPage() {
         titulo="Eliminar despacho"
         mensaje={
           despachoAEliminar
-            ? `¿Seguro que deseas eliminar el despacho ${despachoAEliminar.id} (${despachoAEliminar.origen} → ${despachoAEliminar.destino})? Esta acción no se puede deshacer.`
+            ? `¿Seguro que deseas eliminar el despacho ${codigoDespacho(despachoAEliminar)} (${despachoAEliminar.origen} → ${despachoAEliminar.destino})? Esta acción no se puede deshacer.`
             : ''
         }
         onConfirm={confirmarEliminacion}

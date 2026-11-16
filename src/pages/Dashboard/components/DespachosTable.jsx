@@ -1,4 +1,4 @@
-import { DESPACHO_ESTADO_LIST, despachoEstadoVariant } from '../../../services/despachoService';
+import { codigoDespacho, DESPACHO_ESTADO_LIST, despachoEstadoVariant } from '../../../services/despachoService';
 import { formatFechaHora } from '../../../utils/dateUtils';
 import { formatCOP } from '../../../utils/format';
 
@@ -81,7 +81,7 @@ export default function DespachosTable({
               despachos.map((despacho) => (
                 <tr key={despacho.id}>
                   <td>
-                    <span className="text-white fw-bold fs-7 d-block">{despacho.id}</span>
+                    <span className="text-white fw-bold fs-7 d-block" title={despacho.id}>{codigoDespacho(despacho)}</span>
                     <small className="text-light-muted fs-8">
                       {despacho.observaciones ? despacho.observaciones.slice(0, 32) : 'Sin observaciones'}
                     </small>
