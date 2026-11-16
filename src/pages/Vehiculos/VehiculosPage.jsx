@@ -8,7 +8,7 @@ import VehiculosMetricCards from './components/VehiculosMetricCards';
 import VehiculosTable from './components/VehiculosTable';
 import VehiculoModal from './components/VehiculoModal';
 import VehiculoDetailModal from './components/VehiculoDetailModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import '../Conductores/Conductores.css';
 import './Vehiculos.css';
 

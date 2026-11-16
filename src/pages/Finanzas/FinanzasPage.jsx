@@ -15,7 +15,7 @@ import MovimientoForm from './components/MovimientoForm';
 import BalanceChart from './components/BalanceChart';
 import MovimientosTable from './components/MovimientosTable';
 import MovimientoDetailModal from './components/MovimientoDetailModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 function periodoActual() {
   const hoy = new Date();

@@ -13,7 +13,7 @@ import DocumentosFilterPills from './components/DocumentosFilterPills';
 import DocumentosTable from './components/DocumentosTable';
 import DocumentoModal from './components/DocumentoModal';
 import DocumentoDetailModal from './components/DocumentoDetailModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import '../Conductores/Conductores.css';
 import './Documentos.css';
 

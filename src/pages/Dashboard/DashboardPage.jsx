@@ -11,7 +11,7 @@ import AlertsPanel from './components/AlertsPanel';
 import DespachosTable from './components/DespachosTable';
 import TelemetriaChart from './components/TelemetriaChart';
 import ModalDespacho from './components/ModalDespacho';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import './Dashboard.css';
 
 export default function DashboardPage() {
