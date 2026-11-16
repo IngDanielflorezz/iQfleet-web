@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useConductores } from '../../hooks/useConductores';
 import { useDocumentos } from '../../hooks/useDocumentos';
-import { getArchivo } from '../../services/documentoService';
 import { useVehiculos } from '../../hooks/useVehiculos';
 import {
   clasificarVencimiento,
@@ -29,6 +28,7 @@ export default function DocumentosPage() {
     sincronizar,
     sincronizando,
     adjuntarArchivo,
+    descargarArchivo,
     limpiarError,
   } = useDocumentos();
   const { vehiculos } = useVehiculos();
@@ -40,7 +40,6 @@ export default function DocumentosPage() {
   const [documentoEnEdicion, setDocumentoEnEdicion] = useState(null);
   const [documentoDetalle, setDocumentoDetalle] = useState(null);
   const [documentoAEliminar, setDocumentoAEliminar] = useState(null);
-  const [archivoActual, setArchivoActual] = useState(null);
 
   const resumen = useMemo(() => computeDocumentosResumen(documentos, new Date()), [documentos]);
 
@@ -90,19 +89,13 @@ export default function DocumentosPage() {
   const guardarDocumento = (dto, file) =>
     documentoEnEdicion ? actualizar(documentoEnEdicion.id, dto, { file }) : crear(dto, { file });
 
-  const abrirDetalle = (documento) => {
-    // Solo hay contenido descargable si el archivo se adjuntó en esta sesión.
-    setArchivoActual(getArchivo(documento.id));
-    setDocumentoDetalle(documento);
-  };
+  const abrirDetalle = (documento) => setDocumentoDetalle(documento);
 
   const adjuntarDesdeDetalle = async (file) => {
-    if (!documentoDetalle) return;
-    const resultado = await adjuntarArchivo(documentoDetalle, file);
-    if (resultado?.ok) {
-      setDocumentoDetalle(resultado.documento);
-      setArchivoActual(resultado.archivo);
-    }
+    if (!documentoDetalle) return { ok: false };
+    const resultado = await adjuntarArchivo(documentoDetalle.id, file);
+    if (resultado.ok) setDocumentoDetalle(resultado.documento);
+    return resultado;
   };
 
   const confirmarEliminacion = async () => {
@@ -158,9 +151,10 @@ export default function DocumentosPage() {
 
       {documentoDetalle && (
         <DocumentoDetailModal
+          key={documentoDetalle.id}
           documento={documentoDetalle}
-          archivo={archivoActual}
           onArchivo={adjuntarDesdeDetalle}
+          onDescargar={descargarArchivo}
           onClose={() => setDocumentoDetalle(null)}
         />
       )}

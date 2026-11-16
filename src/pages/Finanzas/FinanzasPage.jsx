@@ -23,7 +23,7 @@ function periodoActual() {
 }
 
 export default function FinanzasPage() {
-  const { movimientos, loading, error, guardar, eliminar, limpiarError } = useMovimientos();
+  const { movimientos, loading, error, guardar, eliminar, descargarComprobante, limpiarError } = useMovimientos();
   const { vehiculos } = useVehiculos();
   const { conductores } = useConductores();
 
@@ -181,7 +181,12 @@ export default function FinanzasPage() {
         />
       )}
 
-      <MovimientoDetailModal movimiento={movimientoDetalle} onClose={() => setMovimientoDetalle(null)} />
+      <MovimientoDetailModal
+        key={movimientoDetalle?.id ?? 'ninguno'}
+        movimiento={movimientoDetalle}
+        onDescargar={descargarComprobante}
+        onClose={() => setMovimientoDetalle(null)}
+      />
 
       <ConfirmDialog
         open={Boolean(movimientoAEliminar)}

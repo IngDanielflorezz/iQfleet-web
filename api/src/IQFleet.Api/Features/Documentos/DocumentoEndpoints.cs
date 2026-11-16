@@ -58,6 +58,8 @@ public static class DocumentoEndpoints
         group.MapPost("/", Crear).WithSummary("Registra un documento");
         group.MapPut("/{id:guid}", Actualizar).WithSummary("Actualiza un documento");
         group.MapDelete("/{id:guid}", Eliminar).WithSummary("Elimina un documento");
+        group.MapPut("/{id:guid}/archivo", SubirArchivo).WithSummary("Sube o reemplaza el archivo de soporte (Supabase Storage)");
+        group.MapGet("/{id:guid}/archivo", UrlArchivo).WithSummary("URL firmada (5 min) para descargar el archivo de soporte");
         group.MapPost("/sincronizar-runt", SincronizarRunt).WithSummary("Marca documentos como sincronizados con el RUNT (simulado)");
 
         return api;
@@ -123,11 +125,73 @@ public static class DocumentoEndpoints
         return Results.Ok(DocumentoResponse.From(documento));
     }
 
-    private static async Task<IResult> Eliminar(Guid id, IQFleetDbContext db)
+    private static async Task<IResult> Eliminar(Guid id, IQFleetDbContext db, ArchivoStorage storage,
+        ILoggerFactory logs, CancellationToken ct)
     {
-        var eliminados = await db.Documentos.Where(d => d.Id == id).ExecuteDeleteAsync();
-        return eliminados == 0 ? NotFound(id) : Results.NoContent();
+        var eliminados = await db.Documentos.Where(x => x.Id == id).ExecuteDeleteAsync(ct);
+        if (eliminados == 0) return NotFound(id);
+
+        // El registro ya se borró: si falla el borrado del archivo solo se registra (queda huérfano en el bucket).
+        try
+        {
+            await storage.EliminarAsync($"documentos/{id}", ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            logs.CreateLogger("DocumentoEndpoints").LogWarning(ex, "No se pudo borrar el archivo de documento {Id}", id);
+        }
+        return Results.NoContent();
     }
+    private static async Task<IResult> SubirArchivo(Guid id, ArchivoRequest request, IQFleetDbContext db,
+        ArchivoStorage storage, ILoggerFactory logs, CancellationToken ct)
+    {
+        if (!storage.Configurado) return Adjuntos.NoConfigurado();
+        var documento = await db.Documentos.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (documento is null) return NotFound(id);
+
+        var v = new Validation();
+        var archivo = Adjuntos.Validar(request, "archivo", v);
+        if (archivo is null) return v.ToProblem();
+
+        try
+        {
+            await storage.SubirAsync($"documentos/{id}", archivo.Contenido, archivo.Tipo, ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            logs.CreateLogger("DocumentoEndpoints").LogError(ex, "No se pudo subir el archivo de documento {Id}", id);
+            return Adjuntos.ErrorAlmacenamiento();
+        }
+
+        documento.ArchivoNombre = archivo.Nombre;
+        documento.ArchivoTipo = archivo.Tipo;
+        documento.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(ct);
+        return Results.Ok(DocumentoResponse.From(documento));
+    }
+
+    private static async Task<IResult> UrlArchivo(Guid id, IQFleetDbContext db, ArchivoStorage storage,
+        ILoggerFactory logs, CancellationToken ct)
+    {
+        if (!storage.Configurado) return Adjuntos.NoConfigurado();
+        var documento = await db.Documentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (documento is null) return NotFound(id);
+        if (string.IsNullOrEmpty(documento.ArchivoNombre)) return Adjuntos.SinArchivo();
+
+        try
+        {
+            var url = await storage.UrlFirmadaAsync($"documentos/{id}", documento.ArchivoNombre, ct: ct);
+            return url is null
+                ? Adjuntos.SinArchivo()
+                : Results.Ok(new ArchivoUrlResponse(url, documento.ArchivoNombre, documento.ArchivoTipo ?? string.Empty));
+        }
+        catch (HttpRequestException ex)
+        {
+            logs.CreateLogger("DocumentoEndpoints").LogError(ex, "No se pudo firmar el archivo de documento {Id}", id);
+            return Adjuntos.ErrorAlmacenamiento();
+        }
+    }
+
 
     private static async Task<IResult> SincronizarRunt(SincronizarRuntRequest? request, IQFleetDbContext db)
     {

@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   attachArchivo,
   createDocumento,
-  getArchivo,
+  getArchivoUrl,
   removeDocumento,
   subscribeDocumentos,
   syncRunt,
   updateDocumento,
 } from '../services/documentoService';
+import { ArchivoNoSubidoError, descargarDesdeUrl } from '../utils/archivos';
 
 /**
  * Hook de acceso a documentos legales. Expone el estado (loading/error/
@@ -34,21 +35,31 @@ export function useDocumentos() {
     return unsubscribe;
   }, []);
 
+  // Si el documento se guardó pero el archivo no, se da por guardado y se avisa:
+  // reintentar desde el formulario duplicaría el documento.
+  const resultadoGuardado = useCallback((ex) => {
+    if (ex instanceof ArchivoNoSubidoError) {
+      setError(ex.message);
+      return { ok: true, documento: ex.registro };
+    }
+    return { ok: false, error: ex.message, fields: ex.fields ?? null };
+  }, []);
+
   const crear = useCallback(async (dto, opciones) => {
     try {
       return { ok: true, documento: await createDocumento(dto, opciones) };
     } catch (ex) {
-      return { ok: false, error: ex.message, fields: ex.fields ?? null };
+      return resultadoGuardado(ex);
     }
-  }, []);
+  }, [resultadoGuardado]);
 
   const actualizar = useCallback(async (id, dto, opciones) => {
     try {
       return { ok: true, documento: await updateDocumento(id, dto, opciones) };
     } catch (ex) {
-      return { ok: false, error: ex.message, fields: ex.fields ?? null };
+      return resultadoGuardado(ex);
     }
-  }, []);
+  }, [resultadoGuardado]);
 
   const eliminar = useCallback(async (id) => {
     try {
@@ -70,12 +81,20 @@ export function useDocumentos() {
     }
   }, []);
 
-  const adjuntarArchivo = useCallback(async (documento, file) => {
+  const adjuntarArchivo = useCallback(async (id, file) => {
     try {
-      const actualizado = await attachArchivo(documento, file);
-      return { ok: true, documento: actualizado, archivo: getArchivo(actualizado.id) };
+      return { ok: true, documento: await attachArchivo(id, file) };
     } catch (ex) {
-      setError(ex.message);
+      return { ok: false, error: ex.fields?.archivo ?? ex.message };
+    }
+  }, []);
+
+  const descargarArchivo = useCallback(async (id) => {
+    try {
+      const { url } = await getArchivoUrl(id);
+      descargarDesdeUrl(url);
+      return { ok: true };
+    } catch (ex) {
       return { ok: false, error: ex.message };
     }
   }, []);
@@ -92,6 +111,7 @@ export function useDocumentos() {
     eliminar,
     sincronizar,
     adjuntarArchivo,
+    descargarArchivo,
     limpiarError,
   };
 }

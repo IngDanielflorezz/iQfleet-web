@@ -6,11 +6,14 @@
  * createMovimiento / updateMovimiento / removeMovimiento / subscribeMovimientos)
  * es el contrato que consumen las vistas; todas las operaciones son asíncronas.
  *
- * Del comprobante solo se registran los metadatos (nombre y tipo del archivo):
- * la API todavía no almacena el archivo.
+ * Comprobantes: se suben a la API (PUT /api/movimientos/{id}/comprobante),
+ * que los guarda en Supabase Storage; se descargan con una URL firmada.
  */
 
 import { api } from './apiClient';
+import { ArchivoNoSubidoError, MAX_ARCHIVO_BYTES, toArchivoRequest, validarArchivo } from '../utils/archivos';
+
+export { MAX_ARCHIVO_BYTES };
 
 export const MOVIMIENTO_TIPOS = {
   INGRESO: 'Ingreso',
@@ -30,8 +33,6 @@ export const CONCEPTOS_EGRESO = [
 
 export const MEDIOS_PAGO = ['Transferencia', 'Efectivo', 'Tarjeta', 'Crédito'];
 
-export const MAX_ARCHIVO_BYTES = 2 * 1024 * 1024; // 2 MB
-
 const ENDPOINT = '/api/movimientos';
 const CHANGED_EVENT = 'iqfleet:movimientos-changed';
 
@@ -40,7 +41,7 @@ function notifyChanged() {
 }
 
 /** Cuerpo para la API: números reales y km vacío como null (el formulario trabaja con strings). */
-function toRequest(dto, file) {
+function toRequest(dto) {
   const km = dto.km === '' || dto.km === null || dto.km === undefined ? null : Number(dto.km);
   return {
     tipo: dto.tipo,
@@ -52,17 +53,21 @@ function toRequest(dto, file) {
     monto: Number(dto.monto),
     km,
     fecha: dto.fecha,
-    comprobanteNombre: file?.name ?? dto.comprobanteNombre ?? '',
-    comprobanteTipo: file?.type ?? dto.comprobanteTipo ?? '',
   };
 }
 
+/** Sube el comprobante de un movimiento recién guardado; si falla, el movimiento ya existe. */
+async function subirSiHayComprobante(movimiento, file) {
+  if (!file) return movimiento;
+  try {
+    return await api.put(`${ENDPOINT}/${encodeURIComponent(movimiento.id)}/comprobante`, await toArchivoRequest(file));
+  } catch (error) {
+    throw new ArchivoNoSubidoError(movimiento, error);
+  }
+}
+
 export function validateComprobante(file) {
-  if (!file) return null;
-  if (file.size > MAX_ARCHIVO_BYTES) return `El archivo supera el máximo de ${MAX_ARCHIVO_BYTES / (1024 * 1024)} MB.`;
-  const permitido = ['image/png', 'image/jpeg', 'application/pdf'];
-  if (!permitido.includes(file.type)) return 'Formato no permitido (usa PNG, JPG o PDF).';
-  return null;
+  return validarArchivo(file);
 }
 
 // ---------------------------------------------------------------
@@ -93,15 +98,26 @@ export function listMovimientos() {
 }
 
 export async function createMovimiento(dto, { file } = {}) {
-  const movimiento = await api.post(ENDPOINT, toRequest(dto, file));
-  notifyChanged();
-  return movimiento;
+  const movimiento = await api.post(ENDPOINT, toRequest(dto));
+  try {
+    return await subirSiHayComprobante(movimiento, file);
+  } finally {
+    notifyChanged();
+  }
 }
 
 export async function updateMovimiento(id, dto, { file } = {}) {
-  const movimiento = await api.put(`${ENDPOINT}/${encodeURIComponent(id)}`, toRequest(dto, file));
-  notifyChanged();
-  return movimiento;
+  const movimiento = await api.put(`${ENDPOINT}/${encodeURIComponent(id)}`, toRequest(dto));
+  try {
+    return await subirSiHayComprobante(movimiento, file);
+  } finally {
+    notifyChanged();
+  }
+}
+
+/** URL firmada (caduca en 5 min) para descargar el comprobante: { url, nombre, tipo }. */
+export function getComprobanteUrl(id) {
+  return api.get(`${ENDPOINT}/${encodeURIComponent(id)}/comprobante`);
 }
 
 export async function removeMovimiento(id) {

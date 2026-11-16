@@ -1,8 +1,20 @@
+import { useState } from 'react';
 import { formatCOP } from '../../../utils/format';
 import { formatFechaCorta } from '../../../utils/dateUtils';
 
-export default function MovimientoDetailModal({ movimiento, onClose }) {
+export default function MovimientoDetailModal({ movimiento, onDescargar, onClose }) {
+  const [descargando, setDescargando] = useState(false);
+  const [errorDescarga, setErrorDescarga] = useState(null);
+
   if (!movimiento) return null;
+
+  const descargar = async () => {
+    setDescargando(true);
+    setErrorDescarga(null);
+    const resultado = await onDescargar(movimiento.id);
+    if (!resultado?.ok) setErrorDescarga(resultado?.error ?? 'No se pudo descargar el comprobante.');
+    setDescargando(false);
+  };
 
   const esIngreso = movimiento.tipo === 'Ingreso';
   const filas = [
@@ -41,8 +53,15 @@ export default function MovimientoDetailModal({ movimiento, onClose }) {
                 </div>
               ))}
             </dl>
+            {errorDescarga && <div className="alert alert-danger py-2 mt-2 mb-0 fs-8">{errorDescarga}</div>}
           </div>
           <div className="modal-footer border-0">
+            {movimiento.comprobanteNombre && (
+              <button type="button" className="btn btn-outline-dark-custom" disabled={descargando} onClick={descargar}>
+                <span className="material-symbols-outlined fs-6">download</span>
+                {descargando ? 'Preparando…' : 'Descargar comprobante'}
+              </button>
+            )}
             <button type="button" className="btn btn-outline-dark-custom" onClick={onClose}>Cerrar</button>
           </div>
         </div>

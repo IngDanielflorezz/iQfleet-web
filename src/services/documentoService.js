@@ -7,12 +7,14 @@
  * removeDocumento / syncRunt / subscribeDocumentos) es el contrato que consumen
  * las vistas; todas las operaciones son asíncronas.
  *
- * Archivos: la API guarda solo los metadatos (nombre y tipo). El contenido
- * (Data URL) vive en memoria durante la sesión para poder descargarlo, hasta
- * que se integre un almacenamiento real (Supabase Storage).
+ * Archivos de soporte: se suben a la API (PUT /api/documentos/{id}/archivo),
+ * que los guarda en Supabase Storage; se descargan con una URL firmada.
  */
 
 import { api } from './apiClient';
+import { ArchivoNoSubidoError, MAX_ARCHIVO_BYTES, toArchivoRequest, validarArchivo } from '../utils/archivos';
+
+export { MAX_ARCHIVO_BYTES };
 
 export const DOCUMENTO_TIPOS = {
   SOAT: 'SOAT',
@@ -46,29 +48,15 @@ export const DOCUMENTO_ENTIDADES_SUGERIDAS = [
   'CDA Bogotá',
 ];
 
-export const MAX_ARCHIVO_BYTES = 2 * 1024 * 1024; // 2 MB
-
 const ENDPOINT = '/api/documentos';
 const CHANGED_EVENT = 'iqfleet:documentos-changed';
-
-// Contenido de los archivos adjuntos en esta sesión (no persiste tras recargar)
-const archivosEnMemoria = new Map();
 
 function notifyChanged() {
   window.dispatchEvent(new CustomEvent(CHANGED_EVENT));
 }
 
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
-    reader.readAsDataURL(file);
-  });
-}
-
-/** Cuerpo para la API con los mismos nombres de campo que el formulario. */
-function toRequest(dto, file) {
+/** Cuerpo para la API con los mismos nombres de campo que el formulario (el archivo va aparte). */
+function toRequest(dto) {
   return {
     tipo: dto.tipo,
     numero: dto.numero,
@@ -78,29 +66,24 @@ function toRequest(dto, file) {
     expedicion: dto.expedicion,
     vencimiento: dto.vencimiento,
     estadoRunt: dto.estadoRunt,
-    archivoNombre: file?.name ?? dto.archivoNombre ?? '',
-    archivoTipo: file?.type ?? dto.archivoTipo ?? '',
   };
 }
 
-async function guardarEnMemoria(id, file) {
-  if (!file) return null;
-  const archivo = { dataUrl: await readFileAsDataURL(file), nombre: file.name, tipo: file.type };
-  archivosEnMemoria.set(id, archivo);
-  return archivo;
+/** Sube el archivo de un documento recién guardado; si falla, el documento ya existe. */
+async function subirSiHayArchivo(documento, file) {
+  if (!file) return documento;
+  try {
+    return await api.put(`${ENDPOINT}/${encodeURIComponent(documento.id)}/archivo`, await toArchivoRequest(file));
+  } catch (error) {
+    throw new ArchivoNoSubidoError(documento, error);
+  }
 }
 
 /**
  * Valida el archivo adjunto. File opcional: null => sin archivo.
  */
 export function validateArchivo(file) {
-  if (!file) return null;
-  if (file.size > MAX_ARCHIVO_BYTES) {
-    return `El archivo supera el máximo de ${MAX_ARCHIVO_BYTES / (1024 * 1024)} MB.`;
-  }
-  const permitido = ['image/png', 'image/jpeg', 'application/pdf'];
-  if (!permitido.includes(file.type)) return 'Formato no permitido (usa PNG, JPG o PDF).';
-  return null;
+  return validarArchivo(file);
 }
 
 // ---------------------------------------------------------------
@@ -132,22 +115,25 @@ export function listDocumentos() {
 }
 
 export async function createDocumento(dto, { file } = {}) {
-  const documento = await api.post(ENDPOINT, toRequest(dto, file));
-  await guardarEnMemoria(documento.id, file);
-  notifyChanged();
-  return documento;
+  const documento = await api.post(ENDPOINT, toRequest(dto));
+  try {
+    return await subirSiHayArchivo(documento, file);
+  } finally {
+    notifyChanged();
+  }
 }
 
 export async function updateDocumento(id, dto, { file } = {}) {
-  const documento = await api.put(`${ENDPOINT}/${encodeURIComponent(id)}`, toRequest(dto, file));
-  await guardarEnMemoria(documento.id, file);
-  notifyChanged();
-  return documento;
+  const documento = await api.put(`${ENDPOINT}/${encodeURIComponent(id)}`, toRequest(dto));
+  try {
+    return await subirSiHayArchivo(documento, file);
+  } finally {
+    notifyChanged();
+  }
 }
 
 export async function removeDocumento(id) {
   await api.delete(`${ENDPOINT}/${encodeURIComponent(id)}`);
-  archivosEnMemoria.delete(id);
   notifyChanged();
   return true;
 }
@@ -160,14 +146,17 @@ export async function syncRunt(ids = null) {
 }
 
 /** Adjunta (o reemplaza) el archivo de un documento existente. Devuelve el documento actualizado. */
-export async function attachArchivo(documento, file) {
-  const errorArchivo = validateArchivo(file);
+export async function attachArchivo(id, file) {
+  const errorArchivo = validarArchivo(file);
   if (errorArchivo) throw new Error(errorArchivo);
-  return updateDocumento(documento.id, documento, { file });
+  const documento = await api.put(`${ENDPOINT}/${encodeURIComponent(id)}/archivo`, await toArchivoRequest(file));
+  notifyChanged();
+  return documento;
 }
 
-export function getArchivo(id) {
-  return archivosEnMemoria.get(id) ?? null;
+/** URL firmada (caduca en 5 min) para descargar el archivo: { url, nombre, tipo }. */
+export function getArchivoUrl(id) {
+  return api.get(`${ENDPOINT}/${encodeURIComponent(id)}/archivo`);
 }
 
 /**

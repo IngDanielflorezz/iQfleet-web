@@ -57,6 +57,8 @@ public static class MovimientoEndpoints
         group.MapPost("/", Crear).WithSummary("Registra un ingreso o egreso");
         group.MapPut("/{id:guid}", Actualizar).WithSummary("Actualiza un movimiento");
         group.MapDelete("/{id:guid}", Eliminar).WithSummary("Elimina un movimiento");
+        group.MapPut("/{id:guid}/comprobante", SubirComprobante).WithSummary("Sube o reemplaza el comprobante (Supabase Storage)");
+        group.MapGet("/{id:guid}/comprobante", UrlComprobante).WithSummary("URL firmada (5 min) para descargar el comprobante");
 
         return api;
     }
@@ -134,11 +136,73 @@ public static class MovimientoEndpoints
         return Results.Ok(MovimientoResponse.From(movimiento));
     }
 
-    private static async Task<IResult> Eliminar(Guid id, IQFleetDbContext db)
+    private static async Task<IResult> Eliminar(Guid id, IQFleetDbContext db, ArchivoStorage storage,
+        ILoggerFactory logs, CancellationToken ct)
     {
-        var eliminados = await db.Movimientos.Where(m => m.Id == id).ExecuteDeleteAsync();
-        return eliminados == 0 ? NotFound(id) : Results.NoContent();
+        var eliminados = await db.Movimientos.Where(x => x.Id == id).ExecuteDeleteAsync(ct);
+        if (eliminados == 0) return NotFound(id);
+
+        // El registro ya se borró: si falla el borrado del archivo solo se registra (queda huérfano en el bucket).
+        try
+        {
+            await storage.EliminarAsync($"movimientos/{id}", ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            logs.CreateLogger("MovimientoEndpoints").LogWarning(ex, "No se pudo borrar el archivo de movimiento {Id}", id);
+        }
+        return Results.NoContent();
     }
+    private static async Task<IResult> SubirComprobante(Guid id, ArchivoRequest request, IQFleetDbContext db,
+        ArchivoStorage storage, ILoggerFactory logs, CancellationToken ct)
+    {
+        if (!storage.Configurado) return Adjuntos.NoConfigurado();
+        var movimiento = await db.Movimientos.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (movimiento is null) return NotFound(id);
+
+        var v = new Validation();
+        var archivo = Adjuntos.Validar(request, "comprobante", v);
+        if (archivo is null) return v.ToProblem();
+
+        try
+        {
+            await storage.SubirAsync($"movimientos/{id}", archivo.Contenido, archivo.Tipo, ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            logs.CreateLogger("MovimientoEndpoints").LogError(ex, "No se pudo subir el archivo de movimiento {Id}", id);
+            return Adjuntos.ErrorAlmacenamiento();
+        }
+
+        movimiento.ComprobanteNombre = archivo.Nombre;
+        movimiento.ComprobanteTipo = archivo.Tipo;
+        movimiento.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(ct);
+        return Results.Ok(MovimientoResponse.From(movimiento));
+    }
+
+    private static async Task<IResult> UrlComprobante(Guid id, IQFleetDbContext db, ArchivoStorage storage,
+        ILoggerFactory logs, CancellationToken ct)
+    {
+        if (!storage.Configurado) return Adjuntos.NoConfigurado();
+        var movimiento = await db.Movimientos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (movimiento is null) return NotFound(id);
+        if (string.IsNullOrEmpty(movimiento.ComprobanteNombre)) return Adjuntos.SinArchivo();
+
+        try
+        {
+            var url = await storage.UrlFirmadaAsync($"movimientos/{id}", movimiento.ComprobanteNombre, ct: ct);
+            return url is null
+                ? Adjuntos.SinArchivo()
+                : Results.Ok(new ArchivoUrlResponse(url, movimiento.ComprobanteNombre, movimiento.ComprobanteTipo ?? string.Empty));
+        }
+        catch (HttpRequestException ex)
+        {
+            logs.CreateLogger("MovimientoEndpoints").LogError(ex, "No se pudo firmar el archivo de movimiento {Id}", id);
+            return Adjuntos.ErrorAlmacenamiento();
+        }
+    }
+
 
     /// <summary>Valida el request (mismas reglas que finanzaService.js) y lo copia a la entidad.</summary>
     private static async Task<Validation> Aplicar(MovimientoRequest request, Movimiento movimiento, IQFleetDbContext db)
