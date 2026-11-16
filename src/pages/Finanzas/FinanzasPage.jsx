@@ -23,7 +23,7 @@ function periodoActual() {
 }
 
 export default function FinanzasPage() {
-  const { movimientos, guardar, eliminar } = useMovimientos();
+  const { movimientos, loading, error, guardar, eliminar, limpiarError } = useMovimientos();
   const { vehiculos } = useVehiculos();
   const { conductores } = useConductores();
 
@@ -71,20 +71,33 @@ export default function FinanzasPage() {
     setMovimientoEnEdicion(null);
   };
 
+  // Devuelve el resultado al formulario para que pinte los errores de validación de la API.
   const guardarMovimiento = async (dto, { id, file }) => {
-    const guardado = await guardar(dto, { id, file });
-    const mesGuardado = String(guardado.fecha).slice(0, 7);
-    if (!periodos.includes(mesGuardado)) setPeriodo(mesGuardado);
-    cerrarModal();
+    const resultado = await guardar(dto, { id, file });
+    if (resultado.ok) {
+      const mesGuardado = String(resultado.movimiento.fecha).slice(0, 7);
+      if (!periodos.includes(mesGuardado)) setPeriodo(mesGuardado);
+      cerrarModal();
+    }
+    return resultado;
   };
 
-  const confirmarEliminacion = () => {
-    if (movimientoAEliminar) eliminar(movimientoAEliminar.id);
+  const confirmarEliminacion = async () => {
+    const id = movimientoAEliminar?.id;
     setMovimientoAEliminar(null);
+    if (id) await eliminar(id);
   };
 
   return (
     <div>
+      {error && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error}</span>
+          <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando movimientos desde la API…</p>}
+
       <FinanzasHeader
         movimientos={movimientos}
         periodo={periodoEfectivo}
