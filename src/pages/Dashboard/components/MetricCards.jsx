@@ -68,16 +68,17 @@ export default function MetricCards({ resumen }) {
           <div>
             <span className="form-label-dark">MARGEN NETO</span>
             <div className="d-flex align-items-baseline gap-2 my-1">
-              <span className="metric-number text-white fw-bold">{margen ? formatPercent(margen.porcentaje) : '—'}</span>
+              <span className="metric-number text-white fw-bold">{margen ? formatCOP(margen.margen) : '—'}</span>
             </div>
             {margen ? (
               <small className={`${margenPositivo ? 'text-success' : 'text-danger'} d-flex align-items-center gap-1 fs-8`}>
                 <span className="material-symbols-outlined fs-6">{margenPositivo ? 'trending_up' : 'trending_down'}</span>
-                {margenPositivo ? 'Superávit' : 'Déficit'} {formatCOP(margen.margen)}
+                {margen.porcentaje != null && `${formatPercent(margen.porcentaje)} Rentabilidad · `}
+                {margenPositivo ? 'Superávit' : 'Déficit'}
               </small>
             ) : (
               <small className="text-light-muted d-flex align-items-center gap-1 fs-8">
-                <span className="material-symbols-outlined fs-6">info</span> Sin despachos facturables
+                <span className="material-symbols-outlined fs-6">info</span> Sin movimientos en Finanzas este mes
               </small>
             )}
           </div>

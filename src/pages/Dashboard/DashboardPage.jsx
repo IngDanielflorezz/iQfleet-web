@@ -4,6 +4,8 @@ import { useDespachos } from '../../hooks/useDespachos';
 import { useVehiculos } from '../../hooks/useVehiculos';
 import { useConductores } from '../../hooks/useConductores';
 import { useDocumentos } from '../../hooks/useDocumentos';
+import useMovimientos from '../../hooks/useMovimientos';
+import { getSession } from '../../services/authService';
 import useAlertas from '../../hooks/useAlertas';
 import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
 import { buildAlertasPrevencion, buildResumen, listPeriodos } from './dashboardMetrics';
@@ -23,6 +25,8 @@ export default function DashboardPage() {
   const { vehiculos, error: errorFlota } = useVehiculos();
   const { conductores: fichasConductores } = useConductores();
   const { documentos } = useDocumentos();
+  const { movimientos } = useMovimientos();
+  const empresa = getSession()?.empresa ?? '';
   const { alertasPanel } = useAlertas();
 
   const [periodo, setPeriodo] = useState(null);
@@ -64,8 +68,16 @@ export default function DashboardPage() {
   }, [despachosPeriodo, busqueda, filtroEstado]);
 
   const resumen = useMemo(
-    () => buildResumen(despachosPeriodo, vehiculos, new Date()),
-    [despachosPeriodo, vehiculos],
+    () =>
+      buildResumen({
+        despachosPeriodo,
+        despachos,
+        flota: vehiculos,
+        conductores: fichasConductores,
+        movimientos,
+        periodo: periodoActivo,
+      }),
+    [despachosPeriodo, despachos, vehiculos, fichasConductores, movimientos, periodoActivo],
   );
 
   // Las preventivas (licencias, documentos, despachos en riesgo) usan todos los despachos,
@@ -119,6 +131,7 @@ export default function DashboardPage() {
       )}
       {loading && <p className="text-secondary fs-8">Cargando despachos desde la API…</p>}
       <DashboardHeader
+        empresa={empresa}
         periodo={periodoActivo}
         periodos={opcionesPeriodo}
         onPeriodoChange={setPeriodo}

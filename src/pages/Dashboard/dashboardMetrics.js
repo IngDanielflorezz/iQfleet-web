@@ -1,5 +1,6 @@
 import { codigoDespacho, DESPACHO_ESTADOS } from '../../services/despachoService';
 import { buildLicenciaAlertas } from '../Conductores/conductoresMetrics';
+import { computeFinanzasResumen } from '../Finanzas/finanzasMetrics';
 import { daysUntil, formatFechaCorta, toPeriodo } from '../../utils/dateUtils';
 import { alertaVencimiento, ordenarPorSeveridad, UMBRAL_CRITICO_DIAS, venceAntesDe } from '../../utils/vencimientos';
 
@@ -19,20 +20,23 @@ export function computeDisponibilidadFlota(flota = []) {
   };
 }
 
-export function computePersonalRodante(despachos, flota = []) {
-  const activos = new Set();
-  flota.forEach((vehiculo) => {
-    if (vehiculo.conductor && vehiculo.conductor !== 'Sin asignar') activos.add(vehiculo.conductor);
-  });
+/**
+ * Personal rodante: conductores registrados que no están inactivos, y cuántos de ellos
+ * tienen ahora mismo un despacho "En ruta".
+ */
+export function computePersonalRodante(conductores = [], despachos = []) {
+  const disponibles = conductores.filter((conductor) => conductor.estado !== 'Inactivo');
+  const nombres = new Set(disponibles.map((conductor) => conductor.nombre));
+  const ids = new Set(disponibles.map((conductor) => conductor.id));
 
   const enRuta = new Set();
-  despachos.forEach((despacho) => {
-    if (despacho.estado === DESPACHO_ESTADOS.CANCELADO) return;
-    if (despacho.conductor) activos.add(despacho.conductor);
-    if (despacho.estado === DESPACHO_ESTADOS.EN_RUTA && despacho.conductor) enRuta.add(despacho.conductor);
-  });
+  despachos
+    .filter((despacho) => despacho.estado === DESPACHO_ESTADOS.EN_RUTA)
+    .forEach((despacho) => {
+      if (ids.has(despacho.conductorId) || nombres.has(despacho.conductor)) enRuta.add(despacho.conductor);
+    });
 
-  return { total: activos.size, enRuta: enRuta.size };
+  return { total: disponibles.length, enRuta: enRuta.size };
 }
 
 export function computeCumplimientoLegal(flota = [], referencia = new Date()) {
@@ -64,16 +68,21 @@ export function computeCumplimientoLegal(flota = [], referencia = new Date()) {
   };
 }
 
-export function computeMargenNeto(despachos) {
-  const facturables = despachos.filter((despacho) => despacho.estado !== DESPACHO_ESTADOS.CANCELADO);
-  if (facturables.length === 0) return null;
-
-  const ingresos = facturables.reduce((acumulado, despacho) => acumulado + Number(despacho.valorFlete || 0), 0);
-  const costos = facturables.reduce((acumulado, despacho) => acumulado + Number(despacho.costoOperativo || 0), 0);
-  if (ingresos <= 0) return null;
-
-  const margen = ingresos - costos;
-  return { ingresos, costos, margen, porcentaje: (margen / ingresos) * 100 };
+/**
+ * Margen neto del mes con los movimientos de Finanzas (ingresos - egresos), con la misma
+ * función que usa la página de Finanzas para que ambas muestren el mismo número.
+ * null si no hay movimientos en el período.
+ */
+export function computeMargenNeto(movimientos = [], periodo = null) {
+  if (!periodo) return null;
+  const resumen = computeFinanzasResumen(movimientos, periodo);
+  if (resumen.totalMovimientos === 0) return null;
+  return {
+    ingresos: resumen.ingresos,
+    costos: resumen.egresos,
+    margen: resumen.margen,
+    porcentaje: resumen.ingresos > 0 ? resumen.rentabilidad : null,
+  };
 }
 
 function buildDocAlerta(vehiculo, tipoDocumento, fechaStr, referencia) {
@@ -243,12 +252,24 @@ export function computeTelemetriaSemanal(despachos, periodo) {
   }));
 }
 
-export function buildResumen(despachos, flota = [], referencia = new Date()) {
+/**
+ * KPIs del dashboard. `despachosPeriodo` son los del mes elegido; `despachos`, todos
+ * (el estado "En ruta" es actual, no de un mes). El margen sale de Finanzas.
+ */
+export function buildResumen({
+  despachosPeriodo = [],
+  despachos = [],
+  flota = [],
+  conductores = [],
+  movimientos = [],
+  periodo = null,
+  referencia = new Date(),
+}) {
   return {
     disponibilidad: computeDisponibilidadFlota(flota),
-    personal: computePersonalRodante(despachos, flota),
+    personal: computePersonalRodante(conductores, despachos),
     cumplimiento: computeCumplimientoLegal(flota, referencia),
-    margen: computeMargenNeto(despachos),
-    alertas: buildAlertas(flota, despachos, referencia),
+    margen: computeMargenNeto(movimientos, periodo),
+    alertas: buildAlertas(flota, despachosPeriodo, referencia),
   };
 }
