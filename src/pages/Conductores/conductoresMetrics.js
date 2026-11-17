@@ -1,10 +1,9 @@
 import { CONDUCTOR_ESTADOS } from '../../services/conductorService';
-import { daysUntil } from '../../utils/dateUtils';
+import { alertaVencimiento, ordenarPorSeveridad } from '../../utils/vencimientos';
 
-export const UMBRAL_CRITICO_DIAS = 7;
-export const UMBRAL_PREVENTIVO_DIAS = 30;
+export { UMBRAL_CRITICO_DIAS, UMBRAL_PREVENTIVO_DIAS } from '../../utils/vencimientos';
 
-const SEVERIDAD_ORDEN = { danger: 0, warning: 1, info: 2 };
+const GRUPO_POR_NIVEL = { vencido: 'vencidas', critico: 'criticas', proximo: 'proximas' };
 
 /**
  * Alertas de licencia: vencidas, críticas (<=7 días) y próximas (<=30 días).
@@ -15,42 +14,19 @@ export function buildLicenciaAlertas(conductores = [], referencia = new Date()) 
   const alertas = [];
 
   conductores.forEach((conductor) => {
-    const dias = daysUntil(conductor.licenciaVence, referencia);
-    if (dias === null) return;
-
-    const detalle = `${conductor.nombre} · Lic. ${conductor.categoriaLicencia} · CC ${conductor.cedula}`;
-
-    if (dias < 0) {
-      grupos.vencidas += 1;
-      alertas.push({
-        id: `lic-${conductor.id}`,
-        severidad: 'danger',
-        tipo: 'Licencia vencida',
-        detalle,
-        tiempo: `Hace ${Math.abs(dias)} día(s)`,
-      });
-    } else if (dias <= UMBRAL_CRITICO_DIAS) {
-      grupos.criticas += 1;
-      alertas.push({
-        id: `lic-${conductor.id}`,
-        severidad: 'danger',
-        tipo: 'Licencia crítica',
-        detalle,
-        tiempo: `Vence en ${dias} día(s)`,
-      });
-    } else if (dias <= UMBRAL_PREVENTIVO_DIAS) {
-      grupos.proximas += 1;
-      alertas.push({
-        id: `lic-${conductor.id}`,
-        severidad: 'warning',
-        tipo: 'Licencia próxima a vencer',
-        detalle,
-        tiempo: `Vence en ${dias} días`,
-      });
-    }
+    const alerta = alertaVencimiento({
+      id: `lic-${conductor.id}`,
+      fecha: conductor.licenciaVence,
+      detalle: `${conductor.nombre} · Lic. ${conductor.categoriaLicencia} · CC ${conductor.cedula}`,
+      titulos: { vencido: 'Licencia vencida', critico: 'Licencia crítica', proximo: 'Licencia próxima a vencer' },
+      referencia,
+    });
+    if (!alerta) return;
+    grupos[GRUPO_POR_NIVEL[alerta.nivel]] += 1;
+    alertas.push(alerta);
   });
 
-  alertas.sort((a, b) => SEVERIDAD_ORDEN[a.severidad] - SEVERIDAD_ORDEN[b.severidad]);
+  alertas.sort(ordenarPorSeveridad);
   return { grupos, alertas };
 }
 

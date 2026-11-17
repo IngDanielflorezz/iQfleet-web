@@ -92,6 +92,7 @@ export default function ModalDespacho({ despacho, flota, conductores, despachos 
                       {flota.map((vehiculo) => (
                         <option key={vehiculo.id} value={vehiculo.id}>
                           {vehiculo.id} · {vehiculo.marca} {vehiculo.modelo}
+                          {vehiculo.estado && vehiculo.estado !== 'Operativo' ? ` (${vehiculo.estado})` : ''}
                         </option>
                       ))}
                     </select>

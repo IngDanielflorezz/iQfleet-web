@@ -3,9 +3,11 @@ import { codigoDespacho, getConductoresConocidos } from '../../services/despacho
 import { useDespachos } from '../../hooks/useDespachos';
 import { useVehiculos } from '../../hooks/useVehiculos';
 import { useConductores } from '../../hooks/useConductores';
+import { useDocumentos } from '../../hooks/useDocumentos';
 import useAlertas from '../../hooks/useAlertas';
 import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
-import { buildResumen, listPeriodos } from './dashboardMetrics';
+import { buildAlertasPrevencion, buildResumen, listPeriodos } from './dashboardMetrics';
+import { ordenarPorSeveridad } from '../../utils/vencimientos';
 import DashboardHeader from './components/DashboardHeader';
 import MetricCards from './components/MetricCards';
 import AlertsPanel from './components/AlertsPanel';
@@ -20,6 +22,7 @@ export default function DashboardPage() {
   // La flota viene de la API: la placa de un despacho debe existir en la tabla de vehículos.
   const { vehiculos, error: errorFlota } = useVehiculos();
   const { conductores: fichasConductores } = useConductores();
+  const { documentos } = useDocumentos();
   const { alertasPanel } = useAlertas();
 
   const [periodo, setPeriodo] = useState(null);
@@ -65,9 +68,16 @@ export default function DashboardPage() {
     [despachosPeriodo, vehiculos],
   );
 
+  // Las preventivas (licencias, documentos, despachos en riesgo) usan todos los despachos,
+  // no solo los del período elegido: un despacho de la próxima semana importa aunque se vea otro mes.
+  const alertasPrevencion = useMemo(
+    () => buildAlertasPrevencion({ despachos, flota: vehiculos, conductores: fichasConductores, documentos }),
+    [despachos, vehiculos, fichasConductores, documentos],
+  );
+
   const alertasConsolidadas = useMemo(
-    () => [...alertasPanel, ...resumen.alertas],
-    [alertasPanel, resumen.alertas],
+    () => [...alertasPanel, ...resumen.alertas, ...alertasPrevencion].sort(ordenarPorSeveridad),
+    [alertasPanel, resumen.alertas, alertasPrevencion],
   );
 
   const conductores = useMemo(
