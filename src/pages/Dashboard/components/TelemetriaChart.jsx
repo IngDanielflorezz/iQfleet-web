@@ -18,7 +18,7 @@ export default function TelemetriaChart({ despachos, periodo }) {
     <div className="card-dark p-4 h-100">
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
-          <h2 className="fs-6 text-white fw-bold mb-0">Rendimiento y Telemetría Semanal</h2>
+          <h2 className="fs-6 text-white fw-bold mb-0">Despachos y Facturación por Semana</h2>
           <span className="text-light-muted fs-8">
             {totalDespachos > 0
               ? `${totalDespachos} despacho(s) distribuidos por semana del mes`
