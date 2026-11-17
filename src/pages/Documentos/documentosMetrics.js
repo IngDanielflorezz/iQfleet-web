@@ -1,7 +1,7 @@
 import { daysUntil } from '../../utils/dateUtils';
+import { UMBRAL_CRITICO_DIAS, UMBRAL_PREVENTIVO_DIAS } from '../../utils/vencimientos';
 
-export const UMBRAL_CRITICO_DIAS = 7;
-export const UMBRAL_PREVENTIVO_DIAS = 30;
+export { UMBRAL_CRITICO_DIAS, UMBRAL_PREVENTIVO_DIAS };
 
 /**
  * Clasifica un documento según sus días restantes:
