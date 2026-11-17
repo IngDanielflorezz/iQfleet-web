@@ -30,7 +30,7 @@ function Campo({ etiqueta, error, children }) {
   );
 }
 
-export default function ModalDespacho({ despacho, flota, conductores, onClose, onGuardar }) {
+export default function ModalDespacho({ despacho, flota, conductores, despachos = [], onClose, onGuardar }) {
   const [form, setForm] = useState(() => buildInitial(despacho));
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
@@ -46,7 +46,7 @@ export default function ModalDespacho({ despacho, flota, conductores, onClose, o
   const esEdicion = Boolean(despacho);
   const actualizar = (campo) => (event) => setForm((previo) => ({ ...previo, [campo]: event.target.value }));
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const dto = {
       ...form,
@@ -54,14 +54,14 @@ export default function ModalDespacho({ despacho, flota, conductores, onClose, o
       costoOperativo: form.costoOperativo === '' ? 0 : Number(form.costoOperativo),
     };
 
-    const erroresLocales = validateDespacho(dto, { ignoreId: despacho?.id ?? null });
+    const erroresLocales = validateDespacho(dto, { despachos, ignoreId: despacho?.id ?? null });
     if (Object.keys(erroresLocales).length > 0) {
       setErrores(erroresLocales);
       return;
     }
 
     setEnviando(true);
-    const resultado = onGuardar(dto);
+    const resultado = await onGuardar(dto);
     if (resultado?.ok) {
       onClose();
       return;
@@ -92,6 +92,7 @@ export default function ModalDespacho({ despacho, flota, conductores, onClose, o
                       {flota.map((vehiculo) => (
                         <option key={vehiculo.id} value={vehiculo.id}>
                           {vehiculo.id} · {vehiculo.marca} {vehiculo.modelo}
+                          {vehiculo.estado && vehiculo.estado !== 'Operativo' ? ` (${vehiculo.estado})` : ''}
                         </option>
                       ))}
                     </select>
@@ -188,9 +189,10 @@ export default function ModalDespacho({ despacho, flota, conductores, onClose, o
                 </div>
 
                 <div className="col-12">
-                  <Campo etiqueta="Observaciones">
+                  <Campo etiqueta="Observaciones" error={errores.observaciones}>
                     <textarea
                       rows={2}
+                      maxLength={250}
                       className="form-control form-control-dark"
                       placeholder="Notas del despacho (opcional)"
                       value={form.observaciones}

@@ -5,6 +5,7 @@ using IQFleet.Api.Features.Alertas;
 using IQFleet.Api.Features.Conductores;
 using IQFleet.Api.Features.Despachos;
 using IQFleet.Api.Features.Documentos;
+using IQFleet.Api.Features.Mantenimiento;
 using IQFleet.Api.Features.Movimientos;
 using IQFleet.Api.Features.RutasActivas;
 using IQFleet.Api.Features.Turno;
@@ -94,6 +95,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Administrador", policy => policy.RequireRole("ADMINISTRADOR"))
     .AddPolicy("Conductor", policy => policy.RequireRole("CONDUCTOR", "ADMINISTRADOR"));
 
+builder.Services.AddHttpClient<ArchivoStorage>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecurityTransformer>());
 
@@ -142,6 +144,7 @@ api.MapConductores();
 api.MapDespachos();
 api.MapDocumentos();
 api.MapMovimientos();
+api.MapMantenimiento();
 api.MapAlertas();
 api.MapTurno();
 api.MapRutasActivas();

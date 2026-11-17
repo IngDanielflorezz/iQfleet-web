@@ -8,7 +8,8 @@ import VehiculosMetricCards from './components/VehiculosMetricCards';
 import VehiculosTable from './components/VehiculosTable';
 import VehiculoModal from './components/VehiculoModal';
 import VehiculoDetailModal from './components/VehiculoDetailModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import MantenimientoTab from './components/mantenimiento/MantenimientoTab';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import '../Conductores/Conductores.css';
 import './Vehiculos.css';
 
@@ -30,6 +31,7 @@ export default function VehiculosPage() {
   const { vehiculos, loading, error, crear, actualizar, eliminar, limpiarError } = useVehiculos();
   const { conductores } = useConductores();
 
+  const [pestana, setPestana] = useState('flota');
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('Todos');
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -94,20 +96,44 @@ export default function VehiculosPage() {
 
       <VehiculosHeader resumen={resumen} onNuevo={abrirNuevo} onExportar={exportarFlota} />
 
-      <VehiculosMetricCards resumen={resumen} />
+      <div className="vehiculos-tabs no-print" role="tablist" aria-label="Secciones de vehículos">
+        {[
+          { id: 'flota', label: 'Flota', icono: 'directions_bus' },
+          { id: 'mantenimiento', label: 'Mantenimiento', icono: 'build' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={pestana === tab.id}
+            className={`vehiculos-tab ${pestana === tab.id ? 'is-active' : ''}`}
+            onClick={() => setPestana(tab.id)}
+          >
+            <span className="material-symbols-outlined fs-6">{tab.icono}</span> {tab.label}
+          </button>
+        ))}
+      </div>
 
-      <VehiculosTable
-        vehiculos={vehiculosFiltrados}
-        total={vehiculos.length}
-        busqueda={busqueda}
-        onBusquedaChange={setBusqueda}
-        filtroEstado={filtroEstado}
-        onFiltroEstadoChange={setFiltroEstado}
-        onVer={setVehiculoDetalle}
-        onEditar={abrirEditar}
-        onEliminar={setVehiculoAEliminar}
-        onNuevo={abrirNuevo}
-      />
+      {pestana === 'mantenimiento' ? (
+        <MantenimientoTab vehiculos={vehiculos} />
+      ) : (
+        <>
+          <VehiculosMetricCards resumen={resumen} />
+
+          <VehiculosTable
+            vehiculos={vehiculosFiltrados}
+            total={vehiculos.length}
+            busqueda={busqueda}
+            onBusquedaChange={setBusqueda}
+            filtroEstado={filtroEstado}
+            onFiltroEstadoChange={setFiltroEstado}
+            onVer={setVehiculoDetalle}
+            onEditar={abrirEditar}
+            onEliminar={setVehiculoAEliminar}
+            onNuevo={abrirNuevo}
+          />
+        </>
+      )}
 
       {modalAbierto && (
         <VehiculoModal

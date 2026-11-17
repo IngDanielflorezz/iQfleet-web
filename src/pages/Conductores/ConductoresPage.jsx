@@ -7,7 +7,7 @@ import ConductoresMetricCards from './components/ConductoresMetricCards';
 import ConductoresTable from './components/ConductoresTable';
 import ConductorModal from './components/ConductorModal';
 import ConductorDetailModal from './components/ConductorDetailModal';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import './Conductores.css';
 
 const COLUMNAS_EXPORT = [

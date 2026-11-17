@@ -1,12 +1,12 @@
 import { formatFechaHora } from '../../../utils/dateUtils';
 
-export default function DashboardHeader({ periodo, periodos, onPeriodoChange, onNuevoDespacho, onExportar }) {
+export default function DashboardHeader({ empresa, periodo, periodos, onPeriodoChange, onNuevoDespacho, onExportar }) {
   return (
     <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
       <div>
         <div className="d-flex align-items-center gap-2 mb-1">
           <span className="badge badge-orange-subtle text-uppercase fw-bold">CENTRO DE OPERACIONES</span>
-          <span className="text-light-muted fs-8">Despacho Sabana &amp; Bogotá D.C.</span>
+          {empresa && <span className="text-light-muted fs-8">{empresa}</span>}
         </div>
         <h1 className="h3 fw-bold text-white mb-0">Consola de Control Operativo</h1>
         <span className="text-light-muted fs-8">Corte: {formatFechaHora(new Date())} COT</span>

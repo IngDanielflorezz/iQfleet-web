@@ -1,17 +1,17 @@
-import { vehiculos } from '../../data/vehiculos';
-import { DESPACHO_ESTADOS } from '../../services/despachoService';
-import { daysUntil, parseFechaLarga, toPeriodo } from '../../utils/dateUtils';
+import { codigoDespacho, DESPACHO_ESTADOS } from '../../services/despachoService';
+import { buildLicenciaAlertas } from '../Conductores/conductoresMetrics';
+import { computeFinanzasResumen } from '../Finanzas/finanzasMetrics';
+import { buildAlertasMantenimiento } from '../Vehiculos/mantenimientoMetrics';
+import { daysUntil, formatFechaCorta, toPeriodo } from '../../utils/dateUtils';
+import { alertaVencimiento, ordenarPorSeveridad, UMBRAL_CRITICO_DIAS, venceAntesDe } from '../../utils/vencimientos';
 
-export const UMBRAL_CRITICO_DIAS = 7;
-export const UMBRAL_PREVENTIVO_DIAS = 30;
-
-const SEVERIDAD_ORDEN = { danger: 0, warning: 1, info: 2 };
+export { UMBRAL_CRITICO_DIAS, UMBRAL_PREVENTIVO_DIAS } from '../../utils/vencimientos';
 
 function vehiculosOperativos(flota) {
   return flota.filter((vehiculo) => vehiculo.estado === 'Operativo');
 }
 
-export function computeDisponibilidadFlota(flota = vehiculos) {
+export function computeDisponibilidadFlota(flota = []) {
   const total = flota.length;
   const operativos = vehiculosOperativos(flota).length;
   return {
@@ -21,23 +21,26 @@ export function computeDisponibilidadFlota(flota = vehiculos) {
   };
 }
 
-export function computePersonalRodante(despachos, flota = vehiculos) {
-  const activos = new Set();
-  flota.forEach((vehiculo) => {
-    if (vehiculo.conductor && vehiculo.conductor !== 'Sin asignar') activos.add(vehiculo.conductor);
-  });
+/**
+ * Personal rodante: conductores registrados que no están inactivos, y cuántos de ellos
+ * tienen ahora mismo un despacho "En ruta".
+ */
+export function computePersonalRodante(conductores = [], despachos = []) {
+  const disponibles = conductores.filter((conductor) => conductor.estado !== 'Inactivo');
+  const nombres = new Set(disponibles.map((conductor) => conductor.nombre));
+  const ids = new Set(disponibles.map((conductor) => conductor.id));
 
   const enRuta = new Set();
-  despachos.forEach((despacho) => {
-    if (despacho.estado === DESPACHO_ESTADOS.CANCELADO) return;
-    if (despacho.conductor) activos.add(despacho.conductor);
-    if (despacho.estado === DESPACHO_ESTADOS.EN_RUTA && despacho.conductor) enRuta.add(despacho.conductor);
-  });
+  despachos
+    .filter((despacho) => despacho.estado === DESPACHO_ESTADOS.EN_RUTA)
+    .forEach((despacho) => {
+      if (ids.has(despacho.conductorId) || nombres.has(despacho.conductor)) enRuta.add(despacho.conductor);
+    });
 
-  return { total: activos.size, enRuta: enRuta.size };
+  return { total: disponibles.length, enRuta: enRuta.size };
 }
 
-export function computeCumplimientoLegal(flota = vehiculos, referencia = new Date()) {
+export function computeCumplimientoLegal(flota = [], referencia = new Date()) {
   let vigentes = 0;
   let total = 0;
   let criticos = 0;
@@ -45,10 +48,9 @@ export function computeCumplimientoLegal(flota = vehiculos, referencia = new Dat
 
   flota.forEach((vehiculo) => {
     [vehiculo.soatVence, vehiculo.rtmVence].forEach((fechaStr) => {
-      const fecha = parseFechaLarga(fechaStr);
-      if (!fecha) return;
+      const dias = daysUntil(fechaStr, referencia);
+      if (dias === null) return;
       total += 1;
-      const dias = daysUntil(fecha, referencia);
       if (dias < 0) vencidos += 1;
       else {
         vigentes += 1;
@@ -67,38 +69,34 @@ export function computeCumplimientoLegal(flota = vehiculos, referencia = new Dat
   };
 }
 
-export function computeMargenNeto(despachos) {
-  const facturables = despachos.filter((despacho) => despacho.estado !== DESPACHO_ESTADOS.CANCELADO);
-  if (facturables.length === 0) return null;
-
-  const ingresos = facturables.reduce((acumulado, despacho) => acumulado + Number(despacho.valorFlete || 0), 0);
-  const costos = facturables.reduce((acumulado, despacho) => acumulado + Number(despacho.costoOperativo || 0), 0);
-  if (ingresos <= 0) return null;
-
-  const margen = ingresos - costos;
-  return { ingresos, costos, margen, porcentaje: (margen / ingresos) * 100 };
+/**
+ * Margen neto del mes con los movimientos de Finanzas (ingresos - egresos), con la misma
+ * función que usa la página de Finanzas para que ambas muestren el mismo número.
+ * null si no hay movimientos en el período.
+ */
+export function computeMargenNeto(movimientos = [], periodo = null) {
+  if (!periodo) return null;
+  const resumen = computeFinanzasResumen(movimientos, periodo);
+  if (resumen.totalMovimientos === 0) return null;
+  return {
+    ingresos: resumen.ingresos,
+    costos: resumen.egresos,
+    margen: resumen.margen,
+    porcentaje: resumen.ingresos > 0 ? resumen.rentabilidad : null,
+  };
 }
 
 function buildDocAlerta(vehiculo, tipoDocumento, fechaStr, referencia) {
-  const fecha = parseFechaLarga(fechaStr);
-  if (!fecha) return null;
-
-  const dias = daysUntil(fecha, referencia);
-  const detalle = `Placa ${vehiculo.id} (${vehiculo.marca} ${vehiculo.modelo})`;
-
-  if (dias < 0) {
-    return { id: `${tipoDocumento}-${vehiculo.id}`, severidad: 'danger', tipo: `${tipoDocumento} Vencido`, detalle, tiempo: `Hace ${Math.abs(dias)} día(s)` };
-  }
-  if (dias <= UMBRAL_CRITICO_DIAS) {
-    return { id: `${tipoDocumento}-${vehiculo.id}`, severidad: 'danger', tipo: `${tipoDocumento} Crítico`, detalle, tiempo: `Vence en ${dias} día(s)` };
-  }
-  if (dias <= UMBRAL_PREVENTIVO_DIAS) {
-    return { id: `${tipoDocumento}-${vehiculo.id}`, severidad: 'warning', tipo: `${tipoDocumento} por vencer`, detalle, tiempo: `Vence en ${dias} días` };
-  }
-  return null;
+  return alertaVencimiento({
+    id: `${tipoDocumento}-${vehiculo.id}`,
+    fecha: fechaStr,
+    detalle: `Placa ${vehiculo.id} (${vehiculo.marca} ${vehiculo.modelo})`,
+    titulos: { vencido: `${tipoDocumento} Vencido`, critico: `${tipoDocumento} Crítico`, proximo: `${tipoDocumento} por vencer` },
+    referencia,
+  });
 }
 
-export function buildAlertas(flota = vehiculos, despachos = [], referencia = new Date()) {
+export function buildAlertas(flota = [], despachos = [], referencia = new Date()) {
   const alertas = [];
 
   flota.forEach((vehiculo) => {
@@ -111,7 +109,7 @@ export function buildAlertas(flota = vehiculos, despachos = [], referencia = new
       alertas.push({
         id: `mantenimiento-${vehiculo.id}`,
         severidad: 'warning',
-        tipo: 'Mantenimiento Preventivo',
+        tipo: 'Vehículo en taller',
         detalle: `Placa ${vehiculo.id} (${vehiculo.marca} ${vehiculo.modelo})`,
         tiempo: 'En taller',
       });
@@ -130,7 +128,91 @@ export function buildAlertas(flota = vehiculos, despachos = [], referencia = new
       });
     });
 
-  return alertas.sort((a, b) => SEVERIDAD_ORDEN[a.severidad] - SEVERIDAD_ORDEN[b.severidad]);
+  return alertas.sort(ordenarPorSeveridad);
+}
+
+// SOAT y RTM de un vehículo ya salen de la ficha del vehículo (buildAlertas);
+// del módulo Documentos solo se suman los que no duplican esa información.
+const TIPOS_CUBIERTOS_POR_FLOTA = ['SOAT', 'RTM'];
+
+function buildAlertasDocumentos(documentos, flota, referencia) {
+  const placasFlota = new Set(flota.map((vehiculo) => vehiculo.id));
+  return documentos
+    .filter((documento) => !(TIPOS_CUBIERTOS_POR_FLOTA.includes(documento.tipo) && placasFlota.has(documento.placa)))
+    .map((documento) =>
+      alertaVencimiento({
+        id: `doc-${documento.id}`,
+        fecha: documento.vencimiento,
+        detalle: `N.º ${documento.numero} · ${documento.placa || documento.conductor || documento.entidad}`,
+        titulos: {
+          vencido: `${documento.tipo} · Vencido`,
+          critico: `${documento.tipo} · Crítico`,
+          proximo: `${documento.tipo} · Por vencer`,
+        },
+        referencia,
+      }),
+    )
+    .filter(Boolean);
+}
+
+/**
+ * Despachos programados a futuro que ya no cumplirían las reglas de despacho de la API:
+ * se crearon cuando todo estaba en regla, pero antes de salir venció un documento o
+ * cambió el estado del vehículo o del conductor. Avisa para reprogramarlos a tiempo.
+ */
+export function buildDespachosEnRiesgo(despachos, flota, conductores, referencia = new Date()) {
+  const vehiculoPorPlaca = new Map(flota.map((vehiculo) => [vehiculo.id, vehiculo]));
+  const fichaPorId = new Map(conductores.map((conductor) => [conductor.id, conductor]));
+  const fichaPorNombre = new Map(conductores.map((conductor) => [conductor.nombre, conductor]));
+
+  return despachos
+    .filter((despacho) => despacho.estado === DESPACHO_ESTADOS.PROGRAMADO && new Date(despacho.fechaSalida) >= referencia)
+    .map((despacho) => {
+      const motivos = [];
+      const vehiculo = vehiculoPorPlaca.get(despacho.placa);
+      if (vehiculo) {
+        if (vehiculo.estado !== 'Operativo') motivos.push(`vehículo en ${vehiculo.estado.toLowerCase()}`);
+        if (venceAntesDe(vehiculo.soatVence, despacho.fechaSalida)) motivos.push('SOAT vence antes de la salida');
+        if (venceAntesDe(vehiculo.rtmVence, despacho.fechaSalida)) motivos.push('RTM vence antes de la salida');
+      }
+      const ficha = fichaPorId.get(despacho.conductorId) ?? fichaPorNombre.get(despacho.conductor);
+      if (ficha) {
+        if (ficha.estado === 'Inactivo') motivos.push(`${ficha.nombre} está inactivo`);
+        if (venceAntesDe(ficha.licenciaVence, despacho.fechaSalida)) motivos.push(`licencia de ${ficha.nombre} vence antes de la salida`);
+      }
+      if (motivos.length === 0) return null;
+      return {
+        id: `riesgo-${despacho.id}`,
+        severidad: 'danger',
+        tipo: 'Despacho en riesgo',
+        detalle: `${codigoDespacho(despacho)} · ${despacho.placa}: ${motivos.join('; ')}`,
+        tiempo: `Sale ${formatFechaCorta(despacho.fechaSalida)}`,
+      };
+    })
+    .filter(Boolean);
+}
+
+/**
+ * Alertas preventivas que no dependen del período elegido: licencias (conductores no
+ * inactivos), documentos legales, despachos programados en riesgo y mantenimientos
+ * vencidos o próximos.
+ */
+export function buildAlertasPrevencion({
+  despachos = [],
+  flota = [],
+  conductores = [],
+  documentos = [],
+  planes = [],
+  ordenes = [],
+  referencia = new Date(),
+}) {
+  const conductoresVigentes = conductores.filter((conductor) => conductor.estado !== 'Inactivo');
+  return [
+    ...buildDespachosEnRiesgo(despachos, flota, conductores, referencia),
+    ...buildLicenciaAlertas(conductoresVigentes, referencia).alertas,
+    ...buildAlertasDocumentos(documentos, flota, referencia),
+    ...buildAlertasMantenimiento(planes, flota, ordenes, referencia),
+  ].sort(ordenarPorSeveridad);
 }
 
 export function listPeriodos(despachos) {
@@ -181,12 +263,24 @@ export function computeTelemetriaSemanal(despachos, periodo) {
   }));
 }
 
-export function buildResumen(despachos, flota = vehiculos, referencia = new Date()) {
+/**
+ * KPIs del dashboard. `despachosPeriodo` son los del mes elegido; `despachos`, todos
+ * (el estado "En ruta" es actual, no de un mes). El margen sale de Finanzas.
+ */
+export function buildResumen({
+  despachosPeriodo = [],
+  despachos = [],
+  flota = [],
+  conductores = [],
+  movimientos = [],
+  periodo = null,
+  referencia = new Date(),
+}) {
   return {
     disponibilidad: computeDisponibilidadFlota(flota),
-    personal: computePersonalRodante(despachos, flota),
+    personal: computePersonalRodante(conductores, despachos),
     cumplimiento: computeCumplimientoLegal(flota, referencia),
-    margen: computeMargenNeto(despachos),
-    alertas: buildAlertas(flota, despachos, referencia),
+    margen: computeMargenNeto(movimientos, periodo),
+    alertas: buildAlertas(flota, despachosPeriodo, referencia),
   };
 }

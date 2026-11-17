@@ -1,21 +1,34 @@
 import { useMemo, useState } from 'react';
-import { vehiculos } from '../../data/vehiculos';
-import { getConductoresConocidos } from '../../services/despachoService';
+import { codigoDespacho, getConductoresConocidos } from '../../services/despachoService';
 import { useDespachos } from '../../hooks/useDespachos';
+import { useVehiculos } from '../../hooks/useVehiculos';
+import { useConductores } from '../../hooks/useConductores';
+import { useDocumentos } from '../../hooks/useDocumentos';
+import useMovimientos from '../../hooks/useMovimientos';
+import { useMantenimiento } from '../../hooks/useMantenimiento';
+import { getSession } from '../../services/authService';
 import useAlertas from '../../hooks/useAlertas';
 import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
-import { buildResumen, listPeriodos } from './dashboardMetrics';
+import { buildAlertasPrevencion, buildResumen, listPeriodos } from './dashboardMetrics';
+import { ordenarPorSeveridad } from '../../utils/vencimientos';
 import DashboardHeader from './components/DashboardHeader';
 import MetricCards from './components/MetricCards';
 import AlertsPanel from './components/AlertsPanel';
 import DespachosTable from './components/DespachosTable';
 import TelemetriaChart from './components/TelemetriaChart';
 import ModalDespacho from './components/ModalDespacho';
-import ConfirmDialog from './components/ConfirmDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import './Dashboard.css';
 
 export default function DashboardPage() {
-  const { despachos, crear, actualizar, eliminar } = useDespachos();
+  const { despachos, loading, error, crear, actualizar, eliminar, limpiarError } = useDespachos();
+  // La flota viene de la API: la placa de un despacho debe existir en la tabla de vehículos.
+  const { vehiculos, error: errorFlota } = useVehiculos();
+  const { conductores: fichasConductores } = useConductores();
+  const { documentos } = useDocumentos();
+  const { movimientos } = useMovimientos();
+  const { planes, ordenes } = useMantenimiento();
+  const empresa = getSession()?.empresa ?? '';
   const { alertasPanel } = useAlertas();
 
   const [periodo, setPeriodo] = useState(null);
@@ -56,14 +69,36 @@ export default function DashboardPage() {
     });
   }, [despachosPeriodo, busqueda, filtroEstado]);
 
-  const resumen = useMemo(() => buildResumen(despachosPeriodo, vehiculos, new Date()), [despachosPeriodo]);
-
-  const alertasConsolidadas = useMemo(
-    () => [...alertasPanel, ...resumen.alertas],
-    [alertasPanel, resumen.alertas],
+  const resumen = useMemo(
+    () =>
+      buildResumen({
+        despachosPeriodo,
+        despachos,
+        flota: vehiculos,
+        conductores: fichasConductores,
+        movimientos,
+        periodo: periodoActivo,
+      }),
+    [despachosPeriodo, despachos, vehiculos, fichasConductores, movimientos, periodoActivo],
   );
 
-  const conductores = useMemo(() => getConductoresConocidos(despachos), [despachos]);
+  // Las preventivas (licencias, documentos, despachos en riesgo) usan todos los despachos,
+  // no solo los del período elegido: un despacho de la próxima semana importa aunque se vea otro mes.
+  const alertasPrevencion = useMemo(
+    () =>
+      buildAlertasPrevencion({ despachos, flota: vehiculos, conductores: fichasConductores, documentos, planes, ordenes }),
+    [despachos, vehiculos, fichasConductores, documentos, planes, ordenes],
+  );
+
+  const alertasConsolidadas = useMemo(
+    () => [...alertasPanel, ...resumen.alertas, ...alertasPrevencion].sort(ordenarPorSeveridad),
+    [alertasPanel, resumen.alertas, alertasPrevencion],
+  );
+
+  const conductores = useMemo(
+    () => getConductoresConocidos({ conductores: fichasConductores, flota: vehiculos, despachos }),
+    [fichasConductores, vehiculos, despachos],
+  );
 
   const abrirNuevo = () => {
     setDespachoEnEdicion(null);
@@ -83,14 +118,23 @@ export default function DashboardPage() {
   const guardarDespacho = (dto) =>
     despachoEnEdicion ? actualizar(despachoEnEdicion.id, dto) : crear(dto);
 
-  const confirmarEliminacion = () => {
-    if (despachoAEliminar) eliminar(despachoAEliminar.id);
+  const confirmarEliminacion = async () => {
+    const id = despachoAEliminar?.id;
     setDespachoAEliminar(null);
+    if (id) await eliminar(id);
   };
 
   return (
     <div className="container-fluid max-w-container">
+      {(error || errorFlota) && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center py-2 fs-8" role="alert">
+          <span>{error ?? `No se pudo cargar la flota: ${errorFlota}`}</span>
+          {error && <button type="button" className="btn-close btn-close-white" aria-label="Cerrar" onClick={limpiarError} />}
+        </div>
+      )}
+      {loading && <p className="text-secondary fs-8">Cargando despachos desde la API…</p>}
       <DashboardHeader
+        empresa={empresa}
         periodo={periodoActivo}
         periodos={opcionesPeriodo}
         onPeriodoChange={setPeriodo}
@@ -127,6 +171,7 @@ export default function DashboardPage() {
           despacho={despachoEnEdicion}
           flota={vehiculos}
           conductores={conductores}
+          despachos={despachos}
           onClose={cerrarModal}
           onGuardar={guardarDespacho}
         />
@@ -137,7 +182,7 @@ export default function DashboardPage() {
         titulo="Eliminar despacho"
         mensaje={
           despachoAEliminar
-            ? `¿Seguro que deseas eliminar el despacho ${despachoAEliminar.id} (${despachoAEliminar.origen} → ${despachoAEliminar.destino})? Esta acción no se puede deshacer.`
+            ? `¿Seguro que deseas eliminar el despacho ${codigoDespacho(despachoAEliminar)} (${despachoAEliminar.origen} → ${despachoAEliminar.destino})? Esta acción no se puede deshacer.`
             : ''
         }
         onConfirm={confirmarEliminacion}

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 /**
- * Diálogo de confirmación reutilizable (eliminaciones).
+ * Diálogo de confirmación compartido por los módulos (eliminaciones / acciones sensibles).
  * Se controla por props: no usa el bundle JS de Bootstrap.
  */
 export default function ConfirmDialog({
@@ -39,7 +39,7 @@ export default function ConfirmDialog({
               <p className="text-light-muted fs-7 mb-0">{mensaje}</p>
             </div>
             <div className="modal-footer border-dark-custom p-2">
-              <button type="button" className="btn-outline-dark-custom" onClick={onCancel}>
+              <button type="button" className="btn btn-outline-dark-custom" onClick={onCancel}>
                 Cancelar
               </button>
               <button type="button" className="btn btn-danger" onClick={onConfirm}>

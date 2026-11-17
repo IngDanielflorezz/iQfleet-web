@@ -125,7 +125,8 @@ public static class DespachoEndpoints
         var v = new Validation();
 
         var placa = v.Required("placa", request.Placa, "Selecciona un vehículo.").ToUpperInvariant();
-        if (!v.Has("placa") && !await db.Vehiculos.AnyAsync(x => x.Placa == placa))
+        var vehiculo = v.Has("placa") ? null : await db.Vehiculos.AsNoTracking().FirstOrDefaultAsync(x => x.Placa == placa);
+        if (!v.Has("placa") && vehiculo is null)
             v.Add("placa", $"El vehículo {placa} no existe.");
 
         // El conductor puede llegar por id (ficha) o por nombre; si llega el nombre se intenta enlazar la ficha.
@@ -152,17 +153,50 @@ public static class DespachoEndpoints
         var observaciones = Validation.Optional(request.Observaciones);
         if (observaciones?.Length > 250) v.Add("observaciones", "Máximo 250 caracteres.");
 
-        // Un vehículo no puede tener dos despachos activos el mismo día (hora local).
-        if (!v.Has("placa") && !v.Has("fechaSalida") && EstadosActivos.Contains(estado))
+        // Reglas de despacho: solo para despachos activos (Programado / En ruta), para que un
+        // despacho Completado o Cancelado se pueda seguir editando aunque luego venza un documento.
+        if (!v.Has("fechaSalida") && EstadosActivos.Contains(estado))
         {
             var dia = DateOnly.FromDateTime(fechaSalida.Add(HoraColombia.Offset));
             var inicio = HoraColombia.InicioDiaUtc(dia);
             var fin = HoraColombia.InicioDiaUtc(dia.AddDays(1));
-            var choque = await db.Despachos.AnyAsync(d =>
-                d.Id != ignoreId && d.Placa == placa &&
-                d.FechaSalida >= inicio && d.FechaSalida < fin &&
-                EstadosActivos.Contains(d.Estado));
-            if (choque) v.Add("placa", $"El vehículo {placa} ya tiene un despacho activo ese día.");
+
+            if (vehiculo is not null)
+            {
+                if (vehiculo.Estado != VehiculoEstados.Operativo)
+                    v.Add("placa", $"El vehículo {placa} está en estado \"{vehiculo.Estado}\" y no puede despacharse.");
+                if (vehiculo.SoatVence < dia)
+                    v.Add("placa", $"El SOAT de {placa} vence el {Fecha(vehiculo.SoatVence)}, antes de la salida.");
+                if (vehiculo.RtmVence < dia)
+                    v.Add("placa", $"La revisión técnico-mecánica de {placa} vence el {Fecha(vehiculo.RtmVence)}, antes de la salida.");
+
+                // Un vehículo no puede tener dos despachos activos el mismo día (hora local).
+                var choqueVehiculo = await db.Despachos.AnyAsync(d =>
+                    d.Id != ignoreId && d.Placa == placa &&
+                    d.FechaSalida >= inicio && d.FechaSalida < fin &&
+                    EstadosActivos.Contains(d.Estado));
+                if (choqueVehiculo) v.Add("placa", $"El vehículo {placa} ya tiene un despacho activo ese día.");
+            }
+
+            if (ficha is not null)
+            {
+                if (ficha.Estado == ConductorEstados.Inactivo)
+                    v.Add("conductor", $"{ficha.Nombre} está inactivo y no puede asignarse a un despacho.");
+                if (ficha.LicenciaVence < dia)
+                    v.Add("conductor", $"La licencia de {ficha.Nombre} vence el {Fecha(ficha.LicenciaVence)}, antes de la salida.");
+            }
+
+            // Un conductor tampoco puede tener dos despachos activos el mismo día (por ficha o por nombre).
+            if (conductor.Length > 0)
+            {
+                var fichaId = ficha?.Id;
+                var choqueConductor = await db.Despachos.AnyAsync(d =>
+                    d.Id != ignoreId &&
+                    (d.Conductor == conductor || (fichaId != null && d.ConductorId == fichaId)) &&
+                    d.FechaSalida >= inicio && d.FechaSalida < fin &&
+                    EstadosActivos.Contains(d.Estado));
+                if (choqueConductor) v.Add("conductor", $"{conductor} ya tiene un despacho activo ese día.");
+            }
         }
 
         if (v.IsValid)
@@ -180,6 +214,8 @@ public static class DespachoEndpoints
         }
         return v;
     }
+
+    private static string Fecha(DateOnly fecha) => fecha.ToString("dd/MM/yyyy");
 
     private static IResult NotFound(Guid id) =>
         Results.Problem(statusCode: StatusCodes.Status404NotFound, title: "No encontrado", detail: $"Despacho {id} no encontrado");

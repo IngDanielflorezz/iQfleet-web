@@ -1,27 +1,16 @@
 import { VEHICULO_ESTADOS } from '../../services/vehiculoService';
-import { daysUntil } from '../../utils/dateUtils';
+import { alertaVencimiento, ordenarPorSeveridad } from '../../utils/vencimientos';
 
-export const UMBRAL_CRITICO_DIAS = 7;
-export const UMBRAL_PREVENTIVO_DIAS = 30;
-
-const SEVERIDAD_ORDEN = { danger: 0, warning: 1, info: 2 };
+export { UMBRAL_CRITICO_DIAS, UMBRAL_PREVENTIVO_DIAS } from '../../utils/vencimientos';
 
 function buildDocAlerta(vehiculo, tipoDocumento, fechaISO, referencia) {
-  const dias = daysUntil(fechaISO, referencia);
-  if (dias === null) return null;
-
-  const detalle = `Placa ${vehiculo.id} · ${vehiculo.marca} ${vehiculo.modelo}`;
-
-  if (dias < 0) {
-    return { id: `${tipoDocumento}-${vehiculo.id}`, severidad: 'danger', tipo: `${tipoDocumento} vencido`, detalle, tiempo: `Hace ${Math.abs(dias)} día(s)` };
-  }
-  if (dias <= UMBRAL_CRITICO_DIAS) {
-    return { id: `${tipoDocumento}-${vehiculo.id}`, severidad: 'danger', tipo: `${tipoDocumento} crítico`, detalle, tiempo: `Vence en ${dias} día(s)` };
-  }
-  if (dias <= UMBRAL_PREVENTIVO_DIAS) {
-    return { id: `${tipoDocumento}-${vehiculo.id}`, severidad: 'warning', tipo: `${tipoDocumento} próximo`, detalle, tiempo: `Vence en ${dias} días` };
-  }
-  return null;
+  return alertaVencimiento({
+    id: `${tipoDocumento}-${vehiculo.id}`,
+    fecha: fechaISO,
+    detalle: `Placa ${vehiculo.id} · ${vehiculo.marca} ${vehiculo.modelo}`,
+    titulos: { vencido: `${tipoDocumento} vencido`, critico: `${tipoDocumento} crítico`, proximo: `${tipoDocumento} próximo` },
+    referencia,
+  });
 }
 
 export function buildAlertasLegales(vehiculos = [], referencia = new Date()) {
@@ -38,7 +27,7 @@ export function buildAlertasLegales(vehiculos = [], referencia = new Date()) {
     });
   });
 
-  alertas.sort((a, b) => SEVERIDAD_ORDEN[a.severidad] - SEVERIDAD_ORDEN[b.severidad]);
+  alertas.sort(ordenarPorSeveridad);
   return { total: criticos, alertas };
 }
 

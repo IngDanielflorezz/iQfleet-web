@@ -25,6 +25,10 @@
 --   vehiculos 1 ──< movimientos    (placa opcional, RESTRICT)
 --   vehiculos 1 ──< documentos     (placa opcional, CASCADE: los papeles se van con el vehículo)
 --   vehiculos 1 ──< checklists / recorridos / rutas_activas   (placa opcional, SET NULL)
+--   vehiculos 1 ──< planes_mantenimiento   (placa, CASCADE: los planes se van con el vehículo)
+--   vehiculos 1 ──< ordenes_mantenimiento  (placa, RESTRICT: historial de taller)
+--   planes_mantenimiento 1 ──< ordenes_mantenimiento  (plan_id opcional, SET NULL)
+--   movimientos 1 ──o ordenes_mantenimiento           (movimiento_id: egreso del cierre, SET NULL)
 --
 --   usuarios 1 ──< alertas                         (usuario_id, SET NULL)
 --   usuarios 1 ──< checklists, fatiga, puntajes,   (usuario_id, CASCADE;
@@ -68,6 +72,14 @@
 --                  excesos >= 0, puntos 0..100.
 --   recorridos     puntos [{lat, lng, accuracy, timestamp}] (máx. 500), kilometros >= 0.
 --   rutas_activas  Posición en vivo: lat -90..90, lng -180..180, velocidad_kmh >= 0.
+--
+-- Mantenimiento (migración MantenimientoPreventivo)
+--   planes_mantenimiento   Tarea por vehículo, cada_km y/o cada_dias (> 0, al menos uno),
+--                          ultimo_km / ultima_fecha del último servicio. Único (placa, tarea).
+--   ordenes_mantenimiento  tipo: Preventivo | Correctivo; estado: Abierta | Cerrada.
+--                          Como mucho UNA abierta por vehículo (índice único parcial).
+--                          Al cerrarse: km_cierre >= km_apertura, fecha_cierre >= fecha_apertura
+--                          y, si costo > 0, se crea el egreso "Mantenimiento <tipo>" en movimientos.
 --
 -- Convenciones: llaves uuid con gen_random_uuid(); columnas en snake_case;
 -- instantes en timestamptz (UTC); fechas de negocio en date; created_at/updated_at
@@ -416,4 +428,67 @@ VALUES ('20261026143800_PanelConductorAjustes', '10.0.13');
 
 COMMIT;
 
+START TRANSACTION;
+CREATE TABLE iqfleet.planes_mantenimiento (
+    id uuid NOT NULL DEFAULT (gen_random_uuid()),
+    placa character varying(8) NOT NULL,
+    tarea character varying(60) NOT NULL,
+    cada_km integer,
+    cada_dias integer,
+    ultimo_km integer,
+    ultima_fecha date,
+    created_at timestamp with time zone NOT NULL DEFAULT (now()),
+    updated_at timestamp with time zone NOT NULL DEFAULT (now()),
+    CONSTRAINT "PK_planes_mantenimiento" PRIMARY KEY (id),
+    CONSTRAINT ck_planes_cada_dias CHECK (cada_dias is null or cada_dias > 0),
+    CONSTRAINT ck_planes_cada_km CHECK (cada_km is null or cada_km > 0),
+    CONSTRAINT ck_planes_frecuencia CHECK (cada_km is not null or cada_dias is not null),
+    CONSTRAINT ck_planes_ultimo_km CHECK (ultimo_km is null or ultimo_km >= 0),
+    CONSTRAINT "FK_planes_mantenimiento_vehiculos_placa" FOREIGN KEY (placa) REFERENCES iqfleet.vehiculos (placa) ON DELETE CASCADE
+);
+COMMENT ON TABLE iqfleet.planes_mantenimiento IS 'Plan de mantenimiento preventivo por vehículo: tarea y frecuencia en km y/o días.';
+
+CREATE TABLE iqfleet.ordenes_mantenimiento (
+    id uuid NOT NULL DEFAULT (gen_random_uuid()),
+    placa character varying(8) NOT NULL,
+    tipo character varying(12) NOT NULL,
+    plan_id uuid,
+    descripcion character varying(120) NOT NULL,
+    estado character varying(10) NOT NULL,
+    fecha_apertura date NOT NULL,
+    fecha_cierre date,
+    km_apertura integer NOT NULL,
+    km_cierre integer,
+    costo numeric(14,2),
+    taller character varying(80),
+    observaciones character varying(250),
+    movimiento_id uuid,
+    created_at timestamp with time zone NOT NULL DEFAULT (now()),
+    updated_at timestamp with time zone NOT NULL DEFAULT (now()),
+    CONSTRAINT "PK_ordenes_mantenimiento" PRIMARY KEY (id),
+    CONSTRAINT ck_ordenes_cierre CHECK ((estado = 'Abierta' and fecha_cierre is null) or (estado = 'Cerrada' and fecha_cierre >= fecha_apertura)),
+    CONSTRAINT ck_ordenes_costo CHECK (costo is null or costo >= 0),
+    CONSTRAINT ck_ordenes_estado CHECK (estado in ('Abierta', 'Cerrada')),
+    CONSTRAINT ck_ordenes_km CHECK (km_apertura >= 0 and (km_cierre is null or km_cierre >= km_apertura)),
+    CONSTRAINT ck_ordenes_tipo CHECK (tipo in ('Preventivo', 'Correctivo')),
+    CONSTRAINT "FK_ordenes_mantenimiento_movimientos_movimiento_id" FOREIGN KEY (movimiento_id) REFERENCES iqfleet.movimientos (id) ON DELETE SET NULL,
+    CONSTRAINT "FK_ordenes_mantenimiento_planes_mantenimiento_plan_id" FOREIGN KEY (plan_id) REFERENCES iqfleet.planes_mantenimiento (id) ON DELETE SET NULL,
+    CONSTRAINT "FK_ordenes_mantenimiento_vehiculos_placa" FOREIGN KEY (placa) REFERENCES iqfleet.vehiculos (placa) ON DELETE RESTRICT
+);
+COMMENT ON TABLE iqfleet.ordenes_mantenimiento IS 'Órdenes de mantenimiento (historial); al cerrarse registran el egreso en Finanzas.';
+
+CREATE INDEX "IX_ordenes_mantenimiento_movimiento_id" ON iqfleet.ordenes_mantenimiento (movimiento_id);
+
+CREATE INDEX "IX_ordenes_mantenimiento_placa_fecha_apertura" ON iqfleet.ordenes_mantenimiento (placa, fecha_apertura);
+
+CREATE INDEX "IX_ordenes_mantenimiento_plan_id" ON iqfleet.ordenes_mantenimiento (plan_id);
+
+CREATE UNIQUE INDEX ux_ordenes_una_abierta_por_vehiculo ON iqfleet.ordenes_mantenimiento (placa) WHERE estado = 'Abierta';
+
+CREATE UNIQUE INDEX "IX_planes_mantenimiento_placa_tarea" ON iqfleet.planes_mantenimiento (placa, tarea);
+
+INSERT INTO iqfleet.__ef_migrations ("MigrationId", "ProductVersion")
+VALUES ('20261117024638_MantenimientoPreventivo', '10.0.13');
+
+COMMIT;
 

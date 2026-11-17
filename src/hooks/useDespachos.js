@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   createDespacho,
-  listDespachos,
   removeDespacho,
   subscribeDespachos,
   updateDespacho,
@@ -9,40 +8,52 @@ import {
 
 /**
  * Hook de acceso a despachos. Expone el estado (loading/error) y las
- * operaciones CRUD, delegando la persistencia al despachoService.
+ * operaciones CRUD, delegando la persistencia al despachoService (API).
  */
 export function useDespachos() {
-  const [despachos, setDespachos] = useState(() => listDespachos());
+  const [despachos, setDespachos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeDespachos((data) => {
-      setDespachos(data);
-      setLoading(false);
-    });
+    const unsubscribe = subscribeDespachos(
+      (data) => {
+        setDespachos(data);
+        setError(null);
+        setLoading(false);
+      },
+      (ex) => {
+        setError(ex.message);
+        setLoading(false);
+      },
+    );
     return unsubscribe;
   }, []);
 
-  const crear = useCallback((dto) => {
+  const crear = useCallback(async (dto) => {
     try {
-      return { ok: true, despacho: createDespacho(dto) };
+      return { ok: true, despacho: await createDespacho(dto) };
     } catch (ex) {
-      setError(ex.message);
       return { ok: false, error: ex.message, fields: ex.fields ?? null };
     }
   }, []);
 
-  const actualizar = useCallback((id, dto) => {
+  const actualizar = useCallback(async (id, dto) => {
     try {
-      return { ok: true, despacho: updateDespacho(id, dto) };
+      return { ok: true, despacho: await updateDespacho(id, dto) };
     } catch (ex) {
-      setError(ex.message);
       return { ok: false, error: ex.message, fields: ex.fields ?? null };
     }
   }, []);
 
-  const eliminar = useCallback((id) => removeDespacho(id), []);
+  const eliminar = useCallback(async (id) => {
+    try {
+      return await removeDespacho(id);
+    } catch (ex) {
+      setError(ex.message);
+      return false;
+    }
+  }, []);
 
   const limpiarError = useCallback(() => setError(null), []);
 
