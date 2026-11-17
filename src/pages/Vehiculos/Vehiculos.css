@@ -14,3 +14,41 @@
 .table-dark-custom .plate-box {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
+
+/* Pestañas Flota / Mantenimiento */
+.vehiculos-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 1rem;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  background-color: var(--lp-input);
+  border: 1px solid var(--lp-border);
+  border-radius: 12px;
+}
+
+.vehiculos-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--lp-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vehiculos-tab:hover {
+  color: var(--lp-text);
+}
+
+.vehiculos-tab.is-active {
+  background-color: rgba(200, 117, 77, 0.12);
+  border-color: rgba(200, 117, 77, 0.35);
+  color: var(--lp-brand);
+}
