@@ -122,11 +122,12 @@ public static partial class VehiculoEndpoints
 
     private static async Task<IResult> Eliminar(string placa, IQFleetDbContext db)
     {
-        // despachos y movimientos referencian la placa con ON DELETE RESTRICT (historial financiero).
+        // despachos, movimientos y órdenes de mantenimiento referencian la placa con ON DELETE RESTRICT (historial).
         var normalizada = placa.Trim().ToUpperInvariant();
-        if (await db.Despachos.AnyAsync(d => d.Placa == normalizada) || await db.Movimientos.AnyAsync(m => m.Placa == normalizada))
+        if (await db.Despachos.AnyAsync(d => d.Placa == normalizada) || await db.Movimientos.AnyAsync(m => m.Placa == normalizada) ||
+            await db.OrdenesMantenimiento.AnyAsync(o => o.Placa == normalizada))
             return Results.Problem(
-                detail: $"El vehículo {normalizada} tiene despachos o movimientos registrados; cámbialo a \"Fuera de servicio\" en lugar de eliminarlo.",
+                detail: $"El vehículo {normalizada} tiene despachos, movimientos u órdenes de mantenimiento registrados; cámbialo a \"Fuera de servicio\" en lugar de eliminarlo.",
                 statusCode: StatusCodes.Status409Conflict);
 
         var eliminados = await Buscar(db, placa).ExecuteDeleteAsync();
@@ -156,6 +157,10 @@ public static partial class VehiculoEndpoints
 
         var estado = string.IsNullOrWhiteSpace(request.Estado) ? VehiculoEstados.Operativo : request.Estado.Trim();
         if (!VehiculoEstados.Todos.Contains(estado)) v.Add("estado", "Estado inválido.");
+        // Con una orden abierta el vehículo sigue en taller: su estado lo cambia la orden al cerrarse o anularse.
+        if (estado != VehiculoEstados.Mantenimiento && !string.IsNullOrEmpty(vehiculo.Placa) &&
+            await db.OrdenesMantenimiento.AnyAsync(o => o.Placa == vehiculo.Placa && o.Estado == EstadosOrden.Abierta))
+            v.Add("estado", "Tiene una orden de mantenimiento abierta: ciérrala o anúlala en la pestaña Mantenimiento.");
 
         var soat = v.Date("soatVence", request.SoatVence, "La fecha de SOAT es obligatoria.");
         var rtm = v.Date("rtmVence", request.RtmVence, "La fecha de RTM es obligatoria.");

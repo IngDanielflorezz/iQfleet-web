@@ -40,6 +40,9 @@ function notifyChanged() {
   window.dispatchEvent(new CustomEvent(CHANGED_EVENT));
 }
 
+/** Para otros módulos que cambian estos datos en la API (p. ej. al cerrar una orden de mantenimiento). */
+export { notifyChanged as notifyMovimientosChanged };
+
 /** Cuerpo para la API: números reales y km vacío como null (el formulario trabaja con strings). */
 function toRequest(dto) {
   const km = dto.km === '' || dto.km === null || dto.km === undefined ? null : Number(dto.km);

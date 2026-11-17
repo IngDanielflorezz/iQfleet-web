@@ -21,6 +21,51 @@ public static class SeedData
         await SeedDespachosAsync(db);
         await SeedDocumentosAsync(db);
         await SeedMovimientosAsync(db);
+        await SeedPlanesMantenimientoAsync(db);
+    }
+
+    /// <summary>
+    /// Planes de ejemplo para cada vehículo. El último servicio se calcula desde el
+    /// kilometraje actual para que la demo muestre planes al día, próximos y vencidos.
+    /// </summary>
+    private static async Task SeedPlanesMantenimientoAsync(IQFleetDbContext db)
+    {
+        if (await db.PlanesMantenimiento.AnyAsync()) return;
+        var vehiculos = await db.Vehiculos.AsNoTracking().OrderBy(v => v.Placa).ToListAsync();
+        if (vehiculos.Count == 0) return;
+
+        var hoy = HoraColombia.Hoy();
+        var ahora = DateTime.UtcNow;
+        // (tarea, cada km, cada días, km recorridos desde el último servicio por índice de vehículo)
+        (string Tarea, int? CadaKm, int? CadaDias)[] tareas =
+        [
+            ("Cambio de aceite y filtros", 10_000, 180),
+            ("Revisión de frenos", 30_000, 365),
+            ("Alineación y balanceo", 15_000, null),
+        ];
+        int[] avance = [4_000, 9_500, 12_000, 2_000, 7_000, 10_500, 6_000];
+
+        for (var i = 0; i < vehiculos.Count; i++)
+        {
+            var vehiculo = vehiculos[i];
+            var recorrido = avance[i % avance.Length];
+            foreach (var (tarea, cadaKm, cadaDias) in tareas)
+            {
+                var desde = Math.Min(recorrido * (cadaKm ?? 10_000) / 10_000, vehiculo.Kilometraje);
+                db.PlanesMantenimiento.Add(new PlanMantenimiento
+                {
+                    Placa = vehiculo.Placa,
+                    Tarea = tarea,
+                    CadaKm = cadaKm,
+                    CadaDias = cadaDias,
+                    UltimoKm = vehiculo.Kilometraje - desde,
+                    UltimaFecha = hoy.AddDays(-(30 + 20 * i)),
+                    CreatedAt = ahora,
+                    UpdatedAt = ahora,
+                });
+            }
+        }
+        await db.SaveChangesAsync();
     }
 
     private static async Task SeedFlotaAsync(IQFleetDbContext db)

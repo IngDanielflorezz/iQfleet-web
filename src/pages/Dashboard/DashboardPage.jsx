@@ -5,6 +5,7 @@ import { useVehiculos } from '../../hooks/useVehiculos';
 import { useConductores } from '../../hooks/useConductores';
 import { useDocumentos } from '../../hooks/useDocumentos';
 import useMovimientos from '../../hooks/useMovimientos';
+import { useMantenimiento } from '../../hooks/useMantenimiento';
 import { getSession } from '../../services/authService';
 import useAlertas from '../../hooks/useAlertas';
 import { periodoLabel, toPeriodo } from '../../utils/dateUtils';
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const { conductores: fichasConductores } = useConductores();
   const { documentos } = useDocumentos();
   const { movimientos } = useMovimientos();
+  const { planes, ordenes } = useMantenimiento();
   const empresa = getSession()?.empresa ?? '';
   const { alertasPanel } = useAlertas();
 
@@ -83,8 +85,9 @@ export default function DashboardPage() {
   // Las preventivas (licencias, documentos, despachos en riesgo) usan todos los despachos,
   // no solo los del período elegido: un despacho de la próxima semana importa aunque se vea otro mes.
   const alertasPrevencion = useMemo(
-    () => buildAlertasPrevencion({ despachos, flota: vehiculos, conductores: fichasConductores, documentos }),
-    [despachos, vehiculos, fichasConductores, documentos],
+    () =>
+      buildAlertasPrevencion({ despachos, flota: vehiculos, conductores: fichasConductores, documentos, planes, ordenes }),
+    [despachos, vehiculos, fichasConductores, documentos, planes, ordenes],
   );
 
   const alertasConsolidadas = useMemo(

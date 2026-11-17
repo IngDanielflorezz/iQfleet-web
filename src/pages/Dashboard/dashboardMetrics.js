@@ -1,6 +1,7 @@
 import { codigoDespacho, DESPACHO_ESTADOS } from '../../services/despachoService';
 import { buildLicenciaAlertas } from '../Conductores/conductoresMetrics';
 import { computeFinanzasResumen } from '../Finanzas/finanzasMetrics';
+import { buildAlertasMantenimiento } from '../Vehiculos/mantenimientoMetrics';
 import { daysUntil, formatFechaCorta, toPeriodo } from '../../utils/dateUtils';
 import { alertaVencimiento, ordenarPorSeveridad, UMBRAL_CRITICO_DIAS, venceAntesDe } from '../../utils/vencimientos';
 
@@ -108,7 +109,7 @@ export function buildAlertas(flota = [], despachos = [], referencia = new Date()
       alertas.push({
         id: `mantenimiento-${vehiculo.id}`,
         severidad: 'warning',
-        tipo: 'Mantenimiento Preventivo',
+        tipo: 'Vehículo en taller',
         detalle: `Placa ${vehiculo.id} (${vehiculo.marca} ${vehiculo.modelo})`,
         tiempo: 'En taller',
       });
@@ -193,14 +194,24 @@ export function buildDespachosEnRiesgo(despachos, flota, conductores, referencia
 
 /**
  * Alertas preventivas que no dependen del período elegido: licencias (conductores no
- * inactivos), documentos legales y despachos programados en riesgo.
+ * inactivos), documentos legales, despachos programados en riesgo y mantenimientos
+ * vencidos o próximos.
  */
-export function buildAlertasPrevencion({ despachos = [], flota = [], conductores = [], documentos = [], referencia = new Date() }) {
+export function buildAlertasPrevencion({
+  despachos = [],
+  flota = [],
+  conductores = [],
+  documentos = [],
+  planes = [],
+  ordenes = [],
+  referencia = new Date(),
+}) {
   const conductoresVigentes = conductores.filter((conductor) => conductor.estado !== 'Inactivo');
   return [
     ...buildDespachosEnRiesgo(despachos, flota, conductores, referencia),
     ...buildLicenciaAlertas(conductoresVigentes, referencia).alertas,
     ...buildAlertasDocumentos(documentos, flota, referencia),
+    ...buildAlertasMantenimiento(planes, flota, ordenes, referencia),
   ].sort(ordenarPorSeveridad);
 }
 

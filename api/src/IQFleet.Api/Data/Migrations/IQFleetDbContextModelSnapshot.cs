@@ -620,6 +620,185 @@ namespace IQFleet.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("IQFleet.Api.Domain.OrdenMantenimiento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<decimal?>("Costo")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("costo");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateOnly>("FechaApertura")
+                        .HasColumnType("date")
+                        .HasColumnName("fecha_apertura");
+
+                    b.Property<DateOnly?>("FechaCierre")
+                        .HasColumnType("date")
+                        .HasColumnName("fecha_cierre");
+
+                    b.Property<int>("KmApertura")
+                        .HasColumnType("integer")
+                        .HasColumnName("km_apertura");
+
+                    b.Property<int?>("KmCierre")
+                        .HasColumnType("integer")
+                        .HasColumnName("km_cierre");
+
+                    b.Property<Guid?>("MovimientoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("movimiento_id");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("observaciones");
+
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("placa");
+
+                    b.Property<Guid?>("PlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_id");
+
+                    b.Property<string>("Taller")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("taller");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("tipo");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovimientoId");
+
+                    b.HasIndex("Placa")
+                        .IsUnique()
+                        .HasDatabaseName("ux_ordenes_una_abierta_por_vehiculo")
+                        .HasFilter("estado = 'Abierta'");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("Placa", "FechaApertura");
+
+                    b.ToTable("ordenes_mantenimiento", "iqfleet", t =>
+                        {
+                            t.HasComment("Órdenes de mantenimiento (historial); al cerrarse registran el egreso en Finanzas.");
+
+                            t.HasCheckConstraint("ck_ordenes_cierre", "(estado = 'Abierta' and fecha_cierre is null) or (estado = 'Cerrada' and fecha_cierre >= fecha_apertura)");
+
+                            t.HasCheckConstraint("ck_ordenes_costo", "costo is null or costo >= 0");
+
+                            t.HasCheckConstraint("ck_ordenes_estado", "estado in ('Abierta', 'Cerrada')");
+
+                            t.HasCheckConstraint("ck_ordenes_km", "km_apertura >= 0 and (km_cierre is null or km_cierre >= km_apertura)");
+
+                            t.HasCheckConstraint("ck_ordenes_tipo", "tipo in ('Preventivo', 'Correctivo')");
+                        });
+                });
+
+            modelBuilder.Entity("IQFleet.Api.Domain.PlanMantenimiento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int?>("CadaDias")
+                        .HasColumnType("integer")
+                        .HasColumnName("cada_dias");
+
+                    b.Property<int?>("CadaKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("cada_km");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Placa")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("placa");
+
+                    b.Property<string>("Tarea")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("tarea");
+
+                    b.Property<DateOnly?>("UltimaFecha")
+                        .HasColumnType("date")
+                        .HasColumnName("ultima_fecha");
+
+                    b.Property<int?>("UltimoKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("ultimo_km");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Placa", "Tarea")
+                        .IsUnique();
+
+                    b.ToTable("planes_mantenimiento", "iqfleet", t =>
+                        {
+                            t.HasComment("Plan de mantenimiento preventivo por vehículo: tarea y frecuencia en km y/o días.");
+
+                            t.HasCheckConstraint("ck_planes_cada_dias", "cada_dias is null or cada_dias > 0");
+
+                            t.HasCheckConstraint("ck_planes_cada_km", "cada_km is null or cada_km > 0");
+
+                            t.HasCheckConstraint("ck_planes_frecuencia", "cada_km is not null or cada_dias is not null");
+
+                            t.HasCheckConstraint("ck_planes_ultimo_km", "ultimo_km is null or ultimo_km >= 0");
+                        });
+                });
+
             modelBuilder.Entity("IQFleet.Api.Domain.Puntaje", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1037,6 +1216,42 @@ namespace IQFleet.Api.Data.Migrations
                         .WithMany()
                         .HasForeignKey("Placa")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Vehiculo");
+                });
+
+            modelBuilder.Entity("IQFleet.Api.Domain.OrdenMantenimiento", b =>
+                {
+                    b.HasOne("IQFleet.Api.Domain.Movimiento", "Movimiento")
+                        .WithMany()
+                        .HasForeignKey("MovimientoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("IQFleet.Api.Domain.Vehiculo", "Vehiculo")
+                        .WithMany()
+                        .HasForeignKey("Placa")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IQFleet.Api.Domain.PlanMantenimiento", "Plan")
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Movimiento");
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("Vehiculo");
+                });
+
+            modelBuilder.Entity("IQFleet.Api.Domain.PlanMantenimiento", b =>
+                {
+                    b.HasOne("IQFleet.Api.Domain.Vehiculo", "Vehiculo")
+                        .WithMany()
+                        .HasForeignKey("Placa")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Vehiculo");
                 });

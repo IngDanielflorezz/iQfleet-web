@@ -21,6 +21,8 @@ public class IQFleetDbContext(DbContextOptions<IQFleetDbContext> options) : DbCo
     public DbSet<Puntaje> Puntajes => Set<Puntaje>();
     public DbSet<Recorrido> Recorridos => Set<Recorrido>();
     public DbSet<RutaActiva> RutasActivas => Set<RutaActiva>();
+    public DbSet<PlanMantenimiento> PlanesMantenimiento => Set<PlanMantenimiento>();
+    public DbSet<OrdenMantenimiento> OrdenesMantenimiento => Set<OrdenMantenimiento>();
 
     /// <summary>Convierte una lista de valores en el "in (...)" de un check constraint.</summary>
     private static string In(string columna, IEnumerable<string> valores) =>
@@ -337,6 +339,71 @@ public class IQFleetDbContext(DbContextOptions<IQFleetDbContext> options) : DbCo
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
+        modelBuilder.Entity<PlanMantenimiento>(entity =>
+        {
+            entity.ToTable("planes_mantenimiento", table =>
+            {
+                // Cada plan necesita al menos una frecuencia (km o días), siempre positiva.
+                table.HasCheckConstraint("ck_planes_frecuencia", "cada_km is not null or cada_dias is not null");
+                table.HasCheckConstraint("ck_planes_cada_km", "cada_km is null or cada_km > 0");
+                table.HasCheckConstraint("ck_planes_cada_dias", "cada_dias is null or cada_dias > 0");
+                table.HasCheckConstraint("ck_planes_ultimo_km", "ultimo_km is null or ultimo_km >= 0");
+            });
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(p => p.Placa).HasMaxLength(8).IsRequired();
+            entity.Property(p => p.Tarea).HasMaxLength(60).IsRequired();
+            entity.Property(p => p.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(p => p.UpdatedAt).HasDefaultValueSql("now()");
+            entity.HasIndex(p => new { p.Placa, p.Tarea }).IsUnique();
+
+            // Los planes son del vehículo: si se elimina el vehículo, se eliminan sus planes.
+            entity.HasOne(p => p.Vehiculo).WithMany()
+                .HasForeignKey(p => p.Placa)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrdenMantenimiento>(entity =>
+        {
+            entity.ToTable("ordenes_mantenimiento", table =>
+            {
+                table.HasCheckConstraint("ck_ordenes_tipo", In("tipo", TiposMantenimiento.Todos));
+                table.HasCheckConstraint("ck_ordenes_estado", In("estado", EstadosOrden.Todos));
+                table.HasCheckConstraint("ck_ordenes_costo", "costo is null or costo >= 0");
+                table.HasCheckConstraint("ck_ordenes_km", "km_apertura >= 0 and (km_cierre is null or km_cierre >= km_apertura)");
+                // Una orden cerrada siempre tiene fecha de cierre, y no puede ser anterior a la apertura.
+                table.HasCheckConstraint("ck_ordenes_cierre",
+                    "(estado = 'Abierta' and fecha_cierre is null) or (estado = 'Cerrada' and fecha_cierre >= fecha_apertura)");
+            });
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(o => o.Placa).HasMaxLength(8).IsRequired();
+            entity.Property(o => o.Tipo).HasMaxLength(12).IsRequired();
+            entity.Property(o => o.Descripcion).HasMaxLength(120).IsRequired();
+            entity.Property(o => o.Estado).HasMaxLength(10).IsRequired();
+            entity.Property(o => o.Costo).HasPrecision(14, 2);
+            entity.Property(o => o.Taller).HasMaxLength(80);
+            entity.Property(o => o.Observaciones).HasMaxLength(250);
+            entity.Property(o => o.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(o => o.UpdatedAt).HasDefaultValueSql("now()");
+            entity.HasIndex(o => new { o.Placa, o.FechaApertura });
+            // Como mucho una orden abierta por vehículo (índice único parcial).
+            entity.HasIndex(o => o.Placa).IsUnique().HasFilter("estado = 'Abierta'")
+                .HasDatabaseName("ux_ordenes_una_abierta_por_vehiculo");
+
+            // El historial (con su egreso en Finanzas) no se pierde: no se puede borrar un
+            // vehículo con órdenes, igual que con sus movimientos.
+            entity.HasOne(o => o.Vehiculo).WithMany()
+                .HasForeignKey(o => o.Placa)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(o => o.Plan).WithMany()
+                .HasForeignKey(o => o.PlanId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(o => o.Movimiento).WithMany()
+                .HasForeignKey(o => o.MovimientoId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
         // Comentarios de tabla (quedan en la base: \dt+ en psql o el editor de Supabase los muestra).
         var comentarios = new Dictionary<Type, string>
         {
@@ -352,6 +419,8 @@ public class IQFleetDbContext(DbContextOptions<IQFleetDbContext> options) : DbCo
             [typeof(Puntaje)] = "Puntaje de conducción del turno: una fila por usuario y día.",
             [typeof(Recorrido)] = "Estela GPS y kilómetros del turno: una fila por usuario y día.",
             [typeof(RutaActiva)] = "Posición en vivo de cada conductor en ruta (una fila por usuario).",
+            [typeof(PlanMantenimiento)] = "Plan de mantenimiento preventivo por vehículo: tarea y frecuencia en km y/o días.",
+            [typeof(OrdenMantenimiento)] = "Órdenes de mantenimiento (historial); al cerrarse registran el egreso en Finanzas.",
         };
         foreach (var (tipo, comentario) in comentarios)
             modelBuilder.Entity(tipo).ToTable(table => table.HasComment(comentario));

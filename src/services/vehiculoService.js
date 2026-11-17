@@ -34,6 +34,9 @@ function notifyChanged() {
   window.dispatchEvent(new CustomEvent(CHANGED_EVENT));
 }
 
+/** Para otros módulos que cambian estos datos en la API (p. ej. al cerrar una orden de mantenimiento). */
+export { notifyChanged as notifyVehiculosChanged };
+
 // ---------------------------------------------------------------
 // Validación de dominio (previa al envío; la API vuelve a validar)
 // ---------------------------------------------------------------
