@@ -1,130 +1,120 @@
-const USERS_KEY = "iqfleet_users";
 const SESSION_KEY = "iqfleet_session";
+const EMPRESAS_CACHE_KEY = "iqfleet_empresas_cache";
+
+const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
+const API_TOKEN = import.meta.env.VITE_API_TOKEN ?? "";
 
 export const ROLES = {
   ADMINISTRADOR: "ADMINISTRADOR",
   CONDUCTOR: "CONDUCTOR",
 };
 
-// Usuarios demo. Cada administrador representa una empresa que contrató iQFleet
-// (empresa contratante). Los conductores solo pueden registrarse en una de ellas.
-const DEMO_USERS = [
-  {
-    id: 1,
-    nombres: "Carlos",
-    apellidos: "Morales",
-    correo: "admin@iqfleet.com",
-    telefono: "+57 300 000 0000",
-    empresa: "iQFleet",
-    password: "1234",
-    rol: ROLES.ADMINISTRADOR,
-  },
-  {
-    id: 2,
-    nombres: "Andrés",
-    apellidos: "Gómez",
-    correo: "conductor@iqfleet.com",
-    telefono: "+57 301 000 0000",
-    empresa: "iQFleet",
-    licencia: "20001234567",
-    password: "1234",
-    rol: ROLES.CONDUCTOR,
-  },
-];
+function getHeaders() {
+  return {
+    "Content-Type": "application/json",
+    ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}),
+  };
+}
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-function readUsers() {
+async function parseError(res, fallbackMsg) {
   try {
-    const users = JSON.parse(localStorage.getItem(USERS_KEY));
-    return Array.isArray(users) ? users : [];
+    const body = await res.json();
+    if (body.errors) {
+      const firstError = Object.values(body.errors).flat()[0];
+      if (firstError) return firstError;
+    }
+    return body.detail || body.message || body.title || fallbackMsg;
   } catch {
-    return [];
-  }
-}
-
-function writeUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function ensureSeedUsers() {
-  const users = readUsers();
-  const missing = DEMO_USERS.filter(
-    (demo) => !users.some((user) => user.correo === demo.correo),
-  );
-  if (missing.length > 0) {
-    writeUsers([...users, ...missing]);
+    return fallbackMsg;
   }
 }
 
 /**
- * Empresas contratantes: empresas que ya tienen una cuenta de administrador.
- * Son las únicas bajo las que un conductor puede registrarse / iniciar sesión.
+ * Sincroniza la lista de empresas contratantes desde GET /api/auth/empresas
  */
-export function getEmpresasContratantes() {
-  const empresas = readUsers()
-    .filter((user) => user.rol === ROLES.ADMINISTRADOR)
-    .map((user) => (user.empresa ?? "").trim())
-    .filter(Boolean);
-
-  return [...new Set(empresas)].sort((a, b) => a.localeCompare(b, "es"));
+export async function syncEmpresasFromBackend() {
+  try {
+    const res = await fetch(`${API_URL}/api/auth/empresas`, {
+      method: "GET",
+      headers: getHeaders(),
+      credentials: "include",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const lista = Array.isArray(data)
+        ? data.map((item) => (typeof item === "string" ? item : item.empresa ?? item.nombre ?? "")).filter(Boolean)
+        : [];
+      if (lista.length > 0) {
+        localStorage.setItem(EMPRESAS_CACHE_KEY, JSON.stringify(lista));
+        return lista;
+      }
+    }
+  } catch {
+    // Mantiene caché si el backend aún no responde
+  }
+  return getEmpresasContratantes();
 }
 
-// TODO (cuando exista el backend):
-// const res = await fetch("http://localhost:8080/api/auth/register", {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify(data),
-// });
-// if (!res.ok) throw new Error((await res.json()).message);
-// return res.json();
+export function getEmpresasContratantes() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(EMPRESAS_CACHE_KEY));
+    if (Array.isArray(cached) && cached.length > 0) {
+      return [...new Set(cached)].sort((a, b) => a.localeCompare(b, "es"));
+    }
+  } catch {
+    // Fallback por defecto
+  }
+  return ["iQFleet"];
+}
+
 export async function registerUser(data) {
-  await delay(600);
-  ensureSeedUsers();
-  const users = readUsers();
-  const correo = data.correo.trim().toLowerCase();
+  const payload = {
+    ...data,
+    correo: data.correo.trim().toLowerCase(),
+    // Enviamos tanto password como clave por si el DTO en C# usa cualquiera de los dos nombres
+    password: data.password,
+    clave: data.password,
+  };
 
-  if (users.some((user) => user.correo === correo)) {
-    throw new Error("Ya existe una cuenta con ese correo.");
+  const res = await fetch(`${API_URL}/api/auth/registro`, {
+    method: "POST",
+    headers: getHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, "No se pudo registrar la cuenta."));
   }
 
-  if (
-    data.rol === ROLES.CONDUCTOR &&
-    !getEmpresasContratantes().some((empresa) => matchesEmpresa(empresa, data.empresa))
-  ) {
-    throw new Error("La empresa seleccionada no está registrada como empresa contratante.");
-  }
-
-  const nuevo = { id: Date.now(), ...data, correo };
-  writeUsers([...users, nuevo]);
-  return nuevo;
+  const usuario = await res.json();
+  await syncEmpresasFromBackend();
+  return usuario;
 }
 
 export async function loginUser({ correo, password, rol, empresa }) {
-  await delay(400);
-  ensureSeedUsers();
-  const user = readUsers().find(
-    (candidate) =>
-      candidate.correo === correo.trim().toLowerCase() &&
-      candidate.password === password &&
-      candidate.rol === rol,
-  );
+  const payload = {
+    correo: correo.trim().toLowerCase(),
+    password,
+    clave: password,
+    rol,
+    empresa: empresa?.trim() ?? "",
+  };
 
-  if (!user) {
-    throw new Error("Credenciales o rol incorrectos.");
+  const res = await fetch(`${API_URL}/api/auth/login`, {
+    method: "POST",
+    headers: getHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(await parseError(res, "Credenciales, rol o empresa incorrectos."));
   }
 
-  if (user.rol === ROLES.CONDUCTOR && !matchesEmpresa(user.empresa, empresa)) {
-    throw new Error("La empresa no coincide con la registrada para este conductor.");
-  }
-
+  const user = await res.json();
+  saveSession(user);
   return user;
-}
-
-function matchesEmpresa(registrada, ingresada) {
-  const registradaNormalizada = (registrada ?? "").trim().toLowerCase();
-  const ingresadaNormalizada = (ingresada ?? "").trim().toLowerCase();
-  return registradaNormalizada.length > 0 && registradaNormalizada === ingresadaNormalizada;
 }
 
 export function getSession() {
@@ -144,4 +134,5 @@ export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
 }
 
-ensureSeedUsers();
+// Carga inicial de empresas desde Supabase al abrir la app
+syncEmpresasFromBackend();
