@@ -4,14 +4,10 @@ import 'leaflet/dist/leaflet.css';
 import useTheme from '../../../theme/useTheme';
 
 const VALLEDUPAR = { center: [10.4634, -73.2532], zoom: 15 };
+const OSM_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-const TILE_URL = {
-  light: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-};
-const TILE_ATTRIBUTION = '&copy; OpenStreetMap &copy; CARTO';
-
-function MapEffects({ focusTarget }) {
+function MapEffects({ focusTarget, isDark }) {
   const map = useMap();
 
   useEffect(() => {
@@ -21,7 +17,7 @@ function MapEffects({ focusTarget }) {
       window.clearTimeout(id);
       window.clearTimeout(id2);
     };
-  }, [map]);
+  }, [map, isDark]);
 
   useEffect(() => {
     if (!focusTarget) return;
@@ -33,22 +29,30 @@ function MapEffects({ focusTarget }) {
 
 export default function MiniMapa({ puntos = [], posicion = null }) {
   const { isDark } = useTheme();
-  const theme = isDark ? 'dark' : 'light';
 
   const estela = puntos.map((punto) => [punto.lat, punto.lng]);
   const centro = posicion ? [posicion.lat, posicion.lng] : VALLEDUPAR.center;
 
   return (
-    <div className="mini-map">
+    <div className={`mini-map ${isDark ? 'mini-map--dark' : ''}`}>
       <MapContainer
         center={centro}
         zoom={VALLEDUPAR.zoom}
         zoomControl={false}
         className="mini-map__canvas"
       >
-        <TileLayer key={theme} url={TILE_URL[theme]} attribution={TILE_ATTRIBUTION} maxZoom={19} />
-        <MapEffects focusTarget={posicion} />
-        {estela.length > 1 && <Polyline positions={estela} pathOptions={{ color: '#c8754d', weight: 4, opacity: 0.85 }} />}
+        <TileLayer
+          url={OSM_URL}
+          attribution={OSM_ATTRIBUTION}
+          maxZoom={19}
+        />
+        <MapEffects focusTarget={posicion} isDark={isDark} />
+        {estela.length > 1 && (
+          <Polyline
+            positions={estela}
+            pathOptions={{ color: '#c8754d', weight: 4, opacity: 0.85 }}
+          />
+        )}
         {posicion && (
           <CircleMarker
             center={[posicion.lat, posicion.lng]}

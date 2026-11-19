@@ -1,13 +1,13 @@
 /**
  * apiClient — Cliente HTTP único hacia la API de iQFleet (C# Minimal API, carpeta api/).
  *
- * Toma la URL y el token de .env.local (VITE_API_URL / VITE_API_TOKEN), envía
+ * Toma la URL de .env.local (VITE_API_URL) y el JWT de la sesión iniciada, envía
  * JSON y traduce los errores de la API (ProblemDetails) a un ApiError con
  * `fields` = { campo: 'mensaje' }, el mismo formato que pintan los formularios.
  */
+import { getToken, clearSession } from './authService';
 
 const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '');
-const API_TOKEN = import.meta.env.VITE_API_TOKEN ?? '';
 
 export class ApiError extends Error {
   constructor(message, { status = 0, fields = null } = {}) {
@@ -27,7 +27,8 @@ function toFields(errors) {
 
 async function request(path, { method = 'GET', body } = {}) {
   const headers = { Accept: 'application/json' };
-  if (API_TOKEN) headers.Authorization = `Bearer ${API_TOKEN}`;
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   let response;
@@ -41,11 +42,20 @@ async function request(path, { method = 'GET', body } = {}) {
     throw new ApiError(`No se pudo conectar con la API (${API_URL}). ¿Está encendida?`);
   }
 
+  // Sesión vencida o inválida: se cierra y se vuelve al login.
+  if (response.status === 401 && token) {
+    clearSession();
+    window.location.assign('/login');
+    throw new ApiError('Tu sesión expiró. Inicia sesión de nuevo.', { status: 401 });
+  }
+
   if (response.status === 204) return null;
 
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    const mensaje = data?.detail ?? data?.title ?? `Error ${response.status} en la API`;
+    // El 403 de la autorización por rol llega sin detalle (solo el título "Forbidden").
+    const mensaje = data?.detail
+      ?? (response.status === 403 ? 'No tienes permiso para esta acción.' : data?.title ?? `Error ${response.status} en la API`);
     throw new ApiError(mensaje, { status: response.status, fields: toFields(data?.errors) });
   }
   return data;

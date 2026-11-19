@@ -19,7 +19,7 @@ public class BearerSecurityTransformer : IOpenApiDocumentTransformer
         {
             Type = SecuritySchemeType.Http,
             Scheme = "bearer",
-            Description = "Pega el valor de IQFLEET_API_TOKEN (api/.env), sin la palabra Bearer.",
+            Description = "Haz login en POST /api/auth/login y pega aquí el campo \"token\" de la respuesta, sin la palabra Bearer.",
         };
 
         document.Security ??= [];
