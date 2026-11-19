@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using IQFleet.Api.Common;
 using IQFleet.Api.Data;
@@ -26,6 +27,9 @@ public record UsuarioRequest(string? Nombres, string? Apellidos, string? Telefon
 
 public record CambioPasswordRequest(string? Actual, string? Nueva);
 
+/// <summary>Respuesta del login: el JWT que el front envía como Bearer y el perfil.</summary>
+public record LoginResponse(string Token, DateTime ExpiraEn, UsuarioResponse Usuario);
+
 public record UsuarioResponse(
     Guid Id,
     string Nombres,
@@ -53,7 +57,7 @@ public static partial class UsuarioEndpoints
         var group = api.MapGroup("/auth").WithTags("Autenticación");
 
         group.MapPost("/registro", Registrar).WithSummary("Crea una cuenta (ADMINISTRADOR crea su empresa; CONDUCTOR se une a una existente)");
-        group.MapPost("/login", Login).WithSummary("Valida correo, clave, rol y empresa; devuelve el perfil");
+        group.MapPost("/login", Login).WithSummary("Valida correo, clave, rol y empresa; devuelve el JWT y el perfil");
         group.MapGet("/empresas", Empresas).WithSummary("Empresas contratantes (las que tienen un administrador)");
 
         return api;
@@ -63,7 +67,7 @@ public static partial class UsuarioEndpoints
     {
         var group = api.MapGroup("/usuarios").WithTags("Usuarios");
 
-        group.MapGet("/", Listar).WithSummary("Lista usuarios (filtros opcionales: empresa, rol, q)");
+        group.MapGet("/", Listar).RequireAuthorization(Politicas.Administrador).WithSummary("Lista usuarios (filtros opcionales: empresa, rol, q). Solo administrador");
         group.MapGet("/{id:guid}", Obtener).WithName("ObtenerUsuario").WithSummary("Obtiene un usuario por id");
         group.MapPut("/{id:guid}", Actualizar).WithSummary("Actualiza el perfil (nombres, teléfono, licencia, ficha de conductor)");
         group.MapPut("/{id:guid}/password", CambiarPassword).WithSummary("Cambia la contraseña verificando la actual");
@@ -133,7 +137,7 @@ public static partial class UsuarioEndpoints
         return Results.CreatedAtRoute("ObtenerUsuario", new { id = usuario.Id }, UsuarioResponse.From(usuario));
     }
 
-    private static async Task<IResult> Login(LoginRequest request, IQFleetDbContext db)
+    private static async Task<IResult> Login(LoginRequest request, IQFleetDbContext db, JwtEmisor jwt)
     {
         var correo = request.Correo?.Trim().ToLowerInvariant() ?? string.Empty;
         var rol = request.Rol?.Trim().ToUpperInvariant() ?? string.Empty;
@@ -155,7 +159,8 @@ public static partial class UsuarioEndpoints
             await db.SaveChangesAsync();
         }
 
-        return Results.Ok(UsuarioResponse.From(usuario));
+        var (token, expira) = jwt.Emitir(usuario);
+        return Results.Ok(new LoginResponse(token, expira, UsuarioResponse.From(usuario)));
     }
 
     private static async Task<IResult> Empresas(IQFleetDbContext db)
@@ -188,14 +193,16 @@ public static partial class UsuarioEndpoints
         return Results.Ok(usuarios.Select(UsuarioResponse.From));
     }
 
-    private static async Task<IResult> Obtener(Guid id, IQFleetDbContext db)
+    private static async Task<IResult> Obtener(Guid id, IQFleetDbContext db, ClaimsPrincipal user)
     {
+        if (!PuedeGestionar(user, id)) return Prohibido();
         var usuario = await db.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
         return usuario is null ? NotFound(id) : Results.Ok(UsuarioResponse.From(usuario));
     }
 
-    private static async Task<IResult> Actualizar(Guid id, UsuarioRequest request, IQFleetDbContext db)
+    private static async Task<IResult> Actualizar(Guid id, UsuarioRequest request, IQFleetDbContext db, ClaimsPrincipal user)
     {
+        if (!PuedeGestionar(user, id)) return Prohibido();
         var usuario = await db.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
         if (usuario is null) return NotFound(id);
 
@@ -209,15 +216,20 @@ public static partial class UsuarioEndpoints
         if (usuario.Rol == UsuarioRoles.Conductor && licencia is null)
             v.Add("licencia", "La licencia es obligatoria para el conductor.");
 
-        Guid? conductorId = null;
-        if (!string.IsNullOrWhiteSpace(request.ConductorId))
+        // Solo el administrador vincula la cuenta con una ficha de conductor.
+        var conductorId = usuario.ConductorId;
+        if (user.EsAdministrador())
         {
-            if (!Guid.TryParse(request.ConductorId, out var cid) || !await db.Conductores.AnyAsync(c => c.Id == cid))
-                v.Add("conductorId", "La ficha de conductor no existe.");
-            else if (await db.Usuarios.AnyAsync(u => u.ConductorId == cid && u.Id != id))
-                v.Add("conductorId", "Esa ficha ya está vinculada a otra cuenta.");
-            else
-                conductorId = cid;
+            conductorId = null;
+            if (!string.IsNullOrWhiteSpace(request.ConductorId))
+            {
+                if (!Guid.TryParse(request.ConductorId, out var cid) || !await db.Conductores.AnyAsync(c => c.Id == cid))
+                    v.Add("conductorId", "La ficha de conductor no existe.");
+                else if (await db.Usuarios.AnyAsync(u => u.ConductorId == cid && u.Id != id))
+                    v.Add("conductorId", "Esa ficha ya está vinculada a otra cuenta.");
+                else
+                    conductorId = cid;
+            }
         }
 
         if (!v.IsValid) return v.ToProblem();
@@ -232,8 +244,9 @@ public static partial class UsuarioEndpoints
         return Results.Ok(UsuarioResponse.From(usuario));
     }
 
-    private static async Task<IResult> CambiarPassword(Guid id, CambioPasswordRequest request, IQFleetDbContext db)
+    private static async Task<IResult> CambiarPassword(Guid id, CambioPasswordRequest request, IQFleetDbContext db, ClaimsPrincipal user)
     {
+        if (!PuedeGestionar(user, id)) return Prohibido();
         var usuario = await db.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
         if (usuario is null) return NotFound(id);
 
@@ -251,8 +264,9 @@ public static partial class UsuarioEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> Eliminar(Guid id, IQFleetDbContext db)
+    private static async Task<IResult> Eliminar(Guid id, IQFleetDbContext db, ClaimsPrincipal user)
     {
+        if (!PuedeGestionar(user, id)) return Prohibido();
         var eliminados = await db.Usuarios.Where(u => u.Id == id).ExecuteDeleteAsync();
         return eliminados == 0 ? NotFound(id) : Results.NoContent();
     }
@@ -262,6 +276,13 @@ public static partial class UsuarioEndpoints
             .Where(u => u.Rol == UsuarioRoles.Administrador && u.Empresa.ToLower() == empresa.Trim().ToLower())
             .Select(u => u.Empresa)
             .FirstOrDefaultAsync();
+
+    /// <summary>Cada usuario gestiona su propia cuenta; el administrador, cualquiera.</summary>
+    private static bool PuedeGestionar(ClaimsPrincipal user, Guid id) =>
+        user.EsAdministrador() || user.UsuarioId() == id;
+
+    private static IResult Prohibido() =>
+        Results.Problem(statusCode: StatusCodes.Status403Forbidden, title: "Sin permiso", detail: "Solo puedes gestionar tu propia cuenta.");
 
     private static IResult NoAutorizado(string detalle) =>
         Results.Problem(statusCode: StatusCodes.Status401Unauthorized, title: "No autorizado", detail: detalle);

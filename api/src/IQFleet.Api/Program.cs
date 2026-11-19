@@ -1,4 +1,3 @@
-using System.Text;
 using IQFleet.Api.Common;
 using IQFleet.Api.Data;
 using IQFleet.Api.Features.Alertas;
@@ -11,36 +10,11 @@ using IQFleet.Api.Features.RutasActivas;
 using IQFleet.Api.Features.Turno;
 using IQFleet.Api.Features.Usuarios;
 using IQFleet.Api.Features.Vehiculos;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
-// --- CARGAR AUTOMÁTICAMENTE EL ARCHIVO .ENV ---
-var rootDir = Directory.GetCurrentDirectory();
-// Busca el archivo .env subiendo por los directorios padre si es necesario
-var envPath = Path.Combine(rootDir, ".env");
-if (!File.Exists(envPath)) envPath = Path.Combine(rootDir, "..", ".env");
-if (!File.Exists(envPath)) envPath = Path.Combine(rootDir, "../..", ".env");
-if (!File.Exists(envPath)) envPath = Path.Combine(rootDir, "../../..", ".env");
-
-if (File.Exists(envPath))
-{
-    foreach (var line in File.ReadAllLines(envPath))
-    {
-        var trimmed = line.Trim();
-        if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#")) continue;
-        
-        var parts = trimmed.Split('=', 2);
-        if (parts.Length == 2)
-        {
-            var key = parts[0].Trim();
-            var val = parts[1].Trim().Trim('\'', '"'); // Remover comillas si las tiene
-            Environment.SetEnvironmentVariable(key, val);
-        }
-    }
-}
-// ----------------------------------------------
+// En "dotnet run" carga api/.env sin pisar las variables que ya vengan del entorno.
+DotEnv.CargarSiExiste();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,47 +27,14 @@ builder.Services.AddDbContext<IQFleetDbContext>(options =>
     options.UseNpgsql(DatabaseUrl.ToConnectionString(databaseUrl, poolSize),
         npgsql => npgsql.MigrationsHistoryTable("__ef_migrations", IQFleetDbContext.Schema)));
 
-var origenes = (builder.Configuration["IQFLEET_CORS_ORIGINS"] ?? "http://localhost:5173")
+var origenes = (builder.Configuration["IQFLEET_CORS_ORIGINS"] ?? "http://localhost:5173,https://localhost:5173")
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 builder.Services.AddCors(options =>
-    options.AddDefaultPolicy(policy => policy.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+    options.AddDefaultPolicy(policy => policy.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod()));
 
-// ---------------------------------------------------------------- jwt auth ---
-var jwtSecret = Environment.GetEnvironmentVariable("IQFLEET_JWT_SECRET") 
-    ?? builder.Configuration["Jwt:Secret"] 
-    ?? throw new InvalidOperationException("Falta definir IQFLEET_JWT_SECRET en el entorno.");
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.MapInboundClaims = false; // Evita que .NET renombre las claims estándar
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            RoleClaimType = "rol" // Asegura que lea el rol desde nuestra claim personalizada
-        };
-
-        // Soporte adicional: si quieres que el token se lea automáticamente desde la cookie HttpOnly
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                if (context.Request.Cookies.TryGetValue("iqfleet_session", out var token))
-                {
-                    context.Token = token;
-                }
-                return Task.CompletedTask;
-            }
-        };
-    });
-
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("Administrador", policy => policy.RequireRole("ADMINISTRADOR"))
-    .AddPolicy("Conductor", policy => policy.RequireRole("CONDUCTOR", "ADMINISTRADOR"));
+// --------------------------------------------------------------- jwt + roles --
+// El login emite un JWT (IQFLEET_JWT_SECRET); el front lo envía como Bearer.
+builder.Services.AddJwtAuth(builder.Configuration);
 
 builder.Services.AddHttpClient<ArchivoStorage>();
 builder.Services.AddProblemDetails();
@@ -115,7 +56,6 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors();
 
-// IMPORTANTE: Authentication debe ir ANTES de Authorization y de MapControllers
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -136,17 +76,28 @@ app.MapGet("/health", async (IQFleetDbContext db) =>
         await db.Database.CanConnectAsync() ? Results.Ok(new { status = "ok" }) : Results.Problem("Sin conexión a la base de datos"))
     .WithTags("Salud");
 
-var api = app.MapGroup("/api").AddEndpointFilter<ApiTokenFilter>();
+var api = app.MapGroup("/api");
+
+// Públicos: login, registro y la lista de empresas del formulario de registro.
 api.MapAuth();
-api.MapUsuarios();
-api.MapVehiculos();
-api.MapConductores();
-api.MapDespachos();
-api.MapDocumentos();
-api.MapMovimientos();
-api.MapMantenimiento();
-api.MapAlertas();
-api.MapTurno();
-api.MapRutasActivas();
+
+// Cualquier usuario con sesión (cada endpoint de /usuarios valida que sea su propia cuenta o un administrador).
+var sesion = api.MapGroup("").RequireAuthorization();
+sesion.MapUsuarios();
+
+// Operación del turno: conductor o administrador.
+var operacion = api.MapGroup("").RequireAuthorization(Politicas.Operacion);
+operacion.MapAlertas();
+operacion.MapTurno();
+operacion.MapRutasActivas();
+
+// Gestión: solo administrador.
+var gestion = api.MapGroup("").RequireAuthorization(Politicas.Administrador);
+gestion.MapVehiculos();
+gestion.MapConductores();
+gestion.MapDespachos();
+gestion.MapDocumentos();
+gestion.MapMovimientos();
+gestion.MapMantenimiento();
 
 app.Run();

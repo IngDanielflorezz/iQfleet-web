@@ -7,7 +7,7 @@ services:
     env_file: .env
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      IQFLEET_CORS_ORIGINS: ${IQFLEET_CORS_ORIGINS:-http://localhost:5173}
+      IQFLEET_CORS_ORIGINS: ${IQFLEET_CORS_ORIGINS:-http://localhost:5173,https://localhost:5173}
     ports:
       - "8080:8080"
     depends_on:

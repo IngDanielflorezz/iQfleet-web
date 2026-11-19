@@ -2,19 +2,14 @@ const SESSION_KEY = "iqfleet_session";
 const EMPRESAS_CACHE_KEY = "iqfleet_empresas_cache";
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
-const API_TOKEN = import.meta.env.VITE_API_TOKEN ?? "";
 
 export const ROLES = {
   ADMINISTRADOR: "ADMINISTRADOR",
   CONDUCTOR: "CONDUCTOR",
 };
 
-function getHeaders() {
-  return {
-    "Content-Type": "application/json",
-    ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}),
-  };
-}
+// Login, registro y empresas son públicos: no llevan token.
+const JSON_HEADERS = { "Content-Type": "application/json" };
 
 async function parseError(res, fallbackMsg) {
   try {
@@ -35,9 +30,7 @@ async function parseError(res, fallbackMsg) {
 export async function syncEmpresasFromBackend() {
   try {
     const res = await fetch(`${API_URL}/api/auth/empresas`, {
-      method: "GET",
-      headers: getHeaders(),
-      credentials: "include",
+      headers: JSON_HEADERS,
     });
     if (res.ok) {
       const data = await res.json();
@@ -71,15 +64,11 @@ export async function registerUser(data) {
   const payload = {
     ...data,
     correo: data.correo.trim().toLowerCase(),
-    // Enviamos tanto password como clave por si el DTO en C# usa cualquiera de los dos nombres
-    password: data.password,
-    clave: data.password,
   };
 
   const res = await fetch(`${API_URL}/api/auth/registro`, {
     method: "POST",
-    headers: getHeaders(),
-    credentials: "include",
+    headers: JSON_HEADERS,
     body: JSON.stringify(payload),
   });
 
@@ -96,15 +85,13 @@ export async function loginUser({ correo, password, rol, empresa }) {
   const payload = {
     correo: correo.trim().toLowerCase(),
     password,
-    clave: password,
     rol,
     empresa: empresa?.trim() ?? "",
   };
 
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
-    headers: getHeaders(),
-    credentials: "include",
+    headers: JSON_HEADERS,
     body: JSON.stringify(payload),
   });
 
@@ -112,18 +99,30 @@ export async function loginUser({ correo, password, rol, empresa }) {
     throw new Error(await parseError(res, "Credenciales, rol o empresa incorrectos."));
   }
 
-  const user = await res.json();
-  saveSession(user);
-  return user;
+  // La API responde { token, expiraEn, usuario }; la sesión guarda el perfil junto con el token.
+  const { token, expiraEn, usuario } = await res.json();
+  const sesion = { ...usuario, token, expiraEn };
+  saveSession(sesion);
+  return sesion;
 }
 
+/** Sesión iniciada, o null si no hay, es de la versión sin token o el token ya venció. */
 export function getSession() {
   try {
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    return session ?? null;
+    if (!session?.token || !(Date.parse(session.expiraEn) > Date.now())) {
+      if (session) clearSession();
+      return null;
+    }
+    return session;
   } catch {
     return null;
   }
+}
+
+/** JWT de la sesión para el header Authorization (lo usa apiClient). */
+export function getToken() {
+  return getSession()?.token ?? null;
 }
 
 export function saveSession(user) {
